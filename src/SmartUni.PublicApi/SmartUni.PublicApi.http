@@ -1,0 +1,6 @@
+@SmartUni.PublicApi_HostAddress = http://localhost:5226
+
+GET {{SmartUni.PublicApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
