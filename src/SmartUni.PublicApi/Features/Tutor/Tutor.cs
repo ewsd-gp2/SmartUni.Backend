@@ -1,0 +1,31 @@
+using SmartUni.PublicApi.Common.Domain;
+using System.ComponentModel.DataAnnotations;
+
+namespace SmartUni.PublicApi.Features.Tutor
+{
+    public sealed class Tutor : BaseEntity
+    {
+        public Guid Id { get; set; }
+
+        [MaxLength(50)] public required string Name { get; set; }
+
+        [MaxLength(50)] public required string Email { get; set; }
+
+        [MaxLength(20)] public required string PhoneNumber { get; set; }
+
+        public void UpdateTutorName(string name)
+        {
+            Name = name;
+        }
+
+        public void UpdateTutorEmail(string email)
+        {
+            Email = email;
+        }
+
+        public void UpdateTutorPhoneNumber(string phoneNumber)
+        {
+            PhoneNumber = phoneNumber;
+        }
+    }
+}
