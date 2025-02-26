@@ -5,30 +5,28 @@
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+        <UserSecretsId>ce44f0eb-fc58-4843-97bf-08341bcbc785</UserSecretsId>
+        <DockerfileContext>..\..</DockerfileContext>
+        <DockerComposeProjectPath>..\..\docker-compose.dcproj</DockerComposeProjectPath>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="EFCore.NamingConventions" Version="9.0.0"/>
-        <PackageReference Include="FluentValidation" Version="12.0.0-preview1"/>
-        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.1"/>
+        <PackageReference Include="EFCore.NamingConventions" Version="9.0.0" />
+        <PackageReference Include="FluentValidation" Version="12.0.0-preview1" />
+        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.1" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.2">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.3"/>
-        <PackageReference Include="Scalar.AspNetCore" Version="2.0.12"/>
-        <PackageReference Include="Serilog.AspNetCore" Version="9.0.0"/>
-        <PackageReference Include="Serilog.Sinks.Seq" Version="9.0.0"/>
+        <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.21.0" />
+        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.3" />
+        <PackageReference Include="Scalar.AspNetCore" Version="2.0.12" />
+        <PackageReference Include="Serilog.AspNetCore" Version="9.0.0" />
+        <PackageReference Include="Serilog.Sinks.Seq" Version="9.0.0" />
     </ItemGroup>
 
     <ItemGroup>
-        <Content Include="..\..\.dockerignore">
-            <Link>.dockerignore</Link>
-        </Content>
-    </ItemGroup>
-
-    <ItemGroup>
-        <Folder Include="Common\ValueObjects\"/>
+        <Folder Include="Common\ValueObjects\" />
     </ItemGroup>
 
 </Project>

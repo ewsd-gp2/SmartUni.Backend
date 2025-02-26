@@ -1,0 +1,30 @@
+services:
+  smartuni.publicapi:
+    container_name: api
+    build:
+      context: .
+      dockerfile: src/SmartUni.PublicApi/Dockerfile
+
+  smartuni.seq:
+    container_name: seq
+    image: datalust/seq
+    ports:
+      - "8003:80"
+      - "5343:5341"
+    volumes:
+      - X:\data\Seq:/data
+    environment:
+      ACCEPT_EULA: 'Y'
+
+  smartuni.db:
+    container_name: db
+    image: postgres
+    restart: always
+    ports:
+        - "5432:5432"
+    environment:
+      - POSTGRES_DB=smartuni
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - X:\data\Postgres:/var/lib/postgresql/data

@@ -1,5 +1,6 @@
 using Scalar.AspNetCore;
 using Serilog;
+using SmartUni.PublicApi.Extensions;
 using SmartUni.PublicApi.Host;
 using SmartUni.PublicApi.Persistence;
 using System.Reflection;
@@ -19,15 +20,13 @@ builder.Services.AddDbContext<SmartUniDbContext>(optionsBuilder =>
 
 WebApplication app = builder.Build();
 
-if (app.Environment.IsDevelopment())
+app.MapOpenApi();
+app.MapScalarApiReference(options =>
 {
-    app.MapOpenApi();
-    app.MapScalarApiReference(options =>
-    {
-        options.WithDefaultHttpClient(ScalarTarget.JavaScript, ScalarClient.Axios);
-        options.WithTheme(ScalarTheme.Kepler);
-    });
-}
+    options.WithDefaultHttpClient(ScalarTarget.JavaScript, ScalarClient.Axios);
+    options.WithTheme(ScalarTheme.Kepler);
+});
+app.ApplyMigrations();
 
 app.UseProductionExceptionHandler();
 app.RegisterEndpoints(appAssembly);
