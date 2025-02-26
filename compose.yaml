@@ -1,6 +1,0 @@
-﻿services:
-  smartuni.publicapi:
-    image: smartuni.publicapi
-    build:
-      context: .
-      dockerfile: src/SmartUni.PublicApi/Dockerfile
