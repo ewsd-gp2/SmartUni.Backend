@@ -1,0 +1,75 @@
+﻿using FluentValidation;
+using FluentValidation.Results;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
+using SmartUni.PublicApi.Persistence;
+
+namespace SmartUni.PublicApi.Features.Student.Commands
+{
+    public class EditStudent
+    {
+        private sealed record Request(string Name, string Email, string PhoneNumber, bool IsDeleted);
+
+        public sealed class Endpoint : IEndpoint
+        {
+            public static void MapEndpoint(IEndpointRouteBuilder endpoints)
+            {
+                endpoints.MapPut("/editStudent/{id:guid}",
+                        ([FromRoute] Guid id, [FromBody] Request request, [FromServices] ILogger<Endpoint> logger,
+                                [FromServices] SmartUniDbContext dbContext, CancellationToken cancellationToken) =>
+                            HandleAsync(id, request, logger, dbContext, cancellationToken))
+                    .Produces<Ok>()
+                    .Produces<BadRequest<ValidationResult>>(StatusCodes.Status400BadRequest)
+                    .Produces<NotFound>(StatusCodes.Status404NotFound)
+                    .ProducesValidationProblem()
+                    .WithTags(nameof(Student));
+            }
+
+            private static async Task<Results<Ok, IResult>> HandleAsync(
+                Guid id,
+                Request request,
+                ILogger<Endpoint> logger,
+                SmartUniDbContext dbContext,
+                CancellationToken cancellationToken)
+            {
+                logger.LogInformation("Submitted to edit staff with ID: {Id} and request: {Request}", id, request);
+
+                ValidationResult? validationResult = await new Validator().ValidateAsync(request, cancellationToken);
+                if (!validationResult.IsValid)
+                {
+                    logger.LogWarning("Request failed validation with errors: {Errors}", validationResult.Errors);
+                    return TypedResults.BadRequest(validationResult);
+                }
+
+                Student? staff = await dbContext.Student.FindAsync([id], cancellationToken);
+
+                if (staff is null)
+                {
+                    logger.LogWarning("Staff with ID: {Id} not found", id);
+                    return TypedResults.NotFound();
+                }
+
+                staff.UpdateStudentName(request.Name);
+                staff.UpdateStudentEmail(request.Email);
+                staff.UpdateStudentPhoneNumber(request.PhoneNumber);
+                staff.DeleteStudentfAcc(request.IsDeleted);
+                await dbContext.SaveChangesAsync(cancellationToken);
+
+                logger.LogInformation("Successfully edited staff with ID: {Id}", id);
+
+                return TypedResults.Ok();
+            }
+        }
+
+        private sealed class Validator : AbstractValidator<Request>
+        {
+            public Validator()
+            {
+                RuleFor(x => x.Name).NotEmpty();
+                RuleFor(x => x.Email).NotEmpty().EmailAddress();
+                RuleFor(x => x.PhoneNumber).NotEmpty();
+                RuleFor(x => x.IsDeleted).NotEmpty();
+            }
+        }
+    }
+}
