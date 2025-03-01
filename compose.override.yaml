@@ -1,13 +1,4 @@
-services:
-  smartuni.db:
-    container_name: smartuni.db
-    restart: always
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data/
-
-  smartuni.api:
-    container_name: smartuni.api
-    depends_on:
-      - smartuni.db
+#services:
+#  smartuni.db:
+#    ports:
+#      - "5432:5432"

@@ -31,6 +31,6 @@ app.ApplyMigrations();
 app.UseProductionExceptionHandler();
 app.RegisterEndpoints(appAssembly);
 // app.UseSerilogRequestLogging();
-app.UseHttpsRedirection();
-app.UseHsts();
+// app.UseHttpsRedirection();
+// app.UseHsts();
 app.Run();
