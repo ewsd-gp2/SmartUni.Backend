@@ -9,8 +9,5 @@ services:
 
   smartuni.api:
     container_name: smartuni.api
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Development.docker
-      - "ConnectionStrings:SmartUniDb=Server=smartuni.db;Port=5432;Database=smartuni;User Id=postgres;Password=postgres;"
     depends_on:
       - smartuni.db
