@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SmartUni.PublicApi.Persistence;
@@ -11,9 +12,11 @@ using SmartUni.PublicApi.Persistence;
 namespace SmartUni.PublicApi.Migrations
 {
     [DbContext(typeof(SmartUniDbContext))]
-    partial class SmartUniDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250219131401_staff")]
+    partial class staff
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,47 +24,6 @@ namespace SmartUni.PublicApi.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
-
-            modelBuilder.Entity("SmartUni.PublicApi.Features.Allocation.Allocation", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uuid")
-                        .HasColumnName("created_by");
-
-                    b.Property<Guid?>("UpdatedBy")
-                        .HasColumnType("uuid")
-                        .HasColumnName("updated_by");
-
-                    b.Property<DateTime?>("UpdatedOn")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_on");
-
-                    b.Property<bool>("is_allocated")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_allocated");
-
-                    b.Property<bool>("is_deleted")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_deleted");
-
-                    b.Property<Guid>("student_id")
-                        .HasColumnType("uuid")
-                        .HasColumnName("student_id");
-
-                    b.Property<Guid>("tutor_id")
-                        .HasColumnType("uuid")
-                        .HasColumnName("tutor_id");
-
-                    b.HasKey("Id")
-                        .HasName("pk_allocation");
-
-                    b.ToTable("allocation", (string)null);
-                });
 
             modelBuilder.Entity("SmartUni.PublicApi.Features.Staff.Staff", b =>
                 {
@@ -100,71 +62,10 @@ namespace SmartUni.PublicApi.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_on");
 
-                    b.Property<string>("gender")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("gender");
-
-                    b.Property<bool>("is_deleted")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_deleted");
-
                     b.HasKey("Id")
                         .HasName("pk_staff");
 
                     b.ToTable("staff", (string)null);
-                });
-
-            modelBuilder.Entity("SmartUni.PublicApi.Features.Student.Student", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uuid")
-                        .HasColumnName("created_by");
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("email");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("name");
-
-                    b.Property<string>("PhoneNumber")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)")
-                        .HasColumnName("phone_number");
-
-                    b.Property<Guid?>("UpdatedBy")
-                        .HasColumnType("uuid")
-                        .HasColumnName("updated_by");
-
-                    b.Property<DateTime?>("UpdatedOn")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_on");
-
-                    b.Property<string>("gender")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("gender");
-
-                    b.Property<bool>("is_deleted")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_deleted");
-
-                    b.HasKey("Id")
-                        .HasName("pk_student");
-
-                    b.ToTable("student", (string)null);
                 });
 
             modelBuilder.Entity("SmartUni.PublicApi.Features.Tutor.Tutor", b =>
