@@ -11,6 +11,6 @@ docker compose up
 ```
 
 ### Test
-API project will now listen at https://localhost:7142/scalar/v1
+API project will now listen at http://localhost:7142/scalar/v1
 
 To see logs, browse seq at http://localhost:8080
