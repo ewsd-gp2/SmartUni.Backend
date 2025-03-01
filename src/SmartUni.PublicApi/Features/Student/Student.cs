@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace SmartUni.PublicApi.Features.Student
 {
-    public class Student:BaseEntity
+    public class Student : BaseEntity
     {
         public Guid Id { get; set; }
 
@@ -12,8 +12,8 @@ namespace SmartUni.PublicApi.Features.Student
         [MaxLength(50)] public required string Email { get; set; }
 
         [MaxLength(20)] public required string PhoneNumber { get; set; }
-        public required bool is_deleted { get; set; }
-        public required string gender { get; set; }
+        public required bool IsDeleted { get; set; }
+        public required string Gender { get; set; }
 
         public void UpdateStudentName(string name)
         {
@@ -29,9 +29,10 @@ namespace SmartUni.PublicApi.Features.Student
         {
             PhoneNumber = phoneNumber;
         }
+
         public void DeleteStudentfAcc(bool isdeleted)
         {
-            is_deleted = isdeleted;
+            IsDeleted = isdeleted;
         }
     }
 }

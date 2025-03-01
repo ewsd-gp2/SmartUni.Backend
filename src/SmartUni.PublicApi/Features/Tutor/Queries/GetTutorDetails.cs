@@ -6,7 +6,15 @@ namespace SmartUni.PublicApi.Features.Tutor.Queries
 {
     public class GetTutorDetails
     {
-        private sealed record Response(Guid Id, string Name, string Email, string PhoneNumber);
+        private sealed record Response(
+            Guid Id,
+            string Name,
+            string Email,
+            string PhoneNumber,
+            string Gender,
+            string Major);
+
+        private sealed record StudentResponse(Guid Id, string Name, string Email, string PhoneNumber);
 
         public sealed class Endpoint : IEndpoint
         {
@@ -36,7 +44,8 @@ namespace SmartUni.PublicApi.Features.Tutor.Queries
                     return TypedResults.NotFound();
                 }
 
-                Response response = new(tutor.Id, tutor.Name, tutor.Email, tutor.PhoneNumber);
+                Response response = new(tutor.Id, tutor.Name, tutor.Email, tutor.PhoneNumber, tutor.Gender.ToString(),
+                    tutor.Major.ToString());
                 logger.LogInformation("Successfully fetched details for tutor with ID: {Id}", id);
                 return TypedResults.Ok(response);
             }

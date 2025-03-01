@@ -19,39 +19,41 @@ namespace SmartUni.PublicApi.Features.Allocation.Commands
                     .WithTags(nameof(Allocation));
             }
 
-            private static async Task<Results<Created<RequestModel>, BadRequest<Dictionary<string, string[]>>>> HandleAsync(
-                ILogger<Endpoint> logger,
-                SmartUniDbContext dbContext,
-                Request request,
-                CancellationToken cancellationToken)
+            private static async Task<Results<Created<RequestModel>, BadRequest<Dictionary<string, string[]>>>>
+                HandleAsync(
+                    ILogger<Endpoint> logger,
+                    SmartUniDbContext dbContext,
+                    Request request,
+                    CancellationToken cancellationToken)
             {
                 logger.LogInformation("Submitted to create a new allocation with request: {Request}", request);
 
-                var validator = new Validator();
+                Validator validator = new();
                 ValidationResult? validationResult = await validator.ValidateAsync(request, cancellationToken);
                 if (!validationResult.IsValid)
                 {
                     logger.LogWarning("Request failed validation with errors: {Errors}", validationResult.Errors);
 
                     // Create a dictionary to hold validation errors
-                    var errors = validationResult.Errors
+                    Dictionary<string, string[]> errors = validationResult.Errors
                         .GroupBy(e => e.PropertyName)
                         .ToDictionary(
                             g => g.Key,
                             g => g.Select(e => e.ErrorMessage).ToArray()
                         );
 
-                    return TypedResults.BadRequest(errors); 
+                    return TypedResults.BadRequest(errors);
                 }
 
-                List<Allocation> allocations =MapToDomain(request.Data);
+                List<Allocation> allocations = MapToDomain(request.Data);
 
                 await dbContext.Allocations.AddRangeAsync(allocations, cancellationToken);
                 await dbContext.SaveChangesAsync(cancellationToken);
 
-                logger.LogInformation("Successfully created allocations with IDs: {Ids}", string.Join(", ", allocations.Select(a => a.Id)));
+                logger.LogInformation("Successfully created allocations with IDs: {Ids}",
+                    string.Join(", ", allocations.Select(a => a.Id)));
 
-                return TypedResults.Created("/allocation", request.Data); 
+                return TypedResults.Created("/allocation", request.Data);
             }
 
             private static List<Allocation> MapToDomain(RequestModel requestModel)
@@ -60,11 +62,11 @@ namespace SmartUni.PublicApi.Features.Allocation.Commands
                 return requestModel.requestAllocationModels.Select(requestAllocation => new Allocation
                 {
                     Id = Guid.NewGuid(),
-                    student_id = requestAllocation.StudentID,  
-                    tutor_id = requestAllocation.TutorID,     
-                    is_deleted = false, 
-                    is_allocated = true,  
-                    CreatedBy = requestModel.CreatedBy 
+                    StudentId = requestAllocation.StudentID,
+                    TutorId = requestAllocation.TutorID,
+                    IsDeleted = false,
+                    IsAllocated = true,
+                    CreatedBy = requestModel.CreatedBy
                 }).ToList();
             }
         }
@@ -73,7 +75,8 @@ namespace SmartUni.PublicApi.Features.Allocation.Commands
         {
             public Validator()
             {
-                RuleFor(x => x.Data.requestAllocationModels).NotEmpty().WithMessage("At least one allocation is required.");
+                RuleFor(x => x.Data.requestAllocationModels).NotEmpty()
+                    .WithMessage("At least one allocation is required.");
 
                 RuleForEach(x => x.Data.requestAllocationModels).ChildRules(request =>
                 {

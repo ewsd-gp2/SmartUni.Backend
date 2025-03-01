@@ -2,6 +2,7 @@ using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using SmartUni.PublicApi.Common.Domain;
 using SmartUni.PublicApi.Extensions;
 using SmartUni.PublicApi.Persistence;
 
@@ -9,7 +10,12 @@ namespace SmartUni.PublicApi.Features.Tutor.Commands
 {
     public class EditTutor
     {
-        private sealed record Request(string Name, string Email, string PhoneNumber);
+        private sealed record Request(
+            string Name,
+            string Email,
+            string PhoneNumber,
+            Enums.GenderType Gender,
+            Enums.MajorType Major);
 
         public sealed class Endpoint : IEndpoint
         {
@@ -50,7 +56,11 @@ namespace SmartUni.PublicApi.Features.Tutor.Commands
                     return TypedResults.NotFound();
                 }
 
-                tutor.UpdateTutorName(request.Name);
+                tutor.Name = request.Name;
+                tutor.Email = request.Email;
+                tutor.PhoneNumber = request.PhoneNumber;
+                tutor.Gender = request.Gender;
+                tutor.Major = request.Major;
                 await dbContext.SaveChangesAsync(cancellationToken);
 
                 logger.LogInformation("Successfully edited tutor with ID: {Id}", id);
@@ -64,8 +74,10 @@ namespace SmartUni.PublicApi.Features.Tutor.Commands
             public Validator()
             {
                 RuleFor(x => x.Name).NotEmpty();
-                RuleFor(x => x.Email).NotEmpty().EmailAddress();
-                RuleFor(x => x.PhoneNumber).NotEmpty().PhoneNumber();
+                RuleFor(x => x.Email).CustomEmailAddress();
+                RuleFor(x => x.PhoneNumber).PhoneNumber();
+                RuleFor(x => x.Gender).IsInEnum();
+                RuleFor(x => x.Major).IsInEnum();
             }
         }
     }

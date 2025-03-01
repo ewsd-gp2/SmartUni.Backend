@@ -1,11 +1,18 @@
 using Microsoft.AspNetCore.Http.HttpResults;
+using SmartUni.PublicApi.Common.Domain;
 using SmartUni.PublicApi.Persistence;
 
 namespace SmartUni.PublicApi.Features.Tutor.Queries
 {
     public class GetAllTutors
     {
-        private record Response(Guid Id, string Name, string Email, string PhoneNumber);
+        private record Response(
+            Guid Id,
+            string Name,
+            string Email,
+            string PhoneNumber,
+            Enums.GenderType Gender,
+            Enums.MajorType Major);
 
         public sealed class Endpoint : IEndpoint
         {
@@ -24,7 +31,7 @@ namespace SmartUni.PublicApi.Features.Tutor.Queries
                 logger.LogInformation("Submitted to get all tutors");
 
                 IEnumerable<Response> tutors = await dbContext.Tutor
-                    .Select(t => new Response(t.Id, t.Name, t.Email, t.PhoneNumber))
+                    .Select(t => new Response(t.Id, t.Name, t.Email, t.PhoneNumber, t.Gender, t.Major))
                     .ToListAsync(cancellationToken);
 
                 if (!tutors.Any())

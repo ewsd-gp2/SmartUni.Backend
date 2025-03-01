@@ -6,7 +6,13 @@ namespace SmartUni.PublicApi.Features.Staff.Queries
 {
     public class GetStaffDetail
     {
-        private sealed record Response(Guid Id, string Name, string Email, string PhoneNumber, string Gender, bool IsDeleted);
+        private sealed record Response(
+            Guid Id,
+            string Name,
+            string Email,
+            string PhoneNumber,
+            string Gender,
+            bool IsDeleted);
 
         public sealed class Endpoint : IEndpoint
         {
@@ -36,7 +42,8 @@ namespace SmartUni.PublicApi.Features.Staff.Queries
                     return TypedResults.NotFound();
                 }
 
-                Response response = new(staff.Id, staff.Name, staff.Email, staff.PhoneNumber,staff.gender,staff.is_deleted);
+                Response response = new(staff.Id, staff.Name, staff.Email, staff.PhoneNumber, staff.Gender,
+                    staff.IsDeleted);
                 logger.LogInformation("Successfully fetched details for staff with ID: {Id}", id);
                 return TypedResults.Ok(response);
             }

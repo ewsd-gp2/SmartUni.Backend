@@ -13,6 +13,12 @@ namespace SmartUni.PublicApi.Features.Tutor
 
         [MaxLength(20)] public required string PhoneNumber { get; set; }
 
+        public required Enums.GenderType Gender { get; set; }
+
+        public required Enums.MajorType Major { get; set; }
+
+        public bool IsDeleted { get; private set; }
+
         public void UpdateTutorName(string name)
         {
             Name = name;
@@ -26,6 +32,11 @@ namespace SmartUni.PublicApi.Features.Tutor
         public void UpdateTutorPhoneNumber(string phoneNumber)
         {
             PhoneNumber = phoneNumber;
+        }
+
+        public void DeleteTutor()
+        {
+            IsDeleted = true;
         }
     }
 }

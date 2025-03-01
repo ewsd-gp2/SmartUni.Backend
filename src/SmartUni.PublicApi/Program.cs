@@ -2,7 +2,6 @@ using Scalar.AspNetCore;
 using Serilog;
 using SmartUni.PublicApi.Extensions;
 using SmartUni.PublicApi.Host;
-using SmartUni.PublicApi.Persistence;
 using System.Reflection;
 
 Assembly appAssembly = Assembly.GetExecutingAssembly();
@@ -13,10 +12,7 @@ builder.Services.AddOpenApi();
 builder.Host.UseSerilog((context, configuration) =>
     configuration.ReadFrom.Configuration(context.Configuration));
 
-builder.Services.AddDbContext<SmartUniDbContext>(optionsBuilder =>
-{
-    optionsBuilder.UseNpgsql(builder.Configuration.GetConnectionString("SmartUniDb"));
-});
+builder.Services.AddDatabase(builder.Configuration);
 
 WebApplication app = builder.Build();
 

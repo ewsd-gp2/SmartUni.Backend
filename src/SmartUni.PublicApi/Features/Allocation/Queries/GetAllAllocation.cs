@@ -24,7 +24,7 @@ namespace SmartUni.PublicApi.Features.Allocation.Queries
                 logger.LogInformation("Submitted to get all allocations");
 
                 IEnumerable<Response> allocation = await dbContext.Allocations
-                    .Select(t => new Response(t.Id, t.tutor_id, t.student_id, t.is_deleted,t.is_allocated))
+                    .Select(t => new Response(t.Id, t.TutorId, t.StudentId, t.IsDeleted, t.IsAllocated))
                     .ToListAsync(cancellationToken);
 
                 if (!allocation.Any())
@@ -33,7 +33,8 @@ namespace SmartUni.PublicApi.Features.Allocation.Queries
                     return TypedResults.NotFound();
                 }
 
-                logger.LogInformation("Successfully retrieved all allocations. Found {AllocationCount} allocations", allocation.Count());
+                logger.LogInformation("Successfully retrieved all allocations. Found {AllocationCount} allocations",
+                    allocation.Count());
                 return TypedResults.Ok(allocation);
             }
         }

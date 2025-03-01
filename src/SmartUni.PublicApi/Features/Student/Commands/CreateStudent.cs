@@ -51,8 +51,8 @@ namespace SmartUni.PublicApi.Features.Student.Commands
                     Name = request.Name,
                     Email = request.Email,
                     PhoneNumber = request.PhoneNumber,
-                    is_deleted = false,
-                    gender = request.Gender,
+                    IsDeleted = false,
+                    Gender = request.Gender,
                     CreatedBy = request.CreatedBy
                 };
             }
@@ -82,8 +82,6 @@ namespace SmartUni.PublicApi.Features.Student.Commands
                     .Matches(@"^[M|F]$").WithMessage("Gender must be 'M' or 'F'");
                 RuleFor(x => x.CreatedBy)
                     .NotEmpty().WithMessage("Created By is required");
-
-
             }
         }
     }

@@ -1,6 +1,5 @@
 ﻿using FluentValidation;
 using Microsoft.AspNetCore.Http.HttpResults;
-using SmartUni.PublicApi.Extensions;
 using SmartUni.PublicApi.Persistence;
 using ValidationResult = FluentValidation.Results.ValidationResult;
 
@@ -52,8 +51,8 @@ namespace SmartUni.PublicApi.Features.Staff.Commands
                     Name = request.Name,
                     Email = request.Email,
                     PhoneNumber = request.PhoneNumber,
-                    is_deleted = false,
-                    gender = request.Gender,
+                    IsDeleted = false,
+                    Gender = request.Gender,
                     CreatedBy = request.CreatedBy
                 };
             }
@@ -83,8 +82,6 @@ namespace SmartUni.PublicApi.Features.Staff.Commands
                     .Matches(@"^[M|F]$").WithMessage("Gender must be 'M' or 'F'");
                 RuleFor(x => x.CreatedBy)
                     .NotEmpty().WithMessage("Created By is required");
-               
-
             }
         }
     }

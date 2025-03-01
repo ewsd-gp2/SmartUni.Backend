@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
+using SmartUni.PublicApi.Common.Domain;
 using SmartUni.PublicApi.Persistence;
 
 #nullable disable
@@ -20,6 +21,8 @@ namespace SmartUni.PublicApi.Migrations
                 .HasAnnotation("ProductVersion", "9.0.2")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
+            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "gender", new[] { "female", "male" });
+            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "major", new[] { "computing", "information_systems", "networking" });
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
             modelBuilder.Entity("SmartUni.PublicApi.Features.Allocation.Allocation", b =>
@@ -33,6 +36,22 @@ namespace SmartUni.PublicApi.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("created_by");
 
+                    b.Property<bool>("IsAllocated")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_allocated");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<Guid>("StudentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("student_id");
+
+                    b.Property<Guid>("TutorId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tutor_id");
+
                     b.Property<Guid?>("UpdatedBy")
                         .HasColumnType("uuid")
                         .HasColumnName("updated_by");
@@ -40,22 +59,6 @@ namespace SmartUni.PublicApi.Migrations
                     b.Property<DateTime?>("UpdatedOn")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_on");
-
-                    b.Property<bool>("is_allocated")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_allocated");
-
-                    b.Property<bool>("is_deleted")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_deleted");
-
-                    b.Property<Guid>("student_id")
-                        .HasColumnType("uuid")
-                        .HasColumnName("student_id");
-
-                    b.Property<Guid>("tutor_id")
-                        .HasColumnType("uuid")
-                        .HasColumnName("tutor_id");
 
                     b.HasKey("Id")
                         .HasName("pk_allocation");
@@ -80,6 +83,15 @@ namespace SmartUni.PublicApi.Migrations
                         .HasColumnType("character varying(50)")
                         .HasColumnName("email");
 
+                    b.Property<string>("Gender")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("gender");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -99,15 +111,6 @@ namespace SmartUni.PublicApi.Migrations
                     b.Property<DateTime?>("UpdatedOn")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_on");
-
-                    b.Property<string>("gender")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("gender");
-
-                    b.Property<bool>("is_deleted")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_deleted");
 
                     b.HasKey("Id")
                         .HasName("pk_staff");
@@ -132,6 +135,15 @@ namespace SmartUni.PublicApi.Migrations
                         .HasColumnType("character varying(50)")
                         .HasColumnName("email");
 
+                    b.Property<string>("Gender")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("gender");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -151,15 +163,6 @@ namespace SmartUni.PublicApi.Migrations
                     b.Property<DateTime?>("UpdatedOn")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_on");
-
-                    b.Property<string>("gender")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("gender");
-
-                    b.Property<bool>("is_deleted")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_deleted");
 
                     b.HasKey("Id")
                         .HasName("pk_student");
@@ -183,6 +186,18 @@ namespace SmartUni.PublicApi.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)")
                         .HasColumnName("email");
+
+                    b.Property<Enums.GenderType>("Gender")
+                        .HasColumnType("gender")
+                        .HasColumnName("gender");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<Enums.MajorType>("Major")
+                        .HasColumnType("major")
+                        .HasColumnName("major");
 
                     b.Property<string>("Name")
                         .IsRequired()

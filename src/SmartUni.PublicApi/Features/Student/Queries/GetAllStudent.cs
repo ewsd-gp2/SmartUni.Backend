@@ -1,14 +1,19 @@
 ﻿using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.EntityFrameworkCore;
 using SmartUni.PublicApi.Persistence;
-using System.Threading;
 
 namespace SmartUni.PublicApi.Features.Student.Queries
 {
     public class GetAllStudent
     {
         //private record Response(Guid Id, string Name, string Email, string PhoneNumber,string Gender,bool IsDeleted,bool isAllocated);
-        private record Response(Guid Id, string Name, string Email, string PhoneNumber, string Gender, bool IsDeleted, bool IsAllocated);
+        private record Response(
+            Guid Id,
+            string Name,
+            string Email,
+            string PhoneNumber,
+            string Gender,
+            bool IsDeleted,
+            bool IsAllocated);
 
 
         public sealed class Endpoint : IEndpoint
@@ -32,26 +37,27 @@ namespace SmartUni.PublicApi.Features.Student.Queries
                 //    .ToListAsync(cancellationToken);
 
                 var student = await dbContext.Student
-      .GroupJoin(
-          dbContext.Allocations,
-          student => student.Id,
-          allocation => allocation.student_id,
-          (student, allocations) => new { student, allocations } // GroupJoin returns a collection
-      )
-      .SelectMany(
-          x => x.allocations.DefaultIfEmpty(), // Ensures all students are included, even if no allocation exists
-          (x, allocation) => new
-          {
-              Id = x.student.Id,
-              Name = x.student.Name,
-              Email = x.student.Email,
-              PhoneNumber = x.student.PhoneNumber,
-              Gender = x.student.gender,
-              IsDeleted = x.student.is_deleted,
-              IsAllocated = allocation != null ? allocation.is_allocated : false // Handle null allocation
-          }
-      )
-      .ToListAsync(cancellationToken);
+                    .GroupJoin(
+                        dbContext.Allocations,
+                        student => student.Id,
+                        allocation => allocation.StudentId,
+                        (student, allocations) => new { student, allocations } // GroupJoin returns a collection
+                    )
+                    .SelectMany(
+                        x => x.allocations
+                            .DefaultIfEmpty(), // Ensures all students are included, even if no allocation exists
+                        (x, allocation) => new
+                        {
+                            x.student.Id,
+                            x.student.Name,
+                            x.student.Email,
+                            x.student.PhoneNumber,
+                            x.student.Gender,
+                            x.student.IsDeleted,
+                            IsAllocated = allocation != null ? allocation.IsAllocated : false // Handle null allocation
+                        }
+                    )
+                    .ToListAsync(cancellationToken);
 
                 if (!student.Any())
                 {
@@ -59,7 +65,8 @@ namespace SmartUni.PublicApi.Features.Student.Queries
                     return TypedResults.NotFound();
                 }
 
-                logger.LogInformation("Successfully retrieved all students. Found {StudentCount} students", student.Count());
+                logger.LogInformation("Successfully retrieved all students. Found {StudentCount} students",
+                    student.Count());
                 return TypedResults.Ok(student);
             }
         }

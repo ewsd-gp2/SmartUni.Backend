@@ -1,5 +1,6 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Http.HttpResults;
+using SmartUni.PublicApi.Common.Domain;
 using SmartUni.PublicApi.Extensions;
 using SmartUni.PublicApi.Persistence;
 using ValidationResult = FluentValidation.Results.ValidationResult;
@@ -8,7 +9,12 @@ namespace SmartUni.PublicApi.Features.Tutor.Commands
 {
     public sealed class CreateTutor
     {
-        private sealed record Request(string Name, string Email, string PhoneNumber);
+        private sealed record Request(
+            string Name,
+            string Email,
+            string PhoneNumber,
+            string Gender,
+            string Major);
 
         public sealed class Endpoint : IEndpoint
         {
@@ -50,7 +56,9 @@ namespace SmartUni.PublicApi.Features.Tutor.Commands
                     Id = Guid.NewGuid(),
                     Name = request.Name,
                     Email = request.Email,
-                    PhoneNumber = request.PhoneNumber
+                    PhoneNumber = request.PhoneNumber,
+                    Gender = Enum.Parse<Enums.GenderType>(request.Gender),
+                    Major = Enum.Parse<Enums.MajorType>(request.Major)
                 };
                 return tutor;
             }
@@ -65,8 +73,9 @@ namespace SmartUni.PublicApi.Features.Tutor.Commands
                     .MaximumLength(50).WithMessage("Tutor name must not exceed 50 characters");
 
                 RuleFor(x => x.Email).CustomEmailAddress();
-
                 RuleFor(x => x.PhoneNumber).PhoneNumber();
+                RuleFor(x => x.Gender).IsEnumName(typeof(Enums.GenderType));
+                RuleFor(x => x.Major).IsEnumName(typeof(Enums.MajorType));
             }
         }
     }

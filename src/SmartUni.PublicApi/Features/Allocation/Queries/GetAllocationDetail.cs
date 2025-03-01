@@ -1,13 +1,20 @@
 ﻿using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
-using SmartUni.PublicApi.Features.Staff;
 using SmartUni.PublicApi.Persistence;
 
 namespace SmartUni.PublicApi.Features.Allocation.Queries
 {
     public class GetAllocationDetail
     {
-        private sealed record Response(Guid Id, string TutorName,Guid TutorID, string StudentName,Guid StudentID,Guid CreatedBy,string StaffName, bool Is_Deleted);
+        private sealed record Response(
+            Guid Id,
+            string TutorName,
+            Guid TutorID,
+            string StudentName,
+            Guid StudentID,
+            Guid CreatedBy,
+            string StaffName,
+            bool Is_Deleted);
 
         public sealed class Endpoint : IEndpoint
         {
@@ -33,22 +40,22 @@ namespace SmartUni.PublicApi.Features.Allocation.Queries
                 var detailAllocation = await dbContext.Allocations
                     .Where(x => x.Id == id)
                     .Join(dbContext.Student,
-                        allocation => allocation.student_id,
+                        allocation => allocation.StudentId,
                         student => student.Id,
                         (allocation, student) => new { allocation, student })
                     .Join(dbContext.Tutor,
-                        allocationAndStudent => allocationAndStudent.allocation.tutor_id,
+                        allocationAndStudent => allocationAndStudent.allocation.TutorId,
                         tutor => tutor.Id,
                         (allocationAndStudent, tutor) => new
                         {
                             Allocation = allocationAndStudent.allocation,
                             StudentName = allocationAndStudent.student.Name,
-                            StudentID = allocationAndStudent.student.Id, 
+                            StudentID = allocationAndStudent.student.Id,
                             TutorName = tutor.Name,
-                            TutorID = tutor.Id, 
+                            TutorID = tutor.Id,
                             AllocationID = allocationAndStudent.allocation.Id,
-                            CreatedBy = allocationAndStudent.allocation.CreatedBy,
-                            IsDeleted = allocationAndStudent.allocation.is_deleted
+                            allocationAndStudent.allocation.CreatedBy,
+                            allocationAndStudent.allocation.IsDeleted
                         })
                     .Join(dbContext.Staff,
                         allocationAndTutor => allocationAndTutor.CreatedBy,
@@ -61,22 +68,22 @@ namespace SmartUni.PublicApi.Features.Allocation.Queries
                             allocationAndTutor.TutorName,
                             allocationAndTutor.TutorID,
                             allocationAndTutor.CreatedBy,
-                            StaffName = staff.Name, 
-                            IsDeleted = allocationAndTutor.IsDeleted
+                            StaffName = staff.Name,
+                            allocationAndTutor.IsDeleted
                         })
                     .FirstOrDefaultAsync(cancellationToken);
 
                 if (detailAllocation != null)
                 {
-                    var response = new Response(
-                        detailAllocation.AllocationID,  
-                        detailAllocation.TutorName,    
-                        detailAllocation.TutorID,       
-                        detailAllocation.StudentName,   
-                        detailAllocation.StudentID,     
-                        detailAllocation.CreatedBy,     
-                        detailAllocation.StaffName,     
-                        detailAllocation.IsDeleted     
+                    Response response = new(
+                        detailAllocation.AllocationID,
+                        detailAllocation.TutorName,
+                        detailAllocation.TutorID,
+                        detailAllocation.StudentName,
+                        detailAllocation.StudentID,
+                        detailAllocation.CreatedBy,
+                        detailAllocation.StaffName,
+                        detailAllocation.IsDeleted
                     );
 
                     logger.LogInformation("Successfully fetched details for allocation with ID: {Id}", id);
@@ -88,6 +95,5 @@ namespace SmartUni.PublicApi.Features.Allocation.Queries
                 return TypedResults.NotFound();
             }
         }
-
     }
 }
