@@ -1,0 +1,36 @@
+﻿services:
+  smartuni.db:
+    image: postgres
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=smartuni
+
+  smartuni.api:
+    image: smartuni.api
+    build:
+      context: .
+      dockerfile: ./src/SmartUni.PublicApi/Dockerfile
+    depends_on:
+      - smartuni.db
+    ports:
+      - "7142:7142"
+    environment:
+      - ASPNETCORE_HTTPs_PORT=7142
+      - ASPNETCORE_URLS=https://+:7142
+      - ASPNETCORE_ENVIRONMENT=Development.docker
+      - Kestrel__Certificates__Default__Path=/https/smartuni.pfx
+      - Kestrel__Certificates__Default__Password=very_strong_password
+    volumes:
+      - X:\aspnet\https:/https:ro
+  
+  smartuni.seq:
+    image: datalust/seq:latest
+    ports:
+      - "5341:5341"
+      - "8080:80"
+    environment:
+      - ACCEPT_EULA=Y
+
+volumes:
+  postgres_data:
