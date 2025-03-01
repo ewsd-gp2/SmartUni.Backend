@@ -1,0 +1,40 @@
+﻿services:
+  smartuni.db:
+    image: postgres
+    container_name: smartuni.db
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=smartuni
+    restart: always
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+
+  smartuni.api:
+    container_name: smartuni.api
+    build:
+      context: .
+      dockerfile: ./src/SmartUni.PublicApi/Dockerfile
+    depends_on:
+      - smartuni.db
+    ports:
+      - "7142:7142"
+    environment:
+      - ASPNETCORE_HTTP_PORT=7142
+      - ASPNETCORE_URLS=http://+:7142
+      - ASPNETCORE_ENVIRONMENT=Development.docker
+      - "ConnectionStrings:SmartUniDb=Server=smartuni.db;Port=5432;Database=smartuni;User Id=postgres;Password=postgres;"
+  
+  smartuni.seq:
+    image: datalust/seq:latest
+    container_name: smartuni.seq
+    ports:
+      - "5341:5341"
+      - "8080:80"
+    environment:
+      - ACCEPT_EULA=Y
+
+volumes:
+  postgres_data:
