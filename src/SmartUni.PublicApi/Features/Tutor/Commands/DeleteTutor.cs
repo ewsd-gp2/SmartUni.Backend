@@ -14,7 +14,7 @@ namespace SmartUni.PublicApi.Features.Tutor.Commands
                     .WithTags(nameof(Tutor));
             }
 
-            private static async Task<Results<NoContent, NotFound>> HandleAsync(
+            private static async Task<Results<Ok, NotFound>> HandleAsync(
                 ILogger<Endpoint> logger,
                 SmartUniDbContext dbContext,
                 Guid id,
@@ -33,7 +33,7 @@ namespace SmartUni.PublicApi.Features.Tutor.Commands
                 await dbContext.SaveChangesAsync(cancellationToken);
 
                 logger.LogInformation("Successfully deleted tutor with ID: {Id}", id);
-                return TypedResults.NoContent();
+                return TypedResults.Ok();
             }
         }
     }
