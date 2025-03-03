@@ -1,17 +1,18 @@
 ﻿using Microsoft.AspNetCore.Http.HttpResults;
+using SmartUni.PublicApi.Common.Domain;
 using SmartUni.PublicApi.Persistence;
 
 namespace SmartUni.PublicApi.Features.Staff.Queries
 {
     public class GetAllStaff
     {
-        private record Response(Guid Id, string Name, string Email, string PhoneNumber, string Gender, bool IsDeleted);
+        private record Response(Guid Id, string Name, string Email, string PhoneNumber, Enums.GenderType Gender, bool IsDeleted);
 
         public sealed class Endpoint : IEndpoint
         {
             public static void MapEndpoint(IEndpointRouteBuilder endpoints)
             {
-                endpoints.MapGet("/getStaffList", HandleAsync)
+                endpoints.MapGet("/staff", HandleAsync)
                     .Produces<Results<IResult, NotFound>>()
                     .WithTags(nameof(Staff));
             }

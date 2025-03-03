@@ -5,13 +5,13 @@ namespace SmartUni.PublicApi.Features.Allocation.Queries
 {
     public class GetAllAllocation
     {
-        private record Response(Guid Id, Guid TutorID, Guid StudentID, bool Is_Deleted, bool Is_Allocated);
+        private record Response(Guid Id, Guid TutorID, Guid StudentID);
 
         public sealed class Endpoint : IEndpoint
         {
             public static void MapEndpoint(IEndpointRouteBuilder endpoints)
             {
-                endpoints.MapGet("/getAllocationList", HandleAsync)
+                endpoints.MapGet("/allocation", HandleAsync)
                     .Produces<Results<IResult, NotFound>>()
                     .WithTags(nameof(Allocation));
             }
@@ -24,12 +24,12 @@ namespace SmartUni.PublicApi.Features.Allocation.Queries
                 logger.LogInformation("Submitted to get all allocations");
 
                 IEnumerable<Response> allocation = await dbContext.Allocations
-                    .Select(t => new Response(t.Id, t.TutorId, t.StudentId, t.IsDeleted, t.IsAllocated))
+                    .Select(t => new Response(t.Id, t.TutorId, t.StudentId))
                     .ToListAsync(cancellationToken);
 
                 if (!allocation.Any())
                 {
-                    logger.LogWarning("No staffs found");
+                    logger.LogWarning("No allocations found");
                     return TypedResults.NotFound();
                 }
 

@@ -1,19 +1,20 @@
 ﻿using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Http.HttpResults;
+using SmartUni.PublicApi.Common.Domain;
 using SmartUni.PublicApi.Persistence;
 
 namespace SmartUni.PublicApi.Features.Student.Commands
 {
     public class CreateStudent
     {
-        private sealed record Request(string Name, string Email, string PhoneNumber, string Gender, Guid CreatedBy);
+        private sealed record Request(string Name, string Email, string PhoneNumber, string Gender,string Major, Guid CreatedBy);
 
         public sealed class Endpoint : IEndpoint
         {
             public static void MapEndpoint(IEndpointRouteBuilder endpoints)
             {
-                endpoints.MapPost("/createstudent", HandleAsync)
+                endpoints.MapPost("/student", HandleAsync)
                     .ProducesValidationProblem()
                     .WithTags(nameof(Student));
             }
@@ -52,7 +53,8 @@ namespace SmartUni.PublicApi.Features.Student.Commands
                     Email = request.Email,
                     PhoneNumber = request.PhoneNumber,
                     IsDeleted = false,
-                    Gender = request.Gender,
+                    Gender = Enum.Parse<Enums.GenderType>(request.Gender),
+                    Major = Enum.Parse<Enums.MajorType>(request.Major),
                     CreatedBy = request.CreatedBy
                 };
             }

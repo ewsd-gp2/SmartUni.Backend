@@ -13,14 +13,13 @@ namespace SmartUni.PublicApi.Features.Allocation.Queries
             string StudentName,
             Guid StudentID,
             Guid CreatedBy,
-            string StaffName,
-            bool Is_Deleted);
+            string StaffName);
 
         public sealed class Endpoint : IEndpoint
         {
             public static void MapEndpoint(IEndpointRouteBuilder endpoints)
             {
-                endpoints.MapGet("/allocationDetail/{id:guid}",
+                endpoints.MapGet("/allocation/{id:guid}",
                         ([FromRoute] Guid id, [FromServices] SmartUniDbContext dbContext,
                                 [FromServices] ILogger<Endpoint> logger, CancellationToken cancellationToken) =>
                             HandleAsync(id, dbContext, logger, cancellationToken))
@@ -54,8 +53,7 @@ namespace SmartUni.PublicApi.Features.Allocation.Queries
                             TutorName = tutor.Name,
                             TutorID = tutor.Id,
                             AllocationID = allocationAndStudent.allocation.Id,
-                            allocationAndStudent.allocation.CreatedBy,
-                            allocationAndStudent.allocation.IsDeleted
+                            allocationAndStudent.allocation.CreatedBy
                         })
                     .Join(dbContext.Staff,
                         allocationAndTutor => allocationAndTutor.CreatedBy,
@@ -68,8 +66,7 @@ namespace SmartUni.PublicApi.Features.Allocation.Queries
                             allocationAndTutor.TutorName,
                             allocationAndTutor.TutorID,
                             allocationAndTutor.CreatedBy,
-                            StaffName = staff.Name,
-                            allocationAndTutor.IsDeleted
+                            StaffName = staff.Name
                         })
                     .FirstOrDefaultAsync(cancellationToken);
 
@@ -82,8 +79,7 @@ namespace SmartUni.PublicApi.Features.Allocation.Queries
                         detailAllocation.StudentName,
                         detailAllocation.StudentID,
                         detailAllocation.CreatedBy,
-                        detailAllocation.StaffName,
-                        detailAllocation.IsDeleted
+                        detailAllocation.StaffName
                     );
 
                     logger.LogInformation("Successfully fetched details for allocation with ID: {Id}", id);

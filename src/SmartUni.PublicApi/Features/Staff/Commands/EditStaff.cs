@@ -2,6 +2,7 @@
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using SmartUni.PublicApi.Common.Domain;
 using SmartUni.PublicApi.Extensions;
 using SmartUni.PublicApi.Persistence;
 
@@ -9,14 +10,14 @@ namespace SmartUni.PublicApi.Features.Staff.Commands
 {
     public class EditStaff
     {
-        private sealed record Request(string Name, string Email, string PhoneNumber,bool IsDeleted,string Gender,Guid UpdatedBy);
+        private sealed record Request(string Name, string Email, string PhoneNumber,bool IsDeleted, Enums.GenderType Gender,Guid UpdatedBy);
 
         public sealed class Endpoint : IEndpoint
         {
             
             public static void MapEndpoint(IEndpointRouteBuilder endpoints)
             {
-                endpoints.MapPut("/editStaff/{id:guid}",
+                endpoints.MapPut("/staff/{id:guid}",
                         ([FromRoute] Guid id, [FromBody] Request request, [FromServices] ILogger<Endpoint> logger,
                                 [FromServices] SmartUniDbContext dbContext, CancellationToken cancellationToken) =>
                             HandleAsync(id, request, logger, dbContext, cancellationToken))

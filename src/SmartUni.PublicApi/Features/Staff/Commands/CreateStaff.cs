@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using Microsoft.AspNetCore.Http.HttpResults;
+using SmartUni.PublicApi.Common.Domain;
 using SmartUni.PublicApi.Persistence;
 using ValidationResult = FluentValidation.Results.ValidationResult;
 
@@ -52,7 +53,7 @@ namespace SmartUni.PublicApi.Features.Staff.Commands
                     Email = request.Email,
                     PhoneNumber = request.PhoneNumber,
                     IsDeleted = false,
-                    Gender = request.Gender,
+                    Gender = Enum.Parse<Enums.GenderType>(request.Gender),
                     CreatedBy = request.CreatedBy
                 };
             }
@@ -75,11 +76,8 @@ namespace SmartUni.PublicApi.Features.Staff.Commands
                 // Validate PhoneNumber
                 RuleFor(x => x.PhoneNumber)
                     .NotEmpty().WithMessage("Phone number is required");
-
                 // Validate Gender
-                RuleFor(x => x.Gender)
-                    .NotEmpty().WithMessage("Gender is required")
-                    .Matches(@"^[M|F]$").WithMessage("Gender must be 'M' or 'F'");
+                RuleFor(x => x.Gender).IsEnumName(typeof(Enums.GenderType));
                 RuleFor(x => x.CreatedBy)
                     .NotEmpty().WithMessage("Created By is required");
             }

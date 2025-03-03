@@ -1,18 +1,21 @@
 ﻿using Microsoft.AspNetCore.Http.HttpResults;
+using SmartUni.PublicApi.Common.Domain;
 using SmartUni.PublicApi.Persistence;
 
 namespace SmartUni.PublicApi.Features.Student.Queries
 {
     public class GetAllStudent
     {
-        //private record Response(Guid Id, string Name, string Email, string PhoneNumber,string Gender,bool IsDeleted,bool isAllocated);
+        
         private record Response(
             Guid Id,
             string Name,
             string Email,
             string PhoneNumber,
-            string Gender,
+            Enums.GenderType Gender,
+            Enums.MajorType Major,
             bool IsDeleted,
+            Guid? AllocationID,
             bool IsAllocated);
 
 
@@ -20,7 +23,7 @@ namespace SmartUni.PublicApi.Features.Student.Queries
         {
             public static void MapEndpoint(IEndpointRouteBuilder endpoints)
             {
-                endpoints.MapGet("/getStudentList", HandleAsync)
+                endpoints.MapGet("/student", HandleAsync)
                     .Produces<Results<IResult, NotFound>>()
                     .WithTags(nameof(Student));
             }
@@ -32,32 +35,23 @@ namespace SmartUni.PublicApi.Features.Student.Queries
             {
                 logger.LogInformation("Submitted to get all students");
 
-                //IEnumerable<Response> student = await dbContext.Student
-                //    .Select(t => new Response(t.Id, t.Name, t.Email, t.PhoneNumber,t.gender,t.is_deleted))
-                //    .ToListAsync(cancellationToken);
+
 
                 var student = await dbContext.Student
-                    .GroupJoin(
-                        dbContext.Allocations,
-                        student => student.Id,
-                        allocation => allocation.StudentId,
-                        (student, allocations) => new { student, allocations } // GroupJoin returns a collection
-                    )
-                    .SelectMany(
-                        x => x.allocations
-                            .DefaultIfEmpty(), // Ensures all students are included, even if no allocation exists
-                        (x, allocation) => new
-                        {
-                            x.student.Id,
-                            x.student.Name,
-                            x.student.Email,
-                            x.student.PhoneNumber,
-                            x.student.Gender,
-                            x.student.IsDeleted,
-                            IsAllocated = allocation != null ? allocation.IsAllocated : false // Handle null allocation
-                        }
-                    )
-                    .ToListAsync(cancellationToken);
+                .Include(s => s.Allocation) // Eagerly load Allocation details
+                .Select(s => new
+                {
+                    s.Id,
+                    s.Name,
+                    s.Email,
+                    s.PhoneNumber,
+                    s.Gender,
+                    s.Major,
+                    s.IsDeleted,
+                    s.AllocationID,
+                    IsAllocated = s.AllocationID !=null && s.AllocationID != Guid.Empty
+                })
+                .ToListAsync();
 
                 if (!student.Any())
                 {

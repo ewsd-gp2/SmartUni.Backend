@@ -13,7 +13,8 @@ namespace SmartUni.PublicApi.Features.Staff
 
         [MaxLength(20)] public required string PhoneNumber { get; set; }
         public required bool IsDeleted { get; set; }
-        public required string Gender { get; set; }
+        public required Enums.GenderType Gender { get; set; }
+
 
         public void UpdateStaffName(string name)
         {
@@ -25,7 +26,7 @@ namespace SmartUni.PublicApi.Features.Staff
             Email = email;
         }
 
-        public void UpdateStaffGender(string Gender)
+        public void UpdateStaffGender(Enums.GenderType Gender)
         {
             this.Gender = Gender;
         }
@@ -48,6 +49,10 @@ namespace SmartUni.PublicApi.Features.Staff
         public void UpdateStaffUpdatedOn(DateTime updated_on)
         {
             UpdatedOn = updated_on;
+        }
+        public void DeleteStaff()
+        {
+            IsDeleted = true;
         }
     }
 }
