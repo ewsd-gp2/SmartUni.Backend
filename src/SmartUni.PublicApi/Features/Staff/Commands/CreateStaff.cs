@@ -8,7 +8,7 @@ namespace SmartUni.PublicApi.Features.Staff.Commands
 {
     public class CreateStaff
     {
-        private sealed record Request(string Name, string Email, string PhoneNumber, string Gender, Guid CreatedBy);
+        private sealed record Request(string Name, string Email, string PhoneNumber,string  Gender, Guid CreatedBy);
 
         public sealed class Endpoint : IEndpoint
         {

@@ -12,10 +12,10 @@ namespace SmartUni.PublicApi.Features.Student
         [MaxLength(50)] public required string Email { get; set; }
 
         [MaxLength(20)] public required string PhoneNumber { get; set; }
-        public required bool IsDeleted { get; set; }
+        public  bool IsDeleted { get; set; }
         public required Enums.GenderType Gender { get; set; }
         public required Enums.MajorType Major { get; set; }
-        public Guid? AllocationID { get; set; }
+        //public Guid? AllocationID { get; set; }
         public Allocation.Allocation? Allocation { get; set; }
         public void UpdateStudentName(string name)
         {
@@ -25,6 +25,10 @@ namespace SmartUni.PublicApi.Features.Student
         public void UpdateStudentEmail(string email)
         {
             Email = email;
+        }
+        public void UpdateModifiedBy(Guid updatedBy)
+        {
+            UpdatedBy = updatedBy;
         }
         public void UpdateStudentGender(Enums.GenderType gender)
         {
@@ -36,9 +40,9 @@ namespace SmartUni.PublicApi.Features.Student
             PhoneNumber = phoneNumber;
         }
 
-        public void DeleteStudentfAcc(bool isdeleted)
+        public void UpdateStudentMajor(Enums.MajorType major)
         {
-            IsDeleted = isdeleted;
+            Major = major;
         }
         public void DeleteStudent()
         {

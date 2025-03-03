@@ -79,9 +79,7 @@ namespace SmartUni.PublicApi.Features.Student.Commands
                     .NotEmpty().WithMessage("Phone number is required");
 
                 // Validate Gender
-                RuleFor(x => x.Gender)
-                    .NotEmpty().WithMessage("Gender is required")
-                    .Matches(@"^[M|F]$").WithMessage("Gender must be 'M' or 'F'");
+                RuleFor(x => x.Gender).IsEnumName(typeof(Enums.GenderType));
                 RuleFor(x => x.CreatedBy)
                     .NotEmpty().WithMessage("Created By is required");
             }

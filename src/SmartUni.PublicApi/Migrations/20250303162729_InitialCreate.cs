@@ -7,7 +7,7 @@ using SmartUni.PublicApi.Common.Domain;
 namespace SmartUni.PublicApi.Migrations
 {
     /// <inheritdoc />
-    public partial class init : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -23,8 +23,6 @@ namespace SmartUni.PublicApi.Migrations
                     id = table.Column<Guid>(type: "uuid", nullable: false),
                     tutor_id = table.Column<Guid>(type: "uuid", nullable: false),
                     student_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
-                    is_allocated = table.Column<bool>(type: "boolean", nullable: false),
                     created_by = table.Column<Guid>(type: "uuid", nullable: false),
                     updated_by = table.Column<Guid>(type: "uuid", nullable: true),
                     updated_on = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
@@ -43,7 +41,7 @@ namespace SmartUni.PublicApi.Migrations
                     email = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
                     phone_number = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
                     is_deleted = table.Column<bool>(type: "boolean", nullable: false),
-                    gender = table.Column<string>(type: "text", nullable: false),
+                    gender = table.Column<Enums.GenderType>(type: "gender", nullable: false),
                     created_by = table.Column<Guid>(type: "uuid", nullable: false),
                     updated_by = table.Column<Guid>(type: "uuid", nullable: true),
                     updated_on = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
@@ -51,25 +49,6 @@ namespace SmartUni.PublicApi.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("pk_staff", x => x.id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "student",
-                columns: table => new
-                {
-                    id = table.Column<Guid>(type: "uuid", nullable: false),
-                    name = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
-                    email = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
-                    phone_number = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
-                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
-                    gender = table.Column<string>(type: "text", nullable: false),
-                    created_by = table.Column<Guid>(type: "uuid", nullable: false),
-                    updated_by = table.Column<Guid>(type: "uuid", nullable: true),
-                    updated_on = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("pk_student", x => x.id);
                 });
 
             migrationBuilder.CreateTable(
@@ -92,6 +71,38 @@ namespace SmartUni.PublicApi.Migrations
                     table.PrimaryKey("pk_tutor", x => x.id);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "student",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    name = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    email = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    phone_number = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
+                    gender = table.Column<Enums.GenderType>(type: "gender", nullable: false),
+                    major = table.Column<Enums.MajorType>(type: "major", nullable: false),
+                    allocation_id = table.Column<Guid>(type: "uuid", nullable: true),
+                    allocation_id1 = table.Column<Guid>(type: "uuid", nullable: true),
+                    created_by = table.Column<Guid>(type: "uuid", nullable: false),
+                    updated_by = table.Column<Guid>(type: "uuid", nullable: true),
+                    updated_on = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_student", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_student_allocations_allocation_id",
+                        column: x => x.allocation_id1,
+                        principalTable: "allocation",
+                        principalColumn: "id");
+                });
+
+            migrationBuilder.CreateIndex(
+                name: "ix_student_allocation_id",
+                table: "student",
+                column: "allocation_id1");
+
             migrationBuilder.CreateIndex(
                 name: "ix_tutor_email",
                 table: "tutor",
@@ -103,9 +114,6 @@ namespace SmartUni.PublicApi.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "allocation");
-
-            migrationBuilder.DropTable(
                 name: "staff");
 
             migrationBuilder.DropTable(
@@ -113,6 +121,9 @@ namespace SmartUni.PublicApi.Migrations
 
             migrationBuilder.DropTable(
                 name: "tutor");
+
+            migrationBuilder.DropTable(
+                name: "allocation");
         }
     }
 }

@@ -10,7 +10,7 @@ namespace SmartUni.PublicApi.Features.Staff.Commands
 {
     public class EditStaff
     {
-        private sealed record Request(string Name, string Email, string PhoneNumber,bool IsDeleted, Enums.GenderType Gender,Guid UpdatedBy);
+        private sealed record Request(string Name, string Email, string PhoneNumber, Enums.GenderType Gender,Guid UpdatedBy);
 
         public sealed class Endpoint : IEndpoint
         {
@@ -55,7 +55,6 @@ namespace SmartUni.PublicApi.Features.Staff.Commands
                 staff.UpdateStaffName(request.Name);
                 staff.UpdateStaffEmail(request.Email);
                 staff.UpdateStaffPhoneNumber(request.PhoneNumber);
-                staff.DeleteStaffAcc(request.IsDeleted);
                 staff.UpdateStaffUpdatedBy(request.UpdatedBy);
                 staff.UpdateStaffUpdatedOn(DateTime.UtcNow);
                 staff.UpdateStaffGender(request.Gender);
@@ -74,9 +73,7 @@ namespace SmartUni.PublicApi.Features.Staff.Commands
                 RuleFor(x => x.Name).NotEmpty();
                 RuleFor(x => x.Email).NotEmpty();
                 RuleFor(x => x.PhoneNumber).NotEmpty();
-
-                RuleFor(x => x.IsDeleted).NotEmpty();
-                RuleFor(x => x.Gender).NotEmpty();
+                RuleFor(x => x.Gender).IsInEnum();
                 RuleFor(x => x.UpdatedBy).NotEqual(Guid.Empty);
 
             }

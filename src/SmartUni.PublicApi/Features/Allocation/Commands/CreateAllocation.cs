@@ -54,8 +54,8 @@ namespace SmartUni.PublicApi.Features.Allocation.Commands
                 // Update the AllocationID column for each related Student
                 await dbContext.Student
                     .Where(s => allocationMap.Keys.Contains(s.Id))
-                    .ForEachAsync(s => s.AllocationID = allocationMap[s.Id], cancellationToken);
-
+                    .ForEachAsync(s => s.Allocation.Id = allocationMap[s.Id], cancellationToken);
+                await dbContext.SaveChangesAsync(cancellationToken);
                 logger.LogInformation("Successfully created allocations with IDs: {Ids}",
                     string.Join(", ", allocations.Select(a => a.Id)));
 

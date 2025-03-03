@@ -9,7 +9,7 @@ namespace SmartUni.PublicApi.Features.Student.Commands
 {
     public class EditStudent
     {
-        private sealed record Request(string Name, string Email, string PhoneNumber, Enums.GenderType Gender, bool IsDeleted);
+        private sealed record Request(string Name, string Email, string PhoneNumber, Enums.GenderType Gender, Enums.MajorType Major,Guid UpdatedBy);
 
         public sealed class Endpoint : IEndpoint
         {
@@ -53,8 +53,9 @@ namespace SmartUni.PublicApi.Features.Student.Commands
                 student.UpdateStudentName(request.Name);
                 student.UpdateStudentEmail(request.Email);
                 student.UpdateStudentPhoneNumber(request.PhoneNumber);
-                student.DeleteStudentfAcc(request.IsDeleted);
+                student.UpdateStudentMajor(request.Major);
                 student.UpdateStudentGender(request.Gender);
+                student.UpdateModifiedBy(request.UpdatedBy);
                 await dbContext.SaveChangesAsync(cancellationToken);
 
                 logger.LogInformation("Successfully edited student with ID: {Id}", id);
@@ -70,7 +71,9 @@ namespace SmartUni.PublicApi.Features.Student.Commands
                 RuleFor(x => x.Name).NotEmpty();
                 RuleFor(x => x.Email).NotEmpty().EmailAddress();
                 RuleFor(x => x.PhoneNumber).NotEmpty();
-                RuleFor(x => x.IsDeleted).NotEmpty();
+                RuleFor(x => x.Gender).IsInEnum();
+                RuleFor(x => x.Major).IsInEnum();
+                RuleFor(x => x.UpdatedBy).NotEmpty();
             }
         }
     }

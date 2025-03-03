@@ -13,8 +13,8 @@ using SmartUni.PublicApi.Persistence;
 namespace SmartUni.PublicApi.Migrations
 {
     [DbContext(typeof(SmartUniDbContext))]
-    [Migration("20250301212257_init")]
-    partial class init
+    [Migration("20250303162729_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -38,14 +38,6 @@ namespace SmartUni.PublicApi.Migrations
                     b.Property<Guid>("CreatedBy")
                         .HasColumnType("uuid")
                         .HasColumnName("created_by");
-
-                    b.Property<bool>("IsAllocated")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_allocated");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_deleted");
 
                     b.Property<Guid>("StudentId")
                         .HasColumnType("uuid")
@@ -86,9 +78,8 @@ namespace SmartUni.PublicApi.Migrations
                         .HasColumnType("character varying(50)")
                         .HasColumnName("email");
 
-                    b.Property<string>("Gender")
-                        .IsRequired()
-                        .HasColumnType("text")
+                    b.Property<Enums.GenderType>("Gender")
+                        .HasColumnType("gender")
                         .HasColumnName("gender");
 
                     b.Property<bool>("IsDeleted")
@@ -128,6 +119,14 @@ namespace SmartUni.PublicApi.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
+                    b.Property<Guid?>("AllocationID")
+                        .HasColumnType("uuid")
+                        .HasColumnName("allocation_id");
+
+                    b.Property<Guid?>("AllocationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("allocation_id");
+
                     b.Property<Guid>("CreatedBy")
                         .HasColumnType("uuid")
                         .HasColumnName("created_by");
@@ -138,14 +137,17 @@ namespace SmartUni.PublicApi.Migrations
                         .HasColumnType("character varying(50)")
                         .HasColumnName("email");
 
-                    b.Property<string>("Gender")
-                        .IsRequired()
-                        .HasColumnType("text")
+                    b.Property<Enums.GenderType>("Gender")
+                        .HasColumnType("gender")
                         .HasColumnName("gender");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean")
                         .HasColumnName("is_deleted");
+
+                    b.Property<Enums.MajorType>("Major")
+                        .HasColumnType("major")
+                        .HasColumnName("major");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -170,7 +172,14 @@ namespace SmartUni.PublicApi.Migrations
                     b.HasKey("Id")
                         .HasName("pk_student");
 
-                    b.ToTable("student", (string)null);
+                    b.HasIndex("AllocationId")
+                        .HasDatabaseName("ix_student_allocation_id");
+
+                    b.ToTable("student", null, t =>
+                        {
+                            t.Property("AllocationId")
+                                .HasColumnName("allocation_id1");
+                        });
                 });
 
             modelBuilder.Entity("SmartUni.PublicApi.Features.Tutor.Tutor", b =>
@@ -230,6 +239,16 @@ namespace SmartUni.PublicApi.Migrations
                         .HasDatabaseName("ix_tutor_email");
 
                     b.ToTable("tutor", (string)null);
+                });
+
+            modelBuilder.Entity("SmartUni.PublicApi.Features.Student.Student", b =>
+                {
+                    b.HasOne("SmartUni.PublicApi.Features.Allocation.Allocation", "Allocation")
+                        .WithMany()
+                        .HasForeignKey("AllocationId")
+                        .HasConstraintName("fk_student_allocations_allocation_id");
+
+                    b.Navigation("Allocation");
                 });
 #pragma warning restore 612, 618
         }

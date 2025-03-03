@@ -48,8 +48,7 @@ namespace SmartUni.PublicApi.Features.Student.Queries
                     s.Gender,
                     s.Major,
                     s.IsDeleted,
-                    s.AllocationID,
-                    IsAllocated = s.AllocationID !=null && s.AllocationID != Guid.Empty
+                    IsAllocated = s.Allocation.Id !=null && s.Allocation.Id != Guid.Empty
                 })
                 .ToListAsync();
 

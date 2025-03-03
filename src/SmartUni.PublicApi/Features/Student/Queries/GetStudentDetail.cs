@@ -43,7 +43,7 @@ namespace SmartUni.PublicApi.Features.Student.Queries
                 if (student != null)
                 {
                     
-                    bool isAllocated= student.AllocationID is not null && student.AllocationID != Guid.Empty;
+                    bool isAllocated= student.Allocation.Id != null && student.Allocation.Id != Guid.Empty;
                     Response response = new(
                         student.Id,
                         student.Name,
@@ -52,7 +52,7 @@ namespace SmartUni.PublicApi.Features.Student.Queries
                         student.Gender,
                         student.Major,
                         student.IsDeleted,
-                        student.AllocationID,
+                        student.Allocation.Id,
                         isAllocated // Set isAllocated to true if the student has an allocation, false otherwise
                     );
 
