@@ -48,8 +48,14 @@ namespace SmartUni.PublicApi.Features.Allocation.Commands
                 List<Allocation> allocations = MapToDomain(request.Data);
 
                 await dbContext.Allocations.AddRangeAsync(allocations, cancellationToken);
-                await dbContext.SaveChangesAsync(cancellationToken);
+                var allocationMap = allocations
+    .ToDictionary(a => a.StudentId, a => a.Id);
 
+                // Update the AllocationID column for each related Student
+                await dbContext.Student
+                    .Where(s => allocationMap.Keys.Contains(s.Id))
+                    .ForEachAsync(s => s.Allocation.Id = allocationMap[s.Id], cancellationToken);
+                await dbContext.SaveChangesAsync(cancellationToken);
                 logger.LogInformation("Successfully created allocations with IDs: {Ids}",
                     string.Join(", ", allocations.Select(a => a.Id)));
 
@@ -64,8 +70,6 @@ namespace SmartUni.PublicApi.Features.Allocation.Commands
                     Id = Guid.NewGuid(),
                     StudentId = requestAllocation.StudentID,
                     TutorId = requestAllocation.TutorID,
-                    IsDeleted = false,
-                    IsAllocated = true,
                     CreatedBy = requestModel.CreatedBy
                 }).ToList();
             }

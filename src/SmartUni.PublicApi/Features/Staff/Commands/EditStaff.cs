@@ -2,6 +2,7 @@
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using SmartUni.PublicApi.Common.Domain;
 using SmartUni.PublicApi.Extensions;
 using SmartUni.PublicApi.Persistence;
 
@@ -9,14 +10,14 @@ namespace SmartUni.PublicApi.Features.Staff.Commands
 {
     public class EditStaff
     {
-        private sealed record Request(string Name, string Email, string PhoneNumber,bool IsDeleted,string Gender,Guid UpdatedBy);
+        private sealed record Request(string Name, string Email, string PhoneNumber, Enums.GenderType Gender,Guid UpdatedBy);
 
         public sealed class Endpoint : IEndpoint
         {
             
             public static void MapEndpoint(IEndpointRouteBuilder endpoints)
             {
-                endpoints.MapPut("/editStaff/{id:guid}",
+                endpoints.MapPut("/staff/{id:guid}",
                         ([FromRoute] Guid id, [FromBody] Request request, [FromServices] ILogger<Endpoint> logger,
                                 [FromServices] SmartUniDbContext dbContext, CancellationToken cancellationToken) =>
                             HandleAsync(id, request, logger, dbContext, cancellationToken))
@@ -54,7 +55,6 @@ namespace SmartUni.PublicApi.Features.Staff.Commands
                 staff.UpdateStaffName(request.Name);
                 staff.UpdateStaffEmail(request.Email);
                 staff.UpdateStaffPhoneNumber(request.PhoneNumber);
-                staff.DeleteStaffAcc(request.IsDeleted);
                 staff.UpdateStaffUpdatedBy(request.UpdatedBy);
                 staff.UpdateStaffUpdatedOn(DateTime.UtcNow);
                 staff.UpdateStaffGender(request.Gender);
@@ -73,9 +73,7 @@ namespace SmartUni.PublicApi.Features.Staff.Commands
                 RuleFor(x => x.Name).NotEmpty();
                 RuleFor(x => x.Email).NotEmpty();
                 RuleFor(x => x.PhoneNumber).NotEmpty();
-
-                RuleFor(x => x.IsDeleted).NotEmpty();
-                RuleFor(x => x.Gender).NotEmpty();
+                RuleFor(x => x.Gender).IsInEnum();
                 RuleFor(x => x.UpdatedBy).NotEqual(Guid.Empty);
 
             }

@@ -2,19 +2,20 @@
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using SmartUni.PublicApi.Common.Domain;
 using SmartUni.PublicApi.Persistence;
 
 namespace SmartUni.PublicApi.Features.Student.Commands
 {
     public class EditStudent
     {
-        private sealed record Request(string Name, string Email, string PhoneNumber, bool IsDeleted);
+        private sealed record Request(string Name, string Email, string PhoneNumber, Enums.GenderType Gender, Enums.MajorType Major,Guid UpdatedBy);
 
         public sealed class Endpoint : IEndpoint
         {
             public static void MapEndpoint(IEndpointRouteBuilder endpoints)
             {
-                endpoints.MapPut("/editStudent/{id:guid}",
+                endpoints.MapPut("/student/{id:guid}",
                         ([FromRoute] Guid id, [FromBody] Request request, [FromServices] ILogger<Endpoint> logger,
                                 [FromServices] SmartUniDbContext dbContext, CancellationToken cancellationToken) =>
                             HandleAsync(id, request, logger, dbContext, cancellationToken))
@@ -32,7 +33,7 @@ namespace SmartUni.PublicApi.Features.Student.Commands
                 SmartUniDbContext dbContext,
                 CancellationToken cancellationToken)
             {
-                logger.LogInformation("Submitted to edit staff with ID: {Id} and request: {Request}", id, request);
+                logger.LogInformation("Submitted to edit student with ID: {Id} and request: {Request}", id, request);
 
                 ValidationResult? validationResult = await new Validator().ValidateAsync(request, cancellationToken);
                 if (!validationResult.IsValid)
@@ -41,21 +42,23 @@ namespace SmartUni.PublicApi.Features.Student.Commands
                     return TypedResults.BadRequest(validationResult);
                 }
 
-                Student? staff = await dbContext.Student.FindAsync([id], cancellationToken);
+                Student? student = await dbContext.Student.FindAsync([id], cancellationToken);
 
-                if (staff is null)
+                if (student is null)
                 {
-                    logger.LogWarning("Staff with ID: {Id} not found", id);
+                    logger.LogWarning("Student with ID: {Id} not found", id);
                     return TypedResults.NotFound();
                 }
 
-                staff.UpdateStudentName(request.Name);
-                staff.UpdateStudentEmail(request.Email);
-                staff.UpdateStudentPhoneNumber(request.PhoneNumber);
-                staff.DeleteStudentfAcc(request.IsDeleted);
+                student.UpdateStudentName(request.Name);
+                student.UpdateStudentEmail(request.Email);
+                student.UpdateStudentPhoneNumber(request.PhoneNumber);
+                student.UpdateStudentMajor(request.Major);
+                student.UpdateStudentGender(request.Gender);
+                student.UpdateModifiedBy(request.UpdatedBy);
                 await dbContext.SaveChangesAsync(cancellationToken);
 
-                logger.LogInformation("Successfully edited staff with ID: {Id}", id);
+                logger.LogInformation("Successfully edited student with ID: {Id}", id);
 
                 return TypedResults.Ok();
             }
@@ -68,7 +71,9 @@ namespace SmartUni.PublicApi.Features.Student.Commands
                 RuleFor(x => x.Name).NotEmpty();
                 RuleFor(x => x.Email).NotEmpty().EmailAddress();
                 RuleFor(x => x.PhoneNumber).NotEmpty();
-                RuleFor(x => x.IsDeleted).NotEmpty();
+                RuleFor(x => x.Gender).IsInEnum();
+                RuleFor(x => x.Major).IsInEnum();
+                RuleFor(x => x.UpdatedBy).NotEmpty();
             }
         }
     }

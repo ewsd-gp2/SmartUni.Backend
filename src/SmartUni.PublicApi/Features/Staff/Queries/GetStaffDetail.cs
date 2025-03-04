@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using SmartUni.PublicApi.Common.Domain;
 using SmartUni.PublicApi.Persistence;
 
 namespace SmartUni.PublicApi.Features.Staff.Queries
@@ -11,14 +12,14 @@ namespace SmartUni.PublicApi.Features.Staff.Queries
             string Name,
             string Email,
             string PhoneNumber,
-            string Gender,
+            Enums.GenderType Gender,
             bool IsDeleted);
 
         public sealed class Endpoint : IEndpoint
         {
             public static void MapEndpoint(IEndpointRouteBuilder endpoints)
             {
-                endpoints.MapGet("/getStaffDetail/{id:guid}",
+                endpoints.MapGet("/staff/{id:guid}",
                         ([FromRoute] Guid id, [FromServices] SmartUniDbContext dbContext,
                                 [FromServices] ILogger<Endpoint> logger, CancellationToken cancellationToken) =>
                             HandleAsync(id, dbContext, logger, cancellationToken))

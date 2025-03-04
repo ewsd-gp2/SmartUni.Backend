@@ -8,7 +8,7 @@ namespace SmartUni.PublicApi.Features.Allocation.Commands
 {
     public class EditAllocation
     {
-        private sealed record Request(Guid Student_ID, Guid Tutor_ID, bool IsDeleted,Guid Updated_By,DateTime Updated_On);
+        private sealed record Request(Guid Student_ID, Guid Tutor_ID, Guid Updated_By);
 
         public sealed class Endpoint : IEndpoint
         {
@@ -49,7 +49,7 @@ namespace SmartUni.PublicApi.Features.Allocation.Commands
                     return TypedResults.NotFound();
                 }
 
-                allocation.UpdateAllocation(request.Student_ID,request.Tutor_ID,request.IsDeleted,request.Updated_By,request.Updated_On);
+                allocation.UpdateAllocation(request.Student_ID,request.Tutor_ID,request.Updated_By,DateTime.UtcNow);
                 await dbContext.SaveChangesAsync(cancellationToken);
 
                 logger.LogInformation("Successfully edited allocation with ID: {Id}", id);
@@ -64,9 +64,7 @@ namespace SmartUni.PublicApi.Features.Allocation.Commands
             {
                 RuleFor(x => x.Student_ID).NotEmpty();
                 RuleFor(x => x.Tutor_ID).NotEmpty();
-                RuleFor(x => x.Updated_On).NotEmpty();
                 RuleFor(x => x.Updated_By).NotEmpty();
-                RuleFor(x => x.IsDeleted).NotEmpty();
             }
         }
     }
