@@ -6,15 +6,17 @@ using System.Reflection;
 
 Assembly appAssembly = Assembly.GetExecutingAssembly();
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
+const string corsPolicyName = "localhost";
 
 builder.Services.ConfigureFeatures(builder.Configuration, appAssembly);
 builder.Services.AddOpenApi();
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("Localhost",
-        builder =>
+    options.AddPolicy(corsPolicyName,
+        policyBuilder =>
         {
-            builder.AllowAnyMethod().AllowAnyHeader().AllowAnyOrigin();
+            policyBuilder.WithOrigins(builder.Configuration["ClientAppUrl"]!).AllowCredentials().AllowAnyMethod()
+                .AllowAnyHeader();
         });
 });
 builder.Host.UseSerilog((context, configuration) =>
@@ -35,5 +37,5 @@ app.MapScalarApiReference(options =>
     options.WithTheme(ScalarTheme.Kepler);
 });
 app.RegisterEndpoints(appAssembly);
-app.UseCors(options => options.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+app.UseCors(corsPolicyName);
 app.Run();
