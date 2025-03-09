@@ -10,7 +10,7 @@ namespace SmartUni.PublicApi.Extensions
         {
             services.AddDbContext<SmartUniDbContext>(options =>
             {
-                options.UseNpgsql(configuration.GetConnectionString("SmartUniDb"), MapEnums);
+                options.UseNpgsql(configuration.GetConnectionString("SmartUniDb"), MapEnums).EnableDetailedErrors();
             });
 
             return services;

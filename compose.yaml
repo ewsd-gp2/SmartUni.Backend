@@ -25,7 +25,7 @@
       - ASPNETCORE_HTTP_PORT=7142
       - ASPNETCORE_URLS=http://+:7142
       - ASPNETCORE_ENVIRONMENT=Development.docker
-      - "ConnectionStrings:SmartUniDb=Server=smartuni.db;Port=5432;Database=smartuni;User Id=postgres;Password=postgres;"
+      - "ConnectionStrings:SmartUniDb=Server=smartuni.db;Port=5432;Database=smartuni;User Id=postgres;Password=postgres;Include Error Detail=true;"
   
   smartuni.seq:
     image: datalust/seq:latest

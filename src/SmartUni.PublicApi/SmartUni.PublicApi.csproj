@@ -20,7 +20,8 @@
     <ItemGroup>
         <PackageReference Include="EFCore.NamingConventions" Version="9.0.0"/>
         <PackageReference Include="FluentValidation" Version="12.0.0-preview1"/>
-        <PackageReference Include="Microsoft.AspNet.SignalR" Version="2.4.3"/>
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.2"/>
+        <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.2"/>
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.1"/>
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.2">
             <PrivateAssets>all</PrivateAssets>
@@ -37,10 +38,6 @@
         <Content Include="..\..\.dockerignore">
             <Link>.dockerignore</Link>
         </Content>
-    </ItemGroup>
-
-    <ItemGroup>
-        <Folder Include="Migrations\"/>
     </ItemGroup>
 
 </Project>

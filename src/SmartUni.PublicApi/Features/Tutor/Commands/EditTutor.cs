@@ -58,8 +58,8 @@ namespace SmartUni.PublicApi.Features.Tutor.Commands
                 }
 
                 tutor.Name = request.Name;
-                tutor.Email = request.Email;
-                tutor.PhoneNumber = request.PhoneNumber;
+                tutor.Identity.Email = request.Email;
+                tutor.Identity.PhoneNumber = request.PhoneNumber;
                 tutor.Gender = request.Gender;
                 tutor.Major = request.Major;
                 await dbContext.SaveChangesAsync(cancellationToken);

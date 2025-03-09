@@ -1,7 +1,12 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
 using Serilog;
+using SmartUni.PublicApi.Common.Domain;
 using SmartUni.PublicApi.Extensions;
 using SmartUni.PublicApi.Host;
+using SmartUni.PublicApi.Persistence;
 using System.Reflection;
 
 Assembly appAssembly = Assembly.GetExecutingAssembly();
@@ -23,10 +28,39 @@ builder.Host.UseSerilog((context, configuration) =>
     configuration.ReadFrom.Configuration(context.Configuration));
 
 builder.Services.AddDatabase(builder.Configuration);
+builder.Services.AddIdentity<BaseUser, IdentityRole<Guid>>()
+    .AddEntityFrameworkStores<SmartUniDbContext>()
+    .AddDefaultTokenProviders();
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = false,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = "http://localhost:7142",
+            ValidAudience = builder.Configuration["ClientAppUrl"]!,
+            IssuerSigningKey = new SymmetricSecurityKey("donotsharethissupersecretkey"u8.ToArray())
+        };
+    });
+
+builder.Services.AddAuthorization();
+builder.Services.Configure<IdentityOptions>(options =>
+{
+    options.Password.RequireDigit = false;
+    options.Password.RequireLowercase = false;
+    options.Password.RequireNonAlphanumeric = false;
+    options.Password.RequireUppercase = false;
+    options.Password.RequiredLength = 6;
+});
 
 WebApplication app = builder.Build();
 
 app.ApplyMigrations();
+app.UseAuthentication();
+app.UseAuthorization();
 // app.UseHttpsRedirection();
 // app.UseHsts();
 // app.UseSerilogRequestLogging();
