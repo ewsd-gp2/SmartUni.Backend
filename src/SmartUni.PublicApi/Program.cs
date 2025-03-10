@@ -36,13 +36,13 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     {
         options.TokenValidationParameters = new TokenValidationParameters
         {
-            ValidateIssuer = true,
-            ValidateAudience = true,
+            ValidateIssuer = false,
+            ValidateAudience = false,
             ValidateLifetime = false,
-            ValidateIssuerSigningKey = true,
+            ValidateIssuerSigningKey = false,
             ValidIssuer = "http://localhost:7142",
-            ValidAudience = builder.Configuration["ClientAppUrl"]!,
-            IssuerSigningKey = new SymmetricSecurityKey("donotsharethissupersecretkey"u8.ToArray())
+            ValidAudience = "http://localhost:5173",
+            IssuerSigningKey = new SymmetricSecurityKey("DoNotShareThisSuperSecretKey!@SDF123!@#"u8.ToArray())
         };
     });
 

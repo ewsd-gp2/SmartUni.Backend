@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace SmartUni.PublicApi.Features.Tutor
 {
-    public sealed class Tutor : BaseEntity
+    public class Tutor : BaseEntity
     {
         public Guid Id { get; set; }
         [MaxLength(50)] public required string Name { get; set; }
@@ -13,11 +13,11 @@ namespace SmartUni.PublicApi.Features.Tutor
 
         public required Enums.MajorType Major { get; set; }
 
-        public string UserCode => UserCodeHelpers.GenerateUserCode(Enums.UserCodePrefix.Stu, Name, Identity.Email!);
+        public string UserCode => UserCodeHelpers.GenerateUserCode(Enums.UserCodePrefix.Tut, Name, Identity.Email!);
 
         public bool IsDeleted { get; private set; }
 
-        public BaseUser Identity { get; set; }
+        public virtual BaseUser Identity { get; set; }
 
         public Guid IdentityId { get; set; }
 

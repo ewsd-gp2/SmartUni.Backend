@@ -27,7 +27,7 @@ namespace SmartUni.PublicApi.Features.Tutor.Commands
                     .WithDescription("Create new tutor")
                     .Accepts<Request>("application/json")
                     .Produces(201)
-                    .Produces<BadRequest<List<ValidationFailure>>>()
+                    .Produces<BadRequest<List<ValidationFailure>>>(400)
                     .WithTags(nameof(Tutor));
             }
 
@@ -47,12 +47,14 @@ namespace SmartUni.PublicApi.Features.Tutor.Commands
                     return TypedResults.BadRequest(validationResult.Errors);
                 }
 
+                Tutor tutor = MapToDomain(request);
                 BaseUser user = new()
                 {
                     Id = Guid.NewGuid(),
-                    UserName = request.Email,
+                    UserName = request.Name,
                     Email = request.Email,
-                    PhoneNumber = request.PhoneNumber
+                    PhoneNumber = request.PhoneNumber,
+                    Tutor = tutor
                 };
 
                 IdentityResult result = await userManager.CreateAsync(user, request.Password);
@@ -62,12 +64,7 @@ namespace SmartUni.PublicApi.Features.Tutor.Commands
                     return TypedResults.BadRequest(result.Errors);
                 }
 
-                Tutor tutor = MapToDomain(request);
-
-                await dbContext.Tutor.AddAsync(tutor, cancellationToken);
-                await dbContext.SaveChangesAsync(cancellationToken);
-
-                logger.LogInformation("Successfully created a new tutor with ID: {Id}", tutor.IdentityId);
+                logger.LogInformation("Successfully created a new tutor with ID: {Id}", tutor.Id);
                 return TypedResults.Created();
             }
 

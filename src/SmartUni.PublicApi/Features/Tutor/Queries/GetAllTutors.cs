@@ -20,6 +20,7 @@ namespace SmartUni.PublicApi.Features.Tutor.Queries
             public static void MapEndpoint(IEndpointRouteBuilder endpoints)
             {
                 endpoints.MapGet("/tutor", HandleAsync)
+                    .RequireAuthorization()
                     .Produces<Results<IResult, NotFound>>()
                     .WithTags(nameof(Tutor));
             }

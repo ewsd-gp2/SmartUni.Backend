@@ -14,32 +14,30 @@ namespace SmartUni.PublicApi.Features.Auth
             public static void MapEndpoint(IEndpointRouteBuilder endpoints)
             {
                 endpoints.MapPost("/signin/tutor",
-                        async (Request request, UserManager<BaseUser> userManager, ILogger<Endpoint> logger,
-                            SmartUniDbContext dbContext) =>
+                        async (Request request, SignInManager<BaseUser> signInManager,
+                            UserManager<BaseUser> userManager, ILogger<Endpoint> logger,
+                            SmartUniDbContext dbContext, CancellationToken cancellationToken) =>
                         {
-                            BaseUser? user = await userManager.FindByEmailAsync(request.Email);
+                            BaseUser? user = await userManager.Users.Include(x => x.Tutor)
+                                .FirstOrDefaultAsync(x => x.Email == request.Email, cancellationToken);
                             if (user == null)
                             {
                                 logger.LogInformation("User with email {Email} not found", request.Email);
                                 return TypedResults.Unauthorized();
                             }
 
-                            bool result = await userManager.CheckPasswordAsync(user, request.Password);
-                            if (!result)
+                            SignInResult signinResult =
+                                await signInManager.PasswordSignInAsync(user, request.Password, false, true);
+                            if (!signinResult.Succeeded)
                             {
-                                logger.LogInformation("Password for user with email {Email} is incorrect",
-                                    request.Email);
+                                logger.LogInformation("Failed to sign in for user with {Email}", request.Email);
                                 return TypedResults.Unauthorized();
                             }
 
                             logger.LogInformation("User with email {Email} signed in", request.Email);
+                            Tutor.Tutor? tutor = user!.Tutor;
 
-                            Tutor.Tutor? tutor =
-                                await dbContext.Tutor.FirstOrDefaultAsync(x => x.IdentityId == user.Id);
-
-                            string token = TokenHelper.GenerateToken(user.Id, tutor!.Id, tutor.Name,
-                                user.Email!,
-                                user.LastActiveDate?.Date, "Tutor");
+                            string token = TokenHelper.GenerateToken(user);
 
                             return Results.Ok(new { access_token = token });
                         })

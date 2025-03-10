@@ -1,30 +1,31 @@
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
+using SmartUni.PublicApi.Common.Domain;
 using System.Security.Claims;
 
 namespace SmartUni.PublicApi.Common.Helpers
 {
     public static class TokenHelper
     {
-        public static string GenerateToken(Guid identityId, Guid userId, string name, string email,
-            DateTime? lastActiveDate, string role)
+        public static string GenerateToken(BaseUser user)
         {
-            byte[] key = "donotsharethissupersecretkey"u8.ToArray();
+            byte[] key = "DoNotShareThisSuperSecretKey!@SDF123!@#"u8.ToArray();
             JsonWebTokenHandler tokenHandler = new();
-            int inactiveDays = lastActiveDate == null ? 0 : DateTime.Now.Date.Subtract((DateTime)lastActiveDate).Days;
+            int inactiveDays = user.LastActiveDate == null
+                ? 0
+                : DateTime.Now.Date.Subtract((DateTime)user.LastActiveDate).Days;
 
             List<Claim> claims =
             [
                 new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new(JwtRegisteredClaimNames.Sub, identityId.ToString()),
-                new(JwtRegisteredClaimNames.Name, name),
-                new(JwtRegisteredClaimNames.Email, email),
+                new(JwtRegisteredClaimNames.Sub, user.Tutor.Id.ToString()),
+                new(JwtRegisteredClaimNames.Name, user.UserName!),
+                new(JwtRegisteredClaimNames.Email, user.Email!),
                 new(JwtRegisteredClaimNames.Iat, DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString()),
-                new(ClaimTypes.Role, role),
                 new("last_active_date",
-                    lastActiveDate is null
+                    user.LastActiveDate is null
                         ? DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString()
-                        : new DateTimeOffset((DateTime)lastActiveDate).ToUnixTimeSeconds().ToString()),
+                        : new DateTimeOffset((DateTime)user.LastActiveDate).ToUnixTimeSeconds().ToString()),
                 new("inactive_days", inactiveDays.ToString())
             ];
 
@@ -39,7 +40,7 @@ namespace SmartUni.PublicApi.Common.Helpers
             };
 
             string? token = tokenHandler.CreateToken(securityTokenDescriptor);
-            return tokenHandler.CreateToken(token);
+            return token;
         }
     }
 }
