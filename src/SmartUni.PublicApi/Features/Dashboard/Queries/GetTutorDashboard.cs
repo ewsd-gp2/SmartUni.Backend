@@ -2,33 +2,36 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using SmartUni.PublicApi.Persistence;
 
-namespace SmartUni.PublicApi.Features.Tutor.Queries
+namespace SmartUni.PublicApi.Features.Dashboard.Queries
 {
-    public class GetTutorDetails
+    public class GetTutorDashboard
     {
         private sealed record Response(
-            Guid Id,
+            Guid TutorId,
             string Name,
             string Email,
             string PhoneNumber,
             string Gender,
             string Major,
-            string UserCode);
+            List<AllocationResponse> Students);
 
-        public sealed class Endpoint : IEndpoint
+        private sealed record AllocationResponse(Guid AllocationId, Guid StudentId, string Name);
+
+        public class Endpoint : IEndpoint
         {
             public static void MapEndpoint(IEndpointRouteBuilder endpoints)
             {
-                endpoints.MapGet("/tutor/{id:guid}",
+                endpoints.MapGet("/dashboard/tutor/{id:guid}/",
                         ([FromRoute] Guid id, [FromServices] SmartUniDbContext dbContext,
                                 [FromServices] ILogger<Endpoint> logger, CancellationToken cancellationToken) =>
                             HandleAsync(id, dbContext, logger, cancellationToken))
+                    .WithDescription("Get dashboard details for a tutor")
                     .Produces<Ok<Response>>()
                     .Produces<NotFound>()
-                    .WithTags(nameof(Tutor));
+                    .WithTags("Dashboard");
             }
 
-            private static async Task<Results<Ok<Response>, NotFound>> HandleAsync(
+            private static async Task<Ok<Response>> HandleAsync(
                 Guid id,
                 SmartUniDbContext dbContext,
                 ILogger<Endpoint> logger,
@@ -36,15 +39,13 @@ namespace SmartUni.PublicApi.Features.Tutor.Queries
             {
                 logger.LogInformation("Fetching details for tutor with ID: {Id}", id);
 
-                Tutor? tutor = await dbContext.Tutor.FindAsync([id], cancellationToken);
-                if (tutor is null)
-                {
-                    logger.LogWarning("Tutor with ID: {Id} not found", id);
-                    return TypedResults.NotFound();
-                }
+                Tutor.Tutor? tutor = await dbContext.Tutor.FindAsync([id], cancellationToken);
 
+                List<AllocationResponse> allocations = dbContext.Allocations.Where(a => a.TutorId == id)
+                    .Include(a => a.Student)
+                    .Select(a => new AllocationResponse(a.Id, a.StudentId, a.Student.Name)).ToList();
                 Response response = new(tutor.Id, tutor.Name, tutor.Email, tutor.PhoneNumber, tutor.Gender.ToString(),
-                    tutor.Major.ToString(), tutor.UserCode);
+                    tutor.Major.ToString(), allocations);
                 logger.LogInformation("Successfully fetched details for tutor with ID: {Id} with response: {Response}",
                     id, response);
                 return TypedResults.Ok(response);

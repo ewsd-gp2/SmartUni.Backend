@@ -1,4 +1,5 @@
 using SmartUni.PublicApi.Common.Domain;
+using SmartUni.PublicApi.Common.Helpers;
 using System.ComponentModel.DataAnnotations;
 
 namespace SmartUni.PublicApi.Features.Tutor
@@ -16,6 +17,8 @@ namespace SmartUni.PublicApi.Features.Tutor
         public required Enums.GenderType Gender { get; set; }
 
         public required Enums.MajorType Major { get; set; }
+
+        public string UserCode => UserCodeHelpers.GenerateUserCode(Enums.UserCodePrefix.Stu, Name, Email);
 
         public bool IsDeleted { get; private set; }
 

@@ -12,7 +12,8 @@ namespace SmartUni.PublicApi.Features.Tutor.Queries
             string Email,
             string PhoneNumber,
             Enums.GenderType Gender,
-            Enums.MajorType Major);
+            Enums.MajorType Major,
+            string UserCode);
 
         public sealed class Endpoint : IEndpoint
         {
@@ -31,7 +32,7 @@ namespace SmartUni.PublicApi.Features.Tutor.Queries
                 logger.LogInformation("Submitted to get all tutors");
 
                 IEnumerable<Response> tutors = await dbContext.Tutor
-                    .Select(t => new Response(t.Id, t.Name, t.Email, t.PhoneNumber, t.Gender, t.Major))
+                    .Select(t => new Response(t.Id, t.Name, t.Email, t.PhoneNumber, t.Gender, t.Major, t.UserCode))
                     .ToListAsync(cancellationToken);
 
                 if (!tutors.Any())

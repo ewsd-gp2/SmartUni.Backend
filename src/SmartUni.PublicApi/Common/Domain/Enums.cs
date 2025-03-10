@@ -16,5 +16,12 @@ namespace SmartUni.PublicApi.Common.Domain
             [Description("Information Systems")] InformationSystems,
             Networking
         }
+
+        public enum UserCodePrefix
+        {
+            Sta,
+            Tut,
+            Stu
+        }
     }
 }

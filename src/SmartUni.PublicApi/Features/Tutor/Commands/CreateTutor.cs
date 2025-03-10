@@ -1,4 +1,5 @@
 using FluentValidation;
+using FluentValidation.Results;
 using Microsoft.AspNetCore.Http.HttpResults;
 using SmartUni.PublicApi.Common.Domain;
 using SmartUni.PublicApi.Extensions;
@@ -21,11 +22,14 @@ namespace SmartUni.PublicApi.Features.Tutor.Commands
             public static void MapEndpoint(IEndpointRouteBuilder endpoints)
             {
                 endpoints.MapPost("/tutor", HandleAsync)
-                    .ProducesValidationProblem()
+                    .WithDescription("Create new tutor")
+                    .Accepts<Request>("application/json")
+                    .Produces(201)
+                    .Produces<BadRequest<List<ValidationFailure>>>()
                     .WithTags(nameof(Tutor));
             }
 
-            private static async Task<Results<Created, BadRequest<ValidationResult>>> HandleAsync(
+            private static async Task<Results<Created, BadRequest<List<ValidationFailure>>>> HandleAsync(
                 ILogger<Endpoint> logger,
                 SmartUniDbContext dbContext,
                 Request request,
@@ -37,7 +41,7 @@ namespace SmartUni.PublicApi.Features.Tutor.Commands
                 if (!validationResult.IsValid)
                 {
                     logger.LogWarning("Request failed validation with errors: {Errors}", validationResult.Errors);
-                    return TypedResults.BadRequest(validationResult);
+                    return TypedResults.BadRequest(validationResult.Errors);
                 }
 
                 Tutor tutor = MapToDomain(request);

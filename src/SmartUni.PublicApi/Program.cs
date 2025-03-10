@@ -9,6 +9,14 @@ WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 builder.Services.ConfigureFeatures(builder.Configuration, appAssembly);
 builder.Services.AddOpenApi();
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("Localhost",
+        builder =>
+        {
+            builder.AllowAnyMethod().AllowAnyHeader().AllowAnyOrigin();
+        });
+});
 builder.Host.UseSerilog((context, configuration) =>
     configuration.ReadFrom.Configuration(context.Configuration));
 
@@ -16,17 +24,16 @@ builder.Services.AddDatabase(builder.Configuration);
 
 WebApplication app = builder.Build();
 
+app.ApplyMigrations();
+// app.UseHttpsRedirection();
+// app.UseHsts();
+// app.UseSerilogRequestLogging();
 app.MapOpenApi();
 app.MapScalarApiReference(options =>
 {
     options.WithDefaultHttpClient(ScalarTarget.JavaScript, ScalarClient.Axios);
     options.WithTheme(ScalarTheme.Kepler);
 });
-app.ApplyMigrations();
-
-app.UseProductionExceptionHandler();
 app.RegisterEndpoints(appAssembly);
-// app.UseSerilogRequestLogging();
-// app.UseHttpsRedirection();
-// app.UseHsts();
+app.UseCors(options => options.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 app.Run();

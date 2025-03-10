@@ -25,10 +25,11 @@ namespace SmartUni.PublicApi.Features.Tutor.Commands
                         ([FromRoute] Guid id, [FromBody] Request request, [FromServices] ILogger<Endpoint> logger,
                                 [FromServices] SmartUniDbContext dbContext, CancellationToken cancellationToken) =>
                             HandleAsync(id, request, logger, dbContext, cancellationToken))
-                    .Produces<Ok>()
-                    .Produces<BadRequest<ValidationResult>>(StatusCodes.Status400BadRequest)
-                    .Produces<NotFound>(StatusCodes.Status404NotFound)
-                    .ProducesValidationProblem()
+                    .WithDescription("Update an existing tutor")
+                    .Accepts<Request>("application/json")
+                    .Produces(200)
+                    .Produces<BadRequest<List<ValidationFailure>>>(400)
+                    .Produces<NotFound>(404)
                     .WithTags(nameof(Tutor));
             }
 
@@ -45,7 +46,7 @@ namespace SmartUni.PublicApi.Features.Tutor.Commands
                 if (!validationResult.IsValid)
                 {
                     logger.LogWarning("Request failed validation with errors: {Errors}", validationResult.Errors);
-                    return TypedResults.BadRequest(validationResult);
+                    return TypedResults.BadRequest(validationResult.Errors);
                 }
 
                 Tutor? tutor = await dbContext.Tutor.FindAsync([id], cancellationToken);
