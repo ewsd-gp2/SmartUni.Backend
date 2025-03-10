@@ -25,7 +25,7 @@ namespace SmartUni.PublicApi.Features.Staff.Queries
                 logger.LogInformation("Submitted to get all staffs");
 
                 IEnumerable<Response> staff = await dbContext.Staff
-                    .Select(t => new Response(t.Id, t.Name, t.Email, t.PhoneNumber, t.Gender, t.IsDeleted))
+                    .Select(t => new Response(t.Id, t.Name, t.Email, t.PhoneNumber, t.Gender, t.IsDeleted!=true))
                     .ToListAsync(cancellationToken);
 
                 if (!staff.Any())
