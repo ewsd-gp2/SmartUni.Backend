@@ -1,6 +1,7 @@
 using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Identity;
 using SmartUni.PublicApi.Common.Domain;
 using SmartUni.PublicApi.Extensions;
 using SmartUni.PublicApi.Persistence;
@@ -15,7 +16,8 @@ namespace SmartUni.PublicApi.Features.Tutor.Commands
             string Email,
             string PhoneNumber,
             string Gender,
-            string Major);
+            string Major,
+            string Password);
 
         public sealed class Endpoint : IEndpoint
         {
@@ -25,14 +27,15 @@ namespace SmartUni.PublicApi.Features.Tutor.Commands
                     .WithDescription("Create new tutor")
                     .Accepts<Request>("application/json")
                     .Produces(201)
-                    .Produces<BadRequest<List<ValidationFailure>>>()
+                    .Produces<BadRequest<List<ValidationFailure>>>(400)
                     .WithTags(nameof(Tutor));
             }
 
-            private static async Task<Results<Created, BadRequest<List<ValidationFailure>>>> HandleAsync(
+            private static async Task<IResult> HandleAsync(
                 ILogger<Endpoint> logger,
                 SmartUniDbContext dbContext,
                 Request request,
+                UserManager<BaseUser> userManager,
                 CancellationToken cancellationToken)
             {
                 logger.LogInformation("Submitted to create a new tutor with request: {Request}", request);
@@ -45,9 +48,21 @@ namespace SmartUni.PublicApi.Features.Tutor.Commands
                 }
 
                 Tutor tutor = MapToDomain(request);
+                BaseUser user = new()
+                {
+                    Id = Guid.NewGuid(),
+                    UserName = request.Name,
+                    Email = request.Email,
+                    PhoneNumber = request.PhoneNumber,
+                    Tutor = tutor
+                };
 
-                await dbContext.Tutor.AddAsync(tutor, cancellationToken);
-                await dbContext.SaveChangesAsync(cancellationToken);
+                IdentityResult result = await userManager.CreateAsync(user, request.Password);
+                if (!result.Succeeded)
+                {
+                    logger.LogInformation("Failed to create a new user with errors: {Errors}", result.Errors);
+                    return TypedResults.BadRequest(result.Errors);
+                }
 
                 logger.LogInformation("Successfully created a new tutor with ID: {Id}", tutor.Id);
                 return TypedResults.Created();
@@ -59,8 +74,6 @@ namespace SmartUni.PublicApi.Features.Tutor.Commands
                 {
                     Id = Guid.NewGuid(),
                     Name = request.Name,
-                    Email = request.Email,
-                    PhoneNumber = request.PhoneNumber,
                     Gender = Enum.Parse<Enums.GenderType>(request.Gender),
                     Major = Enum.Parse<Enums.MajorType>(request.Major)
                 };

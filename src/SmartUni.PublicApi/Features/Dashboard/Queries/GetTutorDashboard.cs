@@ -31,7 +31,7 @@ namespace SmartUni.PublicApi.Features.Dashboard.Queries
                     .WithTags("Dashboard");
             }
 
-            private static async Task<Ok<Response>> HandleAsync(
+            private static async Task<IResult> HandleAsync(
                 Guid id,
                 SmartUniDbContext dbContext,
                 ILogger<Endpoint> logger,
@@ -39,12 +39,20 @@ namespace SmartUni.PublicApi.Features.Dashboard.Queries
             {
                 logger.LogInformation("Fetching details for tutor with ID: {Id}", id);
 
-                Tutor.Tutor? tutor = await dbContext.Tutor.FindAsync([id], cancellationToken);
+                Tutor.Tutor? tutor = await dbContext.Tutor.Include(x => x.Identity)
+                    .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+
+                if (tutor is null)
+                {
+                    logger.LogInformation("Tutor with ID: {Id} not found", id);
+                    return TypedResults.NotFound();
+                }
 
                 List<AllocationResponse> allocations = dbContext.Allocations.Where(a => a.TutorId == id)
                     .Include(a => a.Student)
                     .Select(a => new AllocationResponse(a.Id, a.StudentId, a.Student.Name)).ToList();
-                Response response = new(tutor.Id, tutor.Name, tutor.Email, tutor.PhoneNumber, tutor.Gender.ToString(),
+                Response response = new(tutor!.Id, tutor.Name, tutor.Identity.Email!,
+                    tutor.Identity.PhoneNumber!, tutor.Gender.ToString(),
                     tutor.Major.ToString(), allocations);
                 logger.LogInformation("Successfully fetched details for tutor with ID: {Id} with response: {Response}",
                     id, response);

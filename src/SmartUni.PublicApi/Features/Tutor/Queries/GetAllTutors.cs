@@ -20,6 +20,7 @@ namespace SmartUni.PublicApi.Features.Tutor.Queries
             public static void MapEndpoint(IEndpointRouteBuilder endpoints)
             {
                 endpoints.MapGet("/tutor", HandleAsync)
+                    .RequireAuthorization()
                     .Produces<Results<IResult, NotFound>>()
                     .WithTags(nameof(Tutor));
             }
@@ -32,7 +33,10 @@ namespace SmartUni.PublicApi.Features.Tutor.Queries
                 logger.LogInformation("Submitted to get all tutors");
 
                 IEnumerable<Response> tutors = await dbContext.Tutor
-                    .Select(t => new Response(t.Id, t.Name, t.Email, t.PhoneNumber, t.Gender, t.Major, t.UserCode))
+                    .Include(x => x.Identity)
+                    .Select(t => new Response(t.Id, t.Name, t.Identity.Email!, t.Identity.PhoneNumber!,
+                        t.Gender,
+                        t.Major, t.UserCode))
                     .ToListAsync(cancellationToken);
 
                 if (!tutors.Any())
