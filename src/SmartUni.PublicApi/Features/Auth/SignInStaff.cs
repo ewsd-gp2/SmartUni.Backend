@@ -6,7 +6,7 @@ using SmartUni.PublicApi.Persistence;
 
 namespace SmartUni.PublicApi.Features.Auth
 {
-    public class SignInTutor
+    public class SignInStaff
     {
         private sealed record Request(string Email, string Password);
 
@@ -14,17 +14,17 @@ namespace SmartUni.PublicApi.Features.Auth
         {
             public static void MapEndpoint(IEndpointRouteBuilder endpoints)
             {
-                endpoints.MapPost("/signin/tutor",
+                endpoints.MapPost("/signin/staff",
                         async Task<IResult> (
                             Request request, [FromQuery] bool? useCookies, [FromQuery] bool? useSessionCookies,
                             [FromServices] IServiceProvider sp, HttpContext context, SmartUniDbContext dbContext,
                             ILogger<Endpoint> logger) =>
                         {
-                            logger.LogInformation("Tutor log in requested with email: {TutorEmail}", request.Email);
+                            logger.LogInformation("Staff log in requested with email: {StaffEmail}", request.Email);
 
                             UserManager<BaseUser> userManager = sp.GetRequiredService<UserManager<BaseUser>>();
 
-                            BaseUser? user = await userManager.Users.Include(x => x.Tutor)
+                            BaseUser? user = await userManager.Users.Include(x => x.Staff)
                                 .FirstOrDefaultAsync(x => x.Email == request.Email);
                             if (user != null)
                             {
@@ -34,9 +34,10 @@ namespace SmartUni.PublicApi.Features.Auth
                                     return Results.Unauthorized();
                                 }
 
-                                string token = TokenHelper.GenerateToken(user, "Tutor");
-                                TokenHelper.SetTokensInsideCookie(token, context);
+                                string token = TokenHelper.GenerateToken(user,
+                                    request.Email == "super@gmail.com" ? "Admin" : "Staff");
 
+                                TokenHelper.SetTokensInsideCookie(token, context);
                                 user.LastLoginDate = DateTime.UtcNow;
                                 await dbContext.SaveChangesAsync();
                             }
@@ -47,7 +48,7 @@ namespace SmartUni.PublicApi.Features.Auth
 
                             return Results.Ok();
                         })
-                    .WithDescription("Sign in tutor")
+                    .WithDescription("Sign in staff")
                     .WithTags("Auth");
             }
         }

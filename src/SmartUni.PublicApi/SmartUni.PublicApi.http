@@ -1,6 +1,24 @@
-@SmartUni.PublicApi_HostAddress = http://localhost:5226
+@path = http://localhost:7142
+@authCookie = accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJodHRwOi8vbG9jYWxob3N0OjUxNzMiLCJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjcxNDIiLCJleHAiOjE3NDE5ODQ2NDAsIm5iZiI6MTc0MTk3MDI0MCwianRpIjoiYTE1NGM4MWEtNmJlZS00NzAwLWIwNDEtMTkyMTliMWJkNWZhIiwic3ViIjoiMGM0ZTkzZWYtZjVlZS00MTlmLTlkYzYtYmRhYWQ5M2M5MGFlIiwibmFtZSI6InRlc3RpbmciLCJlbWFpbCI6InRlc3RpbmdAZ21haWwuY29tIiwiaWF0IjoiMTc0MTk3Mzg0MCIsInJvbGUiOiJUdXRvciIsImlzRmlyc3RMb2dpbiI6IkZhbHNlIn0.VlnR54ACPv6TBfK3VsLV2BLDTj1hOtR6WO0C-pOvCmg
 
-GET {{SmartUni.PublicApi_HostAddress}}/weatherforecast/
+
+POST {{path}}/signin/tutor
 Accept: application/json
+Content-Type: application/json
+
+{
+  "email": "pthk@gmail.com",
+  "password": "superpass"
+}
+
+###
+
+GET {{path}}/tutor
+Cookie: {{authCookie}}
+
+###
+
+GET {{path}}/tutor/0c4e93ef-f5ee-419f-9dc6-bdaad93c90ae
+Cookie: {{authCookie}}
 
 ###

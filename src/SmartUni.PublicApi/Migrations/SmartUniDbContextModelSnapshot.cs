@@ -212,9 +212,9 @@ namespace SmartUni.PublicApi.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("email_confirmed");
 
-                    b.Property<DateTime?>("LastActiveDate")
+                    b.Property<DateTime?>("LastLoginDate")
                         .HasColumnType("timestamp with time zone")
-                        .HasColumnName("last_active_date");
+                        .HasColumnName("last_login_date");
 
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("boolean")
@@ -270,6 +270,23 @@ namespace SmartUni.PublicApi.Migrations
                         .HasDatabaseName("UserNameIndex");
 
                     b.ToTable("asp_net_user", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("8edcd6b3-0489-4766-abed-284e8945f13d"),
+                            AccessFailedCount = 0,
+                            ConcurrencyStamp = "eba2f237-2092-401e-9c31-3371ff170cdf",
+                            Email = "super@gmail.com",
+                            EmailConfirmed = false,
+                            LockoutEnabled = false,
+                            NormalizedEmail = "SUPER@GMAIL.COM",
+                            NormalizedUserName = "super@gmail.com",
+                            PasswordHash = "AQAAAAIAAYagAAAAEBO76UEQJKnMJnRWMaqsAZS3Qbuua1nQ47HoHOEDwe20rlsfO42Eqt1o58vU539ZhA==",
+                            PhoneNumberConfirmed = false,
+                            TwoFactorEnabled = false,
+                            UserName = "super@gmail.com"
+                        });
                 });
 
             modelBuilder.Entity("SmartUni.PublicApi.Features.Allocation.Allocation", b =>
@@ -282,6 +299,10 @@ namespace SmartUni.PublicApi.Migrations
                     b.Property<Guid>("CreatedBy")
                         .HasColumnType("uuid")
                         .HasColumnName("created_by");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_on");
 
                     b.Property<Guid>("StudentId")
                         .HasColumnType("uuid")
@@ -320,6 +341,10 @@ namespace SmartUni.PublicApi.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("created_by");
 
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_on");
+
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -329,6 +354,10 @@ namespace SmartUni.PublicApi.Migrations
                     b.Property<Enums.GenderType>("Gender")
                         .HasColumnType("gender")
                         .HasColumnName("gender");
+
+                    b.Property<Guid>("IdentityId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("identity_id");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean")
@@ -357,7 +386,25 @@ namespace SmartUni.PublicApi.Migrations
                     b.HasKey("Id")
                         .HasName("pk_staff");
 
+                    b.HasIndex("IdentityId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_staff_identity_id");
+
                     b.ToTable("staff", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("8fb67550-b862-4a0f-94fd-c212f5e35802"),
+                            CreatedBy = new Guid("8fb67550-b862-4a0f-94fd-c212f5e35802"),
+                            CreatedOn = new DateTime(2025, 3, 16, 17, 0, 0, 0, DateTimeKind.Utc),
+                            Email = "super@gmail.com",
+                            Gender = Enums.GenderType.Male,
+                            IdentityId = new Guid("8edcd6b3-0489-4766-abed-284e8945f13d"),
+                            IsDeleted = false,
+                            Name = "super staff",
+                            PhoneNumber = "0948827282"
+                        });
                 });
 
             modelBuilder.Entity("SmartUni.PublicApi.Features.Student.Student", b =>
@@ -371,6 +418,10 @@ namespace SmartUni.PublicApi.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("created_by");
 
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_on");
+
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -380,6 +431,10 @@ namespace SmartUni.PublicApi.Migrations
                     b.Property<Enums.GenderType>("Gender")
                         .HasColumnType("gender")
                         .HasColumnName("gender");
+
+                    b.Property<Guid>("IdentityId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("identity_id");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean")
@@ -412,6 +467,10 @@ namespace SmartUni.PublicApi.Migrations
                     b.HasKey("Id")
                         .HasName("pk_student");
 
+                    b.HasIndex("IdentityId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_student_identity_id");
+
                     b.ToTable("student", (string)null);
                 });
 
@@ -425,6 +484,10 @@ namespace SmartUni.PublicApi.Migrations
                     b.Property<Guid>("CreatedBy")
                         .HasColumnType("uuid")
                         .HasColumnName("created_by");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_on");
 
                     b.Property<Enums.GenderType>("Gender")
                         .HasColumnType("gender")
@@ -535,6 +598,30 @@ namespace SmartUni.PublicApi.Migrations
                     b.Navigation("Student");
                 });
 
+            modelBuilder.Entity("SmartUni.PublicApi.Features.Staff.Staff", b =>
+                {
+                    b.HasOne("SmartUni.PublicApi.Common.Domain.BaseUser", "Identity")
+                        .WithOne("Staff")
+                        .HasForeignKey("SmartUni.PublicApi.Features.Staff.Staff", "IdentityId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_staff_users_identity_id");
+
+                    b.Navigation("Identity");
+                });
+
+            modelBuilder.Entity("SmartUni.PublicApi.Features.Student.Student", b =>
+                {
+                    b.HasOne("SmartUni.PublicApi.Common.Domain.BaseUser", "Identity")
+                        .WithOne("Student")
+                        .HasForeignKey("SmartUni.PublicApi.Features.Student.Student", "IdentityId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_student_users_identity_id");
+
+                    b.Navigation("Identity");
+                });
+
             modelBuilder.Entity("SmartUni.PublicApi.Features.Tutor.Tutor", b =>
                 {
                     b.HasOne("SmartUni.PublicApi.Common.Domain.BaseUser", "Identity")
@@ -549,6 +636,12 @@ namespace SmartUni.PublicApi.Migrations
 
             modelBuilder.Entity("SmartUni.PublicApi.Common.Domain.BaseUser", b =>
                 {
+                    b.Navigation("Staff")
+                        .IsRequired();
+
+                    b.Navigation("Student")
+                        .IsRequired();
+
                     b.Navigation("Tutor")
                         .IsRequired();
                 });
