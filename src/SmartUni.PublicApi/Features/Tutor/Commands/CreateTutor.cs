@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Identity;
 using SmartUni.PublicApi.Common.Domain;
 using SmartUni.PublicApi.Extensions;
 using SmartUni.PublicApi.Persistence;
+using System.Security.Claims;
 using ValidationResult = FluentValidation.Results.ValidationResult;
 
 namespace SmartUni.PublicApi.Features.Tutor.Commands
@@ -24,6 +25,7 @@ namespace SmartUni.PublicApi.Features.Tutor.Commands
             public static void MapEndpoint(IEndpointRouteBuilder endpoints)
             {
                 endpoints.MapPost("/tutor", HandleAsync)
+                    .RequireAuthorization("api")
                     .WithDescription("Create new tutor")
                     .Accepts<Request>("application/json")
                     .Produces(201)
@@ -32,9 +34,11 @@ namespace SmartUni.PublicApi.Features.Tutor.Commands
             }
 
             private static async Task<IResult> HandleAsync(
+                ClaimsPrincipal claims,
                 ILogger<Endpoint> logger,
                 SmartUniDbContext dbContext,
                 Request request,
+                HttpContext context,
                 UserManager<BaseUser> userManager,
                 CancellationToken cancellationToken)
             {
@@ -48,6 +52,8 @@ namespace SmartUni.PublicApi.Features.Tutor.Commands
                 }
 
                 Tutor tutor = MapToDomain(request);
+                tutor.CreatedBy = Guid.Parse(claims.FindFirstValue(ClaimTypes.NameIdentifier) ??
+                                             throw new InvalidOperationException(ClaimTypes.NameIdentifier));
                 BaseUser user = new()
                 {
                     Id = Guid.NewGuid(),

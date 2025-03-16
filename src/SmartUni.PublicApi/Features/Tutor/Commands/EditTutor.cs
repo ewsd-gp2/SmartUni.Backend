@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using SmartUni.PublicApi.Common.Domain;
 using SmartUni.PublicApi.Extensions;
 using SmartUni.PublicApi.Persistence;
+using System.Security.Claims;
 
 namespace SmartUni.PublicApi.Features.Tutor.Commands
 {
@@ -23,8 +24,9 @@ namespace SmartUni.PublicApi.Features.Tutor.Commands
             {
                 endpoints.MapPut("/tutor/{id:guid}",
                         ([FromRoute] Guid id, [FromBody] Request request, [FromServices] ILogger<Endpoint> logger,
-                                [FromServices] SmartUniDbContext dbContext, CancellationToken cancellationToken) =>
-                            HandleAsync(id, request, logger, dbContext, cancellationToken))
+                                [FromServices] SmartUniDbContext dbContext, ClaimsPrincipal claims,
+                                CancellationToken cancellationToken) =>
+                            HandleAsync(id, request, logger, dbContext, claims, cancellationToken))
                     .WithDescription("Update an existing tutor")
                     .Accepts<Request>("application/json")
                     .Produces(200)
@@ -38,6 +40,7 @@ namespace SmartUni.PublicApi.Features.Tutor.Commands
                 Request request,
                 ILogger<Endpoint> logger,
                 SmartUniDbContext dbContext,
+                ClaimsPrincipal claims,
                 CancellationToken cancellationToken)
             {
                 logger.LogInformation("Submitted to edit tutor with ID: {Id} and request: {Request}", id, request);
@@ -62,6 +65,7 @@ namespace SmartUni.PublicApi.Features.Tutor.Commands
                 tutor.Identity.PhoneNumber = request.PhoneNumber;
                 tutor.Gender = request.Gender;
                 tutor.Major = request.Major;
+                tutor.CreatedBy = Guid.Parse(claims.FindFirstValue(ClaimTypes.NameIdentifier));
                 await dbContext.SaveChangesAsync(cancellationToken);
 
                 logger.LogInformation("Successfully edited tutor with ID: {Id}", id);

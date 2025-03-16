@@ -31,22 +31,52 @@ builder.Services.AddDatabase(builder.Configuration);
 builder.Services.AddIdentity<BaseUser, IdentityRole<Guid>>()
     .AddEntityFrameworkStores<SmartUniDbContext>()
     .AddDefaultTokenProviders();
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+
+builder.Services.AddAuthentication(authOptions =>
+    {
+        authOptions.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+        authOptions.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    })
     .AddJwtBearer(options =>
     {
         options.TokenValidationParameters = new TokenValidationParameters
         {
-            ValidateIssuer = false,
-            ValidateAudience = false,
-            ValidateLifetime = false,
-            ValidateIssuerSigningKey = false,
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
             ValidIssuer = "http://localhost:7142",
             ValidAudience = "http://localhost:5173",
-            IssuerSigningKey = new SymmetricSecurityKey("DoNotShareThisSuperSecretKey!@SDF123!@#"u8.ToArray())
+            IssuerSigningKey =
+                new SymmetricSecurityKey("DoNotShareThisSuperSecretKey!@SDF123!@#"u8.ToArray())
+        };
+
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                if (context.Request.Cookies.ContainsKey("accessToken"))
+                {
+                    Console.WriteLine("there is token in the header");
+                    context.Token = context.Request.Cookies["accessToken"];
+                }
+                else
+                {
+                    Console.WriteLine("there is no token in the header");
+                }
+
+                return Task.CompletedTask;
+            }
         };
     });
 
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorizationBuilder()
+    .AddPolicy("api", policyBuilder =>
+    {
+        policyBuilder.RequireAuthenticatedUser();
+        policyBuilder.AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme);
+    });
+
 builder.Services.Configure<IdentityOptions>(options =>
 {
     options.Password.RequireDigit = false;
@@ -61,9 +91,6 @@ WebApplication app = builder.Build();
 app.ApplyMigrations();
 app.UseAuthentication();
 app.UseAuthorization();
-// app.UseHttpsRedirection();
-// app.UseHsts();
-// app.UseSerilogRequestLogging();
 app.MapOpenApi();
 app.MapScalarApiReference(options =>
 {

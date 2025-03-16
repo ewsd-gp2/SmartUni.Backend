@@ -23,6 +23,7 @@ namespace SmartUni.PublicApi.Features.Tutor.Queries
                         ([FromRoute] Guid id, [FromServices] SmartUniDbContext dbContext,
                                 [FromServices] ILogger<Endpoint> logger, CancellationToken cancellationToken) =>
                             HandleAsync(id, dbContext, logger, cancellationToken))
+                    .RequireAuthorization("api")
                     .Produces<Ok<Response>>()
                     .Produces<NotFound>()
                     .WithTags(nameof(Tutor));
@@ -37,7 +38,7 @@ namespace SmartUni.PublicApi.Features.Tutor.Queries
                 logger.LogInformation("Fetching details for tutor with ID: {Id}", id);
 
                 Tutor? tutor = await dbContext.Tutor.Include(x => x.Identity)
-                    .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+                    .Where(x => !x.IsDeleted).FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
                 if (tutor is null)
                 {
                     logger.LogWarning("Tutor with ID: {Id} not found", id);
