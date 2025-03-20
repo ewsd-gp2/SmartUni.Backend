@@ -8,7 +8,7 @@ namespace SmartUni.PublicApi.Features.Staff.Commands
 {
     public class CreateStaff
     {
-        private sealed record Request(string Name, string Email, string PhoneNumber,string  Gender, Guid CreatedBy);
+        private sealed record Request(string Name, string Email, string PhoneNumber,string  Gender);
 
         public sealed class Endpoint : IEndpoint
         {
@@ -53,8 +53,7 @@ namespace SmartUni.PublicApi.Features.Staff.Commands
                     Email = request.Email,
                     PhoneNumber = request.PhoneNumber,
                     IsDeleted = false,
-                    Gender = Enum.Parse<Enums.GenderType>(request.Gender),
-                    CreatedBy = request.CreatedBy
+                    Gender = Enum.Parse<Enums.GenderType>(request.Gender)
                 };
             }
         }
@@ -78,8 +77,6 @@ namespace SmartUni.PublicApi.Features.Staff.Commands
                     .NotEmpty().WithMessage("Phone number is required");
                 // Validate Gender
                 RuleFor(x => x.Gender).IsEnumName(typeof(Enums.GenderType));
-                RuleFor(x => x.CreatedBy)
-                    .NotEmpty().WithMessage("Created By is required");
             }
         }
     }

@@ -38,7 +38,8 @@ namespace SmartUni.PublicApi.Features.Student.Queries
 
 
                 var student = await dbContext.Student
-                .Include(s => s.Allocation) // Eagerly load Allocation details
+                .Include(s => s.Allocation)
+                .Where(s => s.IsDeleted != true)// Eagerly load Allocation details
                 .Select(s => new
                 {
                     s.Id,

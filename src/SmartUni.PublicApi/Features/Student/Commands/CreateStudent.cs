@@ -8,7 +8,7 @@ namespace SmartUni.PublicApi.Features.Student.Commands
 {
     public class CreateStudent
     {
-        private sealed record Request(string Name, string Email, string PhoneNumber, string Gender,string Major, Guid CreatedBy);
+        private sealed record Request(string Name, string Email, string PhoneNumber, string Gender,string Major);
 
         public sealed class Endpoint : IEndpoint
         {
@@ -54,8 +54,7 @@ namespace SmartUni.PublicApi.Features.Student.Commands
                     PhoneNumber = request.PhoneNumber,
                     IsDeleted = false,
                     Gender = Enum.Parse<Enums.GenderType>(request.Gender),
-                    Major = Enum.Parse<Enums.MajorType>(request.Major),
-                    CreatedBy = request.CreatedBy
+                    Major = Enum.Parse<Enums.MajorType>(request.Major)
                 };
             }
         }
@@ -80,8 +79,6 @@ namespace SmartUni.PublicApi.Features.Student.Commands
 
                 // Validate Gender
                 RuleFor(x => x.Gender).IsEnumName(typeof(Enums.GenderType));
-                RuleFor(x => x.CreatedBy)
-                    .NotEmpty().WithMessage("Created By is required");
             }
         }
     }
