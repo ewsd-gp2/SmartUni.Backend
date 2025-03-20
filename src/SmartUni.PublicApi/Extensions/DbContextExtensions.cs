@@ -19,7 +19,9 @@ namespace SmartUni.PublicApi.Extensions
         private static void MapEnums(NpgsqlDbContextOptionsBuilder builder)
         {
             builder.MapEnum<Enums.GenderType>("gender")
-                .MapEnum<Enums.MajorType>("major");
+                .MapEnum<Enums.MajorType>("major")
+                .MapEnum<Enums.MeetingStatus>("meeting_status")
+                .MapEnum<Enums.AttendanceStatus>("attendance_status");
         }
     }
 }
