@@ -8,7 +8,7 @@ using SmartUni.PublicApi.Common.Domain;
 namespace SmartUni.PublicApi.Migrations
 {
     /// <inheritdoc />
-    public partial class init : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -55,6 +55,36 @@ namespace SmartUni.PublicApi.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("pk_asp_net_user", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "chatmessage",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    sender_id = table.Column<string>(type: "text", nullable: false),
+                    chat_room_id = table.Column<string>(type: "text", nullable: false),
+                    content = table.Column<string>(type: "text", nullable: false),
+                    timestamp = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_chatmessage", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "chatparticipant",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    user_id = table.Column<string>(type: "text", nullable: false),
+                    chat_room_id = table.Column<string>(type: "text", nullable: false),
+                    joined_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_chatparticipant", x => x.id);
                 });
 
             migrationBuilder.CreateTable(
@@ -359,6 +389,12 @@ namespace SmartUni.PublicApi.Migrations
 
             migrationBuilder.DropTable(
                 name: "asp_net_user_token");
+
+            migrationBuilder.DropTable(
+                name: "chatmessage");
+
+            migrationBuilder.DropTable(
+                name: "chatparticipant");
 
             migrationBuilder.DropTable(
                 name: "staff");

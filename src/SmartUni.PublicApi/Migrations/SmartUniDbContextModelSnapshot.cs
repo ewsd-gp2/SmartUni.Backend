@@ -330,6 +330,67 @@ namespace SmartUni.PublicApi.Migrations
                     b.ToTable("allocation", (string)null);
                 });
 
+            modelBuilder.Entity("SmartUni.PublicApi.Features.Message.ChatMessage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("ChatRoomId")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("chat_room_id");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("content");
+
+                    b.Property<string>("SenderId")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("sender_id");
+
+                    b.Property<DateTime>("Timestamp")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("timestamp");
+
+                    b.HasKey("Id")
+                        .HasName("pk_chatmessage");
+
+                    b.ToTable("chatmessage", (string)null);
+                });
+
+            modelBuilder.Entity("SmartUni.PublicApi.Features.Message.ChatParticipant", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ChatRoomId")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("chat_room_id");
+
+                    b.Property<DateTime>("JoinedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("joined_at");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_chatparticipant");
+
+                    b.ToTable("chatparticipant", (string)null);
+                });
+
             modelBuilder.Entity("SmartUni.PublicApi.Features.Staff.Staff", b =>
                 {
                     b.Property<Guid>("Id")
