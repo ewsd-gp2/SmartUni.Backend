@@ -57,7 +57,7 @@ namespace SmartUni.PublicApi.Features.Tutor.Commands
                 BaseUser user = new()
                 {
                     Id = Guid.NewGuid(),
-                    UserName = request.Name,
+                    UserName = request.Email,
                     Email = request.Email,
                     PhoneNumber = request.PhoneNumber,
                     Tutor = tutor

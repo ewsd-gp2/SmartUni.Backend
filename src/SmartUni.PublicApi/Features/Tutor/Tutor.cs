@@ -1,13 +1,12 @@
 using SmartUni.PublicApi.Common.Domain;
 using SmartUni.PublicApi.Common.Helpers;
-using System.ComponentModel.DataAnnotations;
 
 namespace SmartUni.PublicApi.Features.Tutor
 {
     public class Tutor : BaseEntity
     {
         public Guid Id { get; set; }
-        [MaxLength(50)] public required string Name { get; set; }
+        public required string Name { get; set; }
 
         public required Enums.GenderType Gender { get; set; }
 
