@@ -20,6 +20,8 @@ namespace SmartUni.PublicApi.Features.Tutor
 
         public Guid IdentityId { get; set; }
 
+        public List<Meeting.Meeting> Meetings { get; set; }
+
         public void UpdateTutorName(string name)
         {
             Name = name;

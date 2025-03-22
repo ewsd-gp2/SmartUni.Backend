@@ -24,6 +24,13 @@ namespace SmartUni.PublicApi.Common.Domain
             Networking
         }
 
+        public enum MeetingLinkType
+        {
+            Zoom,
+            [Description("Google Meet")] GoogleMeet,
+            [Description("Microsoft Teams")] MicrosoftTeams
+        }
+
         public enum MeetingStatus
         {
             New,
