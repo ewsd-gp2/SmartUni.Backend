@@ -41,7 +41,7 @@ namespace SmartUni.PublicApi.Features.Allocation.Commands
                     return TypedResults.BadRequest(validationResult);
                 }
 
-                Allocation? allocation = await dbContext.Allocations.FindAsync([id], cancellationToken);
+                Allocation? allocation = await dbContext.Allocation.FindAsync([id], cancellationToken);
 
                 if (allocation is null)
                 {
@@ -49,7 +49,7 @@ namespace SmartUni.PublicApi.Features.Allocation.Commands
                     return TypedResults.NotFound();
                 }
 
-                allocation.UpdateAllocation(request.Student_ID,request.Tutor_ID,request.Updated_By,DateTime.UtcNow);
+                allocation.UpdateAllocation(request.Student_ID, request.Tutor_ID, request.Updated_By, DateTime.UtcNow);
                 await dbContext.SaveChangesAsync(cancellationToken);
 
                 logger.LogInformation("Successfully edited allocation with ID: {Id}", id);
