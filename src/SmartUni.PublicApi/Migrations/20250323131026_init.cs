@@ -8,14 +8,17 @@ using SmartUni.PublicApi.Common.Domain;
 namespace SmartUni.PublicApi.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class init : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AlterDatabase()
+                .Annotation("Npgsql:Enum:attendance_status", "absent,leave,present")
                 .Annotation("Npgsql:Enum:gender", "female,male")
-                .Annotation("Npgsql:Enum:major", "computing,information_systems,networking");
+                .Annotation("Npgsql:Enum:major", "computing,information_systems,networking")
+                .Annotation("Npgsql:Enum:meeting_link_type", "google_meet,microsoft_teams,zoom")
+                .Annotation("Npgsql:Enum:meeting_status", "cancelled,completed,new");
 
             migrationBuilder.CreateTable(
                 name: "asp_net_role",
@@ -297,6 +300,64 @@ namespace SmartUni.PublicApi.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "meeting",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    title = table.Column<string>(type: "text", nullable: false),
+                    start_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    end_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    status = table.Column<Enums.MeetingStatus>(type: "meeting_status", nullable: false),
+                    organizer_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    is_online = table.Column<bool>(type: "boolean", nullable: false),
+                    location = table.Column<string>(type: "text", nullable: true),
+                    link_type = table.Column<Enums.MeetingLinkType>(type: "meeting_link_type", nullable: true),
+                    url = table.Column<string>(type: "text", nullable: true),
+                    agenda = table.Column<string>(type: "text", nullable: true),
+                    created_by = table.Column<Guid>(type: "uuid", nullable: false),
+                    created_on = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    updated_by = table.Column<Guid>(type: "uuid", nullable: true),
+                    updated_on = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_meeting", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_meeting_tutor_organizer_id",
+                        column: x => x.organizer_id,
+                        principalTable: "tutor",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "meetingparticipant",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    meeting_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    student_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    attendance = table.Column<Enums.AttendanceStatus>(type: "attendance_status", nullable: false),
+                    note = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_meetingparticipant", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_meetingparticipant_meeting_meeting_id",
+                        column: x => x.meeting_id,
+                        principalTable: "meeting",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "fk_meetingparticipant_student_student_id",
+                        column: x => x.student_id,
+                        principalTable: "student",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.InsertData(
                 table: "asp_net_user",
                 columns: new[] { "id", "access_failed_count", "concurrency_stamp", "email", "email_confirmed", "last_login_date", "lockout_enabled", "lockout_end", "normalized_email", "normalized_user_name", "password_hash", "phone_number", "phone_number_confirmed", "security_stamp", "two_factor_enabled", "user_name" },
@@ -351,6 +412,23 @@ namespace SmartUni.PublicApi.Migrations
                 column: "role_id");
 
             migrationBuilder.CreateIndex(
+                name: "ix_meeting_organizer_id_start_time",
+                table: "meeting",
+                columns: new[] { "organizer_id", "start_time" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "ix_meetingparticipant_meeting_id",
+                table: "meetingparticipant",
+                column: "meeting_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_meetingparticipant_student_id_meeting_id",
+                table: "meetingparticipant",
+                columns: new[] { "student_id", "meeting_id" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "ix_staff_identity_id",
                 table: "staff",
                 column: "identity_id",
@@ -397,16 +475,22 @@ namespace SmartUni.PublicApi.Migrations
                 name: "chatparticipant");
 
             migrationBuilder.DropTable(
+                name: "meetingparticipant");
+
+            migrationBuilder.DropTable(
                 name: "staff");
 
             migrationBuilder.DropTable(
-                name: "tutor");
+                name: "asp_net_role");
+
+            migrationBuilder.DropTable(
+                name: "meeting");
 
             migrationBuilder.DropTable(
                 name: "student");
 
             migrationBuilder.DropTable(
-                name: "asp_net_role");
+                name: "tutor");
 
             migrationBuilder.DropTable(
                 name: "asp_net_user");

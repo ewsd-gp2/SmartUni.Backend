@@ -36,7 +36,7 @@ namespace SmartUni.PublicApi.Features.Allocation.Queries
             {
                 logger.LogInformation("Fetching details for allocation with ID: {Id}", id);
 
-                var detailAllocation = await dbContext.Allocations
+                var detailAllocation = await dbContext.Allocation
                     .Where(x => x.Id == id)
                     .Join(dbContext.Student,
                         allocation => allocation.StudentId,

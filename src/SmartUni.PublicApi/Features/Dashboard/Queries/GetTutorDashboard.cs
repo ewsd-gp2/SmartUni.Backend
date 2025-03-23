@@ -48,7 +48,7 @@ namespace SmartUni.PublicApi.Features.Dashboard.Queries
                     return TypedResults.NotFound();
                 }
 
-                List<AllocationResponse> allocations = dbContext.Allocations.Where(a => a.TutorId == id)
+                List<AllocationResponse> allocations = dbContext.Allocation.Where(a => a.TutorId == id)
                     .Include(a => a.Student)
                     .Select(a => new AllocationResponse(a.Id, a.StudentId, a.Student.Name)).ToList();
                 Response response = new(tutor!.Id, tutor.Name, tutor.Identity.Email!,

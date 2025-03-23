@@ -1,4 +1,5 @@
 ﻿using SmartUni.PublicApi.Common.Domain;
+using SmartUni.PublicApi.Features.Meeting;
 using System.ComponentModel.DataAnnotations;
 
 namespace SmartUni.PublicApi.Features.Student
@@ -21,6 +22,7 @@ namespace SmartUni.PublicApi.Features.Student
         public Allocation.Allocation? Allocation { get; set; }
         public virtual BaseUser Identity { get; set; }
         public Guid IdentityId { get; set; }
+        public List<MeetingParticipant> Meetings { get; set; } = [];
 
         public void UpdateStudentName(string name)
         {
