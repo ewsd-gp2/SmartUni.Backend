@@ -13,8 +13,8 @@ using SmartUni.PublicApi.Persistence;
 namespace SmartUni.PublicApi.Migrations
 {
     [DbContext(typeof(SmartUniDbContext))]
-    [Migration("20250317160142_add_meetings")]
-    partial class add_meetings
+    [Migration("20250323131026_init")]
+    partial class init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -27,6 +27,7 @@ namespace SmartUni.PublicApi.Migrations
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "attendance_status", new[] { "absent", "leave", "present" });
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "gender", new[] { "female", "male" });
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "major", new[] { "computing", "information_systems", "networking" });
+            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "meeting_link_type", new[] { "google_meet", "microsoft_teams", "zoom" });
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "meeting_status", new[] { "cancelled", "completed", "new" });
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
@@ -342,6 +343,10 @@ namespace SmartUni.PublicApi.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
+                    b.Property<string>("Agenda")
+                        .HasColumnType("text")
+                        .HasColumnName("agenda");
+
                     b.Property<Guid>("CreatedBy")
                         .HasColumnType("uuid")
                         .HasColumnName("created_by");
@@ -350,25 +355,38 @@ namespace SmartUni.PublicApi.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_on");
 
-                    b.Property<DateOnly>("Date")
-                        .HasColumnType("date")
-                        .HasColumnName("date");
-
-                    b.Property<TimeOnly>("EndTime")
-                        .HasColumnType("time without time zone")
+                    b.Property<DateTime>("EndTime")
+                        .HasColumnType("timestamp with time zone")
                         .HasColumnName("end_time");
+
+                    b.Property<bool>("IsOnline")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_online");
+
+                    b.Property<Enums.MeetingLinkType?>("LinkType")
+                        .HasColumnType("meeting_link_type")
+                        .HasColumnName("link_type");
+
+                    b.Property<string>("Location")
+                        .HasColumnType("text")
+                        .HasColumnName("location");
 
                     b.Property<Guid>("OrganizerId")
                         .HasColumnType("uuid")
                         .HasColumnName("organizer_id");
 
-                    b.Property<TimeOnly>("StartTime")
-                        .HasColumnType("time without time zone")
+                    b.Property<DateTime>("StartTime")
+                        .HasColumnType("timestamp with time zone")
                         .HasColumnName("start_time");
 
                     b.Property<Enums.MeetingStatus>("Status")
                         .HasColumnType("meeting_status")
                         .HasColumnName("status");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("title");
 
                     b.Property<Guid?>("UpdatedBy")
                         .HasColumnType("uuid")
@@ -378,16 +396,21 @@ namespace SmartUni.PublicApi.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_on");
 
+                    b.Property<string>("Url")
+                        .HasColumnType("text")
+                        .HasColumnName("url");
+
                     b.HasKey("Id")
                         .HasName("pk_meeting");
 
-                    b.HasIndex("OrganizerId")
-                        .HasDatabaseName("ix_meeting_organizer_id");
+                    b.HasIndex("OrganizerId", "StartTime")
+                        .IsUnique()
+                        .HasDatabaseName("ix_meeting_organizer_id_start_time");
 
                     b.ToTable("meeting", (string)null);
                 });
 
-            modelBuilder.Entity("SmartUni.PublicApi.Features.Meeting.Participant", b =>
+            modelBuilder.Entity("SmartUni.PublicApi.Features.Meeting.MeetingParticipant", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -398,24 +421,90 @@ namespace SmartUni.PublicApi.Migrations
                         .HasColumnType("attendance_status")
                         .HasColumnName("attendance");
 
-                    b.Property<Guid?>("MeetingId")
+                    b.Property<Guid>("MeetingId")
                         .HasColumnType("uuid")
                         .HasColumnName("meeting_id");
+
+                    b.Property<string>("Note")
+                        .HasColumnType("text")
+                        .HasColumnName("note");
 
                     b.Property<Guid>("StudentId")
                         .HasColumnType("uuid")
                         .HasColumnName("student_id");
 
                     b.HasKey("Id")
-                        .HasName("pk_participant");
+                        .HasName("pk_meetingparticipant");
 
                     b.HasIndex("MeetingId")
-                        .HasDatabaseName("ix_participant_meeting_id");
+                        .HasDatabaseName("ix_meetingparticipant_meeting_id");
 
-                    b.HasIndex("StudentId")
-                        .HasDatabaseName("ix_participant_student_id");
+                    b.HasIndex("StudentId", "MeetingId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_meetingparticipant_student_id_meeting_id");
 
-                    b.ToTable("participant", (string)null);
+                    b.ToTable("meetingparticipant", (string)null);
+                });
+
+            modelBuilder.Entity("SmartUni.PublicApi.Features.Message.ChatMessage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("ChatRoomId")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("chat_room_id");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("content");
+
+                    b.Property<string>("SenderId")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("sender_id");
+
+                    b.Property<DateTime>("Timestamp")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("timestamp");
+
+                    b.HasKey("Id")
+                        .HasName("pk_chatmessage");
+
+                    b.ToTable("chatmessage", (string)null);
+                });
+
+            modelBuilder.Entity("SmartUni.PublicApi.Features.Message.ChatParticipant", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ChatRoomId")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("chat_room_id");
+
+                    b.Property<DateTime>("JoinedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("joined_at");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_chatparticipant");
+
+                    b.ToTable("chatparticipant", (string)null);
                 });
 
             modelBuilder.Entity("SmartUni.PublicApi.Features.Staff.Staff", b =>
@@ -689,7 +778,7 @@ namespace SmartUni.PublicApi.Migrations
             modelBuilder.Entity("SmartUni.PublicApi.Features.Meeting.Meeting", b =>
                 {
                     b.HasOne("SmartUni.PublicApi.Features.Tutor.Tutor", "Organizer")
-                        .WithMany()
+                        .WithMany("Meetings")
                         .HasForeignKey("OrganizerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
@@ -698,19 +787,23 @@ namespace SmartUni.PublicApi.Migrations
                     b.Navigation("Organizer");
                 });
 
-            modelBuilder.Entity("SmartUni.PublicApi.Features.Meeting.Participant", b =>
+            modelBuilder.Entity("SmartUni.PublicApi.Features.Meeting.MeetingParticipant", b =>
                 {
-                    b.HasOne("SmartUni.PublicApi.Features.Meeting.Meeting", null)
+                    b.HasOne("SmartUni.PublicApi.Features.Meeting.Meeting", "Meeting")
                         .WithMany("Participants")
                         .HasForeignKey("MeetingId")
-                        .HasConstraintName("fk_participant_meeting_meeting_id");
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_meetingparticipant_meeting_meeting_id");
 
                     b.HasOne("SmartUni.PublicApi.Features.Student.Student", "Student")
-                        .WithMany()
+                        .WithMany("Meetings")
                         .HasForeignKey("StudentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_participant_student_student_id");
+                        .HasConstraintName("fk_meetingparticipant_student_student_id");
+
+                    b.Navigation("Meeting");
 
                     b.Navigation("Student");
                 });
@@ -771,6 +864,13 @@ namespace SmartUni.PublicApi.Migrations
             modelBuilder.Entity("SmartUni.PublicApi.Features.Student.Student", b =>
                 {
                     b.Navigation("Allocation");
+
+                    b.Navigation("Meetings");
+                });
+
+            modelBuilder.Entity("SmartUni.PublicApi.Features.Tutor.Tutor", b =>
+                {
+                    b.Navigation("Meetings");
                 });
 #pragma warning restore 612, 618
         }

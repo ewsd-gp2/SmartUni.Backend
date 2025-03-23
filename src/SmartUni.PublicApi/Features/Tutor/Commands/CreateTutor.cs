@@ -6,7 +6,6 @@ using SmartUni.PublicApi.Common.Domain;
 using SmartUni.PublicApi.Extensions;
 using SmartUni.PublicApi.Persistence;
 using System.Security.Claims;
-using ValidationResult = FluentValidation.Results.ValidationResult;
 
 namespace SmartUni.PublicApi.Features.Tutor.Commands
 {
@@ -38,7 +37,6 @@ namespace SmartUni.PublicApi.Features.Tutor.Commands
                 ILogger<Endpoint> logger,
                 SmartUniDbContext dbContext,
                 Request request,
-                HttpContext context,
                 UserManager<BaseUser> userManager,
                 CancellationToken cancellationToken)
             {

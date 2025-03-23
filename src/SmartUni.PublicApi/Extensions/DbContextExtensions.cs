@@ -21,7 +21,8 @@ namespace SmartUni.PublicApi.Extensions
             builder.MapEnum<Enums.GenderType>("gender")
                 .MapEnum<Enums.MajorType>("major")
                 .MapEnum<Enums.MeetingStatus>("meeting_status")
-                .MapEnum<Enums.AttendanceStatus>("attendance_status");
+                .MapEnum<Enums.AttendanceStatus>("attendance_status")
+                .MapEnum<Enums.MeetingLinkType>("meeting_link_type");
         }
     }
 }
