@@ -47,9 +47,9 @@ namespace SmartUni.PublicApi.Features.Allocation.Commands
 
                 List<Allocation> allocations = MapToDomain(request.Data);
 
-                await dbContext.Allocations.AddRangeAsync(allocations, cancellationToken);
-                var allocationMap = allocations
-    .ToDictionary(a => a.StudentId, a => a.Id);
+                await dbContext.Allocation.AddRangeAsync(allocations, cancellationToken);
+                Dictionary<Guid, Guid> allocationMap = allocations
+                    .ToDictionary(a => a.StudentId, a => a.Id);
 
                 // Update the AllocationID column for each related Student
                 await dbContext.Student
