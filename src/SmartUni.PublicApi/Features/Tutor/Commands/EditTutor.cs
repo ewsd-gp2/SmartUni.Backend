@@ -15,18 +15,14 @@ namespace SmartUni.PublicApi.Features.Tutor.Commands
             string Name,
             string Email,
             string PhoneNumber,
-            Enums.GenderType Gender,
-            Enums.MajorType Major);
+            string Gender,
+            string Major);
 
         public sealed class Endpoint : IEndpoint
         {
             public static void MapEndpoint(IEndpointRouteBuilder endpoints)
             {
-                endpoints.MapPut("/tutor/{id:guid}",
-                        ([FromRoute] Guid id, [FromBody] Request request, [FromServices] ILogger<Endpoint> logger,
-                                [FromServices] SmartUniDbContext dbContext, ClaimsPrincipal claims,
-                                CancellationToken cancellationToken) =>
-                            HandleAsync(id, request, logger, dbContext, claims, cancellationToken))
+                endpoints.MapPut("/tutor/{id:guid}", HandleAsync)
                     .WithDescription("Update an existing tutor")
                     .Accepts<Request>("application/json")
                     .Produces(200)
@@ -36,8 +32,8 @@ namespace SmartUni.PublicApi.Features.Tutor.Commands
             }
 
             private static async Task<Results<Ok, IResult>> HandleAsync(
-                Guid id,
-                Request request,
+                [FromRoute] Guid id,
+                [FromBody] Request request,
                 ILogger<Endpoint> logger,
                 SmartUniDbContext dbContext,
                 ClaimsPrincipal claims,
@@ -52,7 +48,8 @@ namespace SmartUni.PublicApi.Features.Tutor.Commands
                     return TypedResults.BadRequest(validationResult.Errors);
                 }
 
-                Tutor? tutor = await dbContext.Tutor.FindAsync([id], cancellationToken);
+                Tutor? tutor = await dbContext.Tutor.Where(x => !x.IsDeleted).Include(x => x.Identity)
+                    .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
 
                 if (tutor is null)
                 {
@@ -63,8 +60,8 @@ namespace SmartUni.PublicApi.Features.Tutor.Commands
                 tutor.Name = request.Name;
                 tutor.Identity.Email = request.Email;
                 tutor.Identity.PhoneNumber = request.PhoneNumber;
-                tutor.Gender = request.Gender;
-                tutor.Major = request.Major;
+                tutor.Gender = Enum.Parse<Enums.GenderType>(request.Gender);
+                tutor.Major = Enum.Parse<Enums.MajorType>(request.Major);
                 tutor.CreatedBy = Guid.Parse(claims.FindFirstValue(ClaimTypes.NameIdentifier));
                 await dbContext.SaveChangesAsync(cancellationToken);
 
@@ -81,8 +78,8 @@ namespace SmartUni.PublicApi.Features.Tutor.Commands
                 RuleFor(x => x.Name).NotEmpty();
                 RuleFor(x => x.Email).CustomEmailAddress();
                 RuleFor(x => x.PhoneNumber).PhoneNumber();
-                RuleFor(x => x.Gender).IsInEnum();
-                RuleFor(x => x.Major).IsInEnum();
+                RuleFor(x => x.Gender).IsEnumName(typeof(Enums.GenderType));
+                RuleFor(x => x.Major).IsEnumName(typeof(Enums.MajorType));
             }
         }
     }

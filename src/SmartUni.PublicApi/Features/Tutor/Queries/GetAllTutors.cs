@@ -43,7 +43,7 @@ namespace SmartUni.PublicApi.Features.Tutor.Queries
                 if (!tutors.Any())
                 {
                     logger.LogWarning("No tutors found");
-                    return TypedResults.NotFound();
+                    return TypedResults.Ok();
                 }
 
                 logger.LogInformation("Successfully retrieved all tutors. Found {TutorCount} tutors", tutors.Count());
