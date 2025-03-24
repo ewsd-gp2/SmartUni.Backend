@@ -69,8 +69,7 @@ namespace SmartUni.PublicApi.Features.Allocation.Commands
                 {
                     Id = Guid.NewGuid(),
                     StudentId = requestAllocation.StudentID,
-                    TutorId = requestAllocation.TutorID,
-                    CreatedBy = requestModel.CreatedBy
+                    TutorId = requestModel.TutorID
                 }).ToList();
             }
         }
@@ -81,11 +80,10 @@ namespace SmartUni.PublicApi.Features.Allocation.Commands
             {
                 RuleFor(x => x.Data.requestAllocationModels).NotEmpty()
                     .WithMessage("At least one allocation is required.");
-
+                RuleFor(x => x.Data.TutorID).NotEmpty().WithMessage("Tutor ID is required");
                 RuleForEach(x => x.Data.requestAllocationModels).ChildRules(request =>
                 {
                     request.RuleFor(x => x.StudentID).NotEmpty().WithMessage("Student ID is required.");
-                    request.RuleFor(x => x.TutorID).NotEmpty().WithMessage("Tutor ID is required.");
                 });
             }
         }
