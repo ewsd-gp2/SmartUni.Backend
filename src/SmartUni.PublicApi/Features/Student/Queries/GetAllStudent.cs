@@ -6,7 +6,7 @@ namespace SmartUni.PublicApi.Features.Student.Queries
 {
     public class GetAllStudent
     {
-        
+
         private record Response(
             Guid Id,
             string Name,
@@ -14,7 +14,6 @@ namespace SmartUni.PublicApi.Features.Student.Queries
             string PhoneNumber,
             Enums.GenderType Gender,
             Enums.MajorType Major,
-            bool IsDeleted,
             Guid? AllocationID,
             bool IsAllocated);
 
@@ -24,6 +23,7 @@ namespace SmartUni.PublicApi.Features.Student.Queries
             public static void MapEndpoint(IEndpointRouteBuilder endpoints)
             {
                 endpoints.MapGet("/student", HandleAsync)
+                    .RequireAuthorization("api")
                     .Produces<Results<IResult, NotFound>>()
                     .WithTags(nameof(Student));
             }
@@ -35,9 +35,8 @@ namespace SmartUni.PublicApi.Features.Student.Queries
             {
                 logger.LogInformation("Submitted to get all students");
 
-
-
                 var student = await dbContext.Student
+                    .Include(x => x.Identity)
                 .Include(s => s.Allocation)
                 .Where(s => s.IsDeleted != true)// Eagerly load Allocation details
                 .Select(s => new
@@ -48,8 +47,7 @@ namespace SmartUni.PublicApi.Features.Student.Queries
                     s.PhoneNumber,
                     s.Gender,
                     s.Major,
-                    s.IsDeleted,
-                    IsAllocated = s.Allocation.Id !=null && s.Allocation.Id != Guid.Empty
+                    IsAllocated = s.Allocation.Id != null && s.Allocation.Id != Guid.Empty
                 })
                 .ToListAsync();
 

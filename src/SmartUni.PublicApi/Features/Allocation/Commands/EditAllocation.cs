@@ -3,12 +3,13 @@ using FluentValidation.Results;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using SmartUni.PublicApi.Persistence;
+using System.Security.Claims;
 
 namespace SmartUni.PublicApi.Features.Allocation.Commands
 {
     public class EditAllocation
     {
-        private sealed record Request(Guid Student_ID, Guid Tutor_ID, Guid Updated_By);
+        private sealed record Request(Guid Student_ID, Guid Tutor_ID);
 
         public sealed class Endpoint : IEndpoint
         {
@@ -16,9 +17,10 @@ namespace SmartUni.PublicApi.Features.Allocation.Commands
             {
                 endpoints.MapPut("/allocation/{id:guid}",
                         ([FromRoute] Guid id, [FromBody] Request request, [FromServices] ILogger<Endpoint> logger,
-                                [FromServices] SmartUniDbContext dbContext, CancellationToken cancellationToken) =>
-                            HandleAsync(id, request, logger, dbContext, cancellationToken))
-                    .Produces<Ok>()
+                                [FromServices] SmartUniDbContext dbContext, ClaimsPrincipal claims, CancellationToken cancellationToken) =>
+                            HandleAsync(id, request, logger, dbContext,claims, cancellationToken))
+                    .WithDescription("Update an existing allocation")
+                    .Produces(200)
                     .Produces<BadRequest<ValidationResult>>(StatusCodes.Status400BadRequest)
                     .Produces<NotFound>(StatusCodes.Status404NotFound)
                     .ProducesValidationProblem()
@@ -30,6 +32,7 @@ namespace SmartUni.PublicApi.Features.Allocation.Commands
                 Request request,
                 ILogger<Endpoint> logger,
                 SmartUniDbContext dbContext,
+                ClaimsPrincipal claims,
                 CancellationToken cancellationToken)
             {
                 logger.LogInformation("Submitted to edit allocation with ID: {Id} and request: {Request}", id, request);
@@ -42,14 +45,16 @@ namespace SmartUni.PublicApi.Features.Allocation.Commands
                 }
 
                 Allocation? allocation = await dbContext.Allocation.FindAsync([id], cancellationToken);
-
+                
                 if (allocation is null)
                 {
                     logger.LogWarning("Allocation with ID: {Id} not found", id);
                     return TypedResults.NotFound();
                 }
 
-                allocation.UpdateAllocation(request.Student_ID, request.Tutor_ID, request.Updated_By, DateTime.UtcNow);
+                allocation.UpdateAllocation(request.Student_ID, request.Tutor_ID);
+                allocation.UpdatedOn = DateTime.UtcNow;
+                allocation.UpdatedBy = Guid.Parse(claims.FindFirstValue(ClaimTypes.NameIdentifier));
                 await dbContext.SaveChangesAsync(cancellationToken);
 
                 logger.LogInformation("Successfully edited allocation with ID: {Id}", id);
@@ -64,7 +69,6 @@ namespace SmartUni.PublicApi.Features.Allocation.Commands
             {
                 RuleFor(x => x.Student_ID).NotEmpty();
                 RuleFor(x => x.Tutor_ID).NotEmpty();
-                RuleFor(x => x.Updated_By).NotEmpty();
             }
         }
     }

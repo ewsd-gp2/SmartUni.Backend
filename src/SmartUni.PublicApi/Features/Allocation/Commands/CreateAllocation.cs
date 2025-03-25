@@ -2,7 +2,9 @@
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Http.HttpResults;
 using SmartUni.PublicApi.Features.Allocation.Models;
+using SmartUni.PublicApi.Features.Tutor;
 using SmartUni.PublicApi.Persistence;
+using System.Security.Claims;
 
 namespace SmartUni.PublicApi.Features.Allocation.Commands
 {
@@ -21,6 +23,7 @@ namespace SmartUni.PublicApi.Features.Allocation.Commands
 
             private static async Task<Results<Created<RequestModel>, BadRequest<Dictionary<string, string[]>>>>
                 HandleAsync(
+                ClaimsPrincipal claims,
                     ILogger<Endpoint> logger,
                     SmartUniDbContext dbContext,
                     Request request,
@@ -45,7 +48,7 @@ namespace SmartUni.PublicApi.Features.Allocation.Commands
                     return TypedResults.BadRequest(errors);
                 }
 
-                List<Allocation> allocations = MapToDomain(request.Data);
+                List<Allocation> allocations = MapToDomain(request.Data,claims);
 
                 await dbContext.Allocation.AddRangeAsync(allocations, cancellationToken);
                 Dictionary<Guid, Guid> allocationMap = allocations
@@ -62,14 +65,18 @@ namespace SmartUni.PublicApi.Features.Allocation.Commands
                 return TypedResults.Created("/allocation", request.Data);
             }
 
-            private static List<Allocation> MapToDomain(RequestModel requestModel)
+            private static List<Allocation> MapToDomain(RequestModel requestModel, ClaimsPrincipal _claims)
             {
+                //Allocation.CreatedBy = Guid.Parse(claims.FindFirstValue(ClaimTypes.NameIdentifier) ??
+                // throw new InvalidOperationException(ClaimTypes.NameIdentifier));
                 // Map each RequestAllocationModel to an Allocation
                 return requestModel.requestAllocationModels.Select(requestAllocation => new Allocation
                 {
                     Id = Guid.NewGuid(),
                     StudentId = requestAllocation.StudentID,
-                    TutorId = requestModel.TutorID
+                    TutorId = requestModel.TutorID,
+                    CreatedBy = Guid.Parse(_claims.FindFirstValue(ClaimTypes.NameIdentifier) ??
+                                             throw new InvalidOperationException(ClaimTypes.NameIdentifier))
                 }).ToList();
             }
         }

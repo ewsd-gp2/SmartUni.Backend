@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using SmartUni.PublicApi.Common.Domain;
 using SmartUni.PublicApi.Persistence;
+using System.Security.Claims;
 
 namespace SmartUni.PublicApi.Features.Student.Commands
 {
@@ -17,12 +18,14 @@ namespace SmartUni.PublicApi.Features.Student.Commands
             {
                 endpoints.MapPut("/student/{id:guid}",
                         ([FromRoute] Guid id, [FromBody] Request request, [FromServices] ILogger<Endpoint> logger,
-                                [FromServices] SmartUniDbContext dbContext, CancellationToken cancellationToken) =>
-                            HandleAsync(id, request, logger, dbContext, cancellationToken))
-                    .Produces<Ok>()
-                    .Produces<BadRequest<ValidationResult>>(StatusCodes.Status400BadRequest)
-                    .Produces<NotFound>(StatusCodes.Status404NotFound)
-                    .ProducesValidationProblem()
+                                [FromServices] SmartUniDbContext dbContext, ClaimsPrincipal claims, CancellationToken cancellationToken) =>
+                            HandleAsync(id, request, logger, dbContext, claims, cancellationToken))
+                    .WithDescription("Update an existing student")
+                    .Accepts<Request>("application/json")
+                    .Produces(200)
+                    .RequireAuthorization("api")
+                    .Produces<BadRequest<List<ValidationFailure>>>(400)
+                    .Produces<NotFound>(404)
                     .WithTags(nameof(Student));
             }
 
@@ -31,6 +34,7 @@ namespace SmartUni.PublicApi.Features.Student.Commands
                 Request request,
                 ILogger<Endpoint> logger,
                 SmartUniDbContext dbContext,
+                ClaimsPrincipal claims,
                 CancellationToken cancellationToken)
             {
                 logger.LogInformation("Submitted to edit student with ID: {Id} and request: {Request}", id, request);
@@ -55,6 +59,8 @@ namespace SmartUni.PublicApi.Features.Student.Commands
                 student.UpdateStudentPhoneNumber(request.PhoneNumber);
                 student.UpdateStudentMajor(request.Major);
                 student.UpdateStudentGender(request.Gender);
+                student.UpdatedOn= DateTime.UtcNow;
+                student.UpdatedBy = Guid.Parse(claims.FindFirstValue(ClaimTypes.NameIdentifier));
                 await dbContext.SaveChangesAsync(cancellationToken);
 
                 logger.LogInformation("Successfully edited student with ID: {Id}", id);

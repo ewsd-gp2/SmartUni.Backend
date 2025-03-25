@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http.HttpResults;
 using SmartUni.PublicApi.Persistence;
+using System.Security.Claims;
 
 namespace SmartUni.PublicApi.Features.Student.Commands
 {
@@ -10,11 +11,13 @@ namespace SmartUni.PublicApi.Features.Student.Commands
             public static void MapEndpoint(IEndpointRouteBuilder endpoints)
             {
                 endpoints.MapDelete("/student/{id:guid}", HandleAsync)
+                     .RequireAuthorization("api")
                     .Produces<NotFound>()
                     .WithTags(nameof(Student));
             }
 
             private static async Task<Results<NoContent, NotFound>> HandleAsync(
+                 ClaimsPrincipal claims,
                 ILogger<Endpoint> logger,
                 SmartUniDbContext dbContext,
                 Guid id,
@@ -30,6 +33,8 @@ namespace SmartUni.PublicApi.Features.Student.Commands
                 }
 
                 student.DeleteStudent();
+                student.UpdatedOn = DateTime.UtcNow;
+                student.UpdatedBy= Guid.Parse(claims.FindFirstValue(ClaimTypes.NameIdentifier));
                 await dbContext.SaveChangesAsync(cancellationToken);
 
                 logger.LogInformation("Successfully deleted student with ID: {Id}", id);

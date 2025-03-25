@@ -6,7 +6,7 @@ namespace SmartUni.PublicApi.Features.Staff.Queries
 {
     public class GetAllStaff
     {
-        private record Response(Guid Id, string Name, string Email, string PhoneNumber, Enums.GenderType Gender, bool IsDeleted);
+        private record Response(Guid Id, string Name, string Email, string PhoneNumber, Enums.GenderType Gender);
 
         public sealed class Endpoint : IEndpoint
         {
@@ -25,7 +25,9 @@ namespace SmartUni.PublicApi.Features.Staff.Queries
                 logger.LogInformation("Submitted to get all staffs");
 
                 IEnumerable<Response> staff = await dbContext.Staff
-                    .Select(t => new Response(t.Id, t.Name, t.Email, t.PhoneNumber, t.Gender, t.IsDeleted!=true))
+                    .Include(x => x.Identity)
+                    .Where(x => !x.IsDeleted)
+                    .Select(t => new Response(t.Id, t.Name, t.Email, t.PhoneNumber, t.Gender))
                     .ToListAsync(cancellationToken);
 
                 if (!staff.Any())

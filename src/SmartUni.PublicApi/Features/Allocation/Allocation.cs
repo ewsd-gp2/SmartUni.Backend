@@ -9,12 +9,10 @@ namespace SmartUni.PublicApi.Features.Allocation
         public Guid StudentId { get; set; }
         public Student.Student Student { get; set; }
 
-        public void UpdateAllocation(Guid studentId, Guid tutorId, Guid updatedBy, DateTime updatedOn)
+        public void UpdateAllocation(Guid studentId, Guid tutorId)
         {
             TutorId = tutorId;
             StudentId = studentId;
-            UpdatedBy = updatedBy;
-            UpdatedOn = updatedOn;
         }
     }
 }

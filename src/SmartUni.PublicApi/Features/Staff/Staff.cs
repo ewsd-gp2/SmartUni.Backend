@@ -1,4 +1,5 @@
 ﻿using SmartUni.PublicApi.Common.Domain;
+using SmartUni.PublicApi.Common.Helpers;
 using System.ComponentModel.DataAnnotations;
 
 namespace SmartUni.PublicApi.Features.Staff
@@ -9,13 +10,13 @@ namespace SmartUni.PublicApi.Features.Staff
 
         [MaxLength(50)] public required string Name { get; set; }
 
-        [MaxLength(50)] public required string Email { get; set; }
+        [MaxLength(50)] public  string Email { get; set; }
 
-        [MaxLength(20)] public required string PhoneNumber { get; set; }
+        [MaxLength(20)] public  string PhoneNumber { get; set; }
         public bool IsDeleted { get; set; }
         public required Enums.GenderType Gender { get; set; }
         public virtual BaseUser Identity { get; set; }
-
+        public string UserCode => UserCodeHelpers.GenerateUserCode(Enums.UserCodePrefix.Tut, Name, Identity.Email!);
         public Guid IdentityId { get; set; }
 
         public void UpdateStaffName(string name)

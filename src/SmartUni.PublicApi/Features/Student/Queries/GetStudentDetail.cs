@@ -13,10 +13,10 @@ namespace SmartUni.PublicApi.Features.Student.Queries
             string Email,
             string PhoneNumber,
             Enums.GenderType Gender,
-            Enums.MajorType Major,  
-            bool IsDeleted,
+            Enums.MajorType Major,
             Guid? AllocationID,
-            bool IsAllocated);
+            bool IsAllocated,
+            string UserCode);
 
         public sealed class Endpoint : IEndpoint
         {
@@ -26,6 +26,7 @@ namespace SmartUni.PublicApi.Features.Student.Queries
                         ([FromRoute] Guid id, [FromServices] SmartUniDbContext dbContext,
                                 [FromServices] ILogger<Endpoint> logger, CancellationToken cancellationToken) =>
                             HandleAsync(id, dbContext, logger, cancellationToken))
+                    .RequireAuthorization("api")
                     .Produces<Ok<Response>>()
                     .Produces<NotFound>()
                     .WithTags(nameof(Student));
@@ -42,8 +43,7 @@ namespace SmartUni.PublicApi.Features.Student.Queries
                 Student? student = await dbContext.Student.FindAsync(id, cancellationToken);
                 if (student != null)
                 {
-                    
-                    bool isAllocated= student.Allocation.Id != null && student.Allocation.Id != Guid.Empty;
+                    bool isAllocated = student.Allocation.Id != null && student.Allocation.Id != Guid.Empty;
                     Response response = new(
                         student.Id,
                         student.Name,
@@ -51,9 +51,9 @@ namespace SmartUni.PublicApi.Features.Student.Queries
                         student.PhoneNumber,
                         student.Gender,
                         student.Major,
-                        student.IsDeleted,
                         student.Allocation.Id,
-                        isAllocated // Set isAllocated to true if the student has an allocation, false otherwise
+                        isAllocated,// Set isAllocated to true if the student has an allocation, false otherwise
+                        student.UserCode
                     );
 
                     logger.LogInformation("Successfully fetched details for student with ID: {Id}", id);

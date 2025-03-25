@@ -12,6 +12,7 @@ namespace SmartUni.PublicApi.Features.Allocation.Queries
             public static void MapEndpoint(IEndpointRouteBuilder endpoints)
             {
                 endpoints.MapGet("/allocation", HandleAsync)
+                    .RequireAuthorization("api")
                     .Produces<Results<IResult, NotFound>>()
                     .WithTags(nameof(Allocation));
             }

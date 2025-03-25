@@ -23,6 +23,7 @@ namespace SmartUni.PublicApi.Features.Allocation.Queries
                         ([FromRoute] Guid id, [FromServices] SmartUniDbContext dbContext,
                                 [FromServices] ILogger<Endpoint> logger, CancellationToken cancellationToken) =>
                             HandleAsync(id, dbContext, logger, cancellationToken))
+                    .RequireAuthorization("api")
                     .Produces<Ok<Response>>()
                     .Produces<NotFound>()
                     .WithTags(nameof(Allocation));

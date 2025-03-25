@@ -13,7 +13,7 @@ namespace SmartUni.PublicApi.Features.Staff.Queries
             string Email,
             string PhoneNumber,
             Enums.GenderType Gender,
-            bool IsDeleted);
+            string UserCode);
 
         public sealed class Endpoint : IEndpoint
         {
@@ -23,6 +23,7 @@ namespace SmartUni.PublicApi.Features.Staff.Queries
                         ([FromRoute] Guid id, [FromServices] SmartUniDbContext dbContext,
                                 [FromServices] ILogger<Endpoint> logger, CancellationToken cancellationToken) =>
                             HandleAsync(id, dbContext, logger, cancellationToken))
+                    .RequireAuthorization("api")
                     .Produces<Ok<Response>>()
                     .Produces<NotFound>()
                     .WithTags(nameof(Staff));
@@ -43,8 +44,7 @@ namespace SmartUni.PublicApi.Features.Staff.Queries
                     return TypedResults.NotFound();
                 }
 
-                Response response = new(staff.Id, staff.Name, staff.Email, staff.PhoneNumber, staff.Gender,
-                    staff.IsDeleted);
+                Response response = new(staff.Id, staff.Name, staff.Email, staff.PhoneNumber, staff.Gender,staff.UserCode);
                 logger.LogInformation("Successfully fetched details for staff with ID: {Id}", id);
                 return TypedResults.Ok(response);
             }
