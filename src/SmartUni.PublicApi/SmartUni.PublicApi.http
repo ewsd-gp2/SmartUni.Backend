@@ -1,13 +1,13 @@
 @path = http://localhost:7142
-@authCookie = accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJodHRwOi8vbG9jYWxob3N0OjUxNzMiLCJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjcxNDIiLCJleHAiOjE3NDE5ODQ2NDAsIm5iZiI6MTc0MTk3MDI0MCwianRpIjoiYTE1NGM4MWEtNmJlZS00NzAwLWIwNDEtMTkyMTliMWJkNWZhIiwic3ViIjoiMGM0ZTkzZWYtZjVlZS00MTlmLTlkYzYtYmRhYWQ5M2M5MGFlIiwibmFtZSI6InRlc3RpbmciLCJlbWFpbCI6InRlc3RpbmdAZ21haWwuY29tIiwiaWF0IjoiMTc0MTk3Mzg0MCIsInJvbGUiOiJUdXRvciIsImlzRmlyc3RMb2dpbiI6IkZhbHNlIn0.VlnR54ACPv6TBfK3VsLV2BLDTj1hOtR6WO0C-pOvCmg
+@authCookie = accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJodHRwOi8vbG9jYWxob3N0OjUxNzMiLCJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjcxNDIiLCJleHAiOjE3NDI4Mzc4OTYsIm5iZiI6MTc0MjgyMzQ5NiwianRpIjoiNjY3NTZmN2EtNzVhOC00M2FmLTgyM2UtNjMzODJlNzJkYzkxIiwic3ViIjoiOGZiNjc1NTAtYjg2Mi00YTBmLTk0ZmQtYzIxMmY1ZTM1ODAyIiwibmFtZSI6InN1cGVyQGdtYWlsLmNvbSIsImVtYWlsIjoic3VwZXJAZ21haWwuY29tIiwiaWF0IjoiMTc0MjgyNzA5NiIsInJvbGUiOiJBZG1pbiIsImlzRmlyc3RMb2dpbiI6IlRydWUifQ._cARkcNMNyUiBWrt3euOfrlp0gh9S9vubjXG7UdclTc; expires=Mon, 24 Mar 2025 14:48:16 GMT; path=/; secure; samesite=none; httponly
+@tutorId = ca11cb48-63f0-48ac-bd3b-ca810b8aa20f
 
-
-POST {{path}}/signin/tutor
+POST {{path}}/signin/staff
 Accept: application/json
 Content-Type: application/json
 
 {
-  "email": "pthk@gmail.com",
+  "email": "super@gmail.com",
   "password": "superpass"
 }
 
@@ -18,7 +18,36 @@ Cookie: {{authCookie}}
 
 ###
 
-GET {{path}}/tutor/0c4e93ef-f5ee-419f-9dc6-bdaad93c90ae
+GET {{path}}/tutor/{{tutorId}}
 Cookie: {{authCookie}}
+
+###
+
+POST {{path}}/tutor
+Cookie: {{authCookie}}
+Content-Type: application/json
+
+{
+  "name": "Phyo Thiha Kyaw",
+  "email": "phyothiha@gmail.com",
+  "phoneNumber": "09478181727",
+  "gender": "Male",
+  "major": "Computing",
+  "password": "superpass"
+}
+
+###
+
+PUT  {{path}}/tutor/{{tutorId}}
+Cookie: {{authCookie}}
+Content-Type: application/json
+
+{
+  "name": "Kendrick Lamar",
+  "email": "kdot@gmail.com",
+  "phoneNumber": "09478181727",
+  "gender": "Male",
+  "major": "Computing"
+}
 
 ###

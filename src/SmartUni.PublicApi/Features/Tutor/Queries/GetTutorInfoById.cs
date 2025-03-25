@@ -4,7 +4,7 @@ using SmartUni.PublicApi.Persistence;
 
 namespace SmartUni.PublicApi.Features.Tutor.Queries
 {
-    public class GetTutorDetails
+    public class GetTutorInfoById
     {
         private sealed record Response(
             Guid Id,
@@ -19,10 +19,7 @@ namespace SmartUni.PublicApi.Features.Tutor.Queries
         {
             public static void MapEndpoint(IEndpointRouteBuilder endpoints)
             {
-                endpoints.MapGet("/tutor/{id:guid}",
-                        ([FromRoute] Guid id, [FromServices] SmartUniDbContext dbContext,
-                                [FromServices] ILogger<Endpoint> logger, CancellationToken cancellationToken) =>
-                            HandleAsync(id, dbContext, logger, cancellationToken))
+                endpoints.MapGet("/tutor/{id:guid}", HandleAsync)
                     .RequireAuthorization("api")
                     .Produces<Ok<Response>>()
                     .Produces<NotFound>()
@@ -30,7 +27,7 @@ namespace SmartUni.PublicApi.Features.Tutor.Queries
             }
 
             private static async Task<Results<Ok<Response>, NotFound>> HandleAsync(
-                Guid id,
+                [FromRoute] Guid id,
                 SmartUniDbContext dbContext,
                 ILogger<Endpoint> logger,
                 CancellationToken cancellationToken)
