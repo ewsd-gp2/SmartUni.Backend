@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http.HttpResults;
+using SmartUni.PublicApi.Features.Tutor;
 using SmartUni.PublicApi.Persistence;
+using System.Security.Claims;
 
 namespace SmartUni.PublicApi.Features.Staff.Commands
 {
@@ -10,6 +12,7 @@ namespace SmartUni.PublicApi.Features.Staff.Commands
             public static void MapEndpoint(IEndpointRouteBuilder endpoints)
             {
                 endpoints.MapDelete("/staff/{id:guid}", HandleAsync)
+                     .RequireAuthorization("api")
                     .Produces<NotFound>()
                     .WithTags(nameof(Staff));
             }
@@ -17,6 +20,7 @@ namespace SmartUni.PublicApi.Features.Staff.Commands
             private static async Task<Results<NoContent, NotFound>> HandleAsync(
                 ILogger<Endpoint> logger,
                 SmartUniDbContext dbContext,
+                ClaimsPrincipal claims,
                 Guid id,
                 CancellationToken cancellationToken)
             {
@@ -30,6 +34,8 @@ namespace SmartUni.PublicApi.Features.Staff.Commands
                 }
 
                 staff.DeleteStaff();
+                staff.UpdatedOn = DateTime.UtcNow;
+                staff.UpdatedBy = Guid.Parse(claims.FindFirstValue(ClaimTypes.NameIdentifier));
                 await dbContext.SaveChangesAsync(cancellationToken);
 
                 logger.LogInformation("Successfully deleted staff with ID: {Id}", id);

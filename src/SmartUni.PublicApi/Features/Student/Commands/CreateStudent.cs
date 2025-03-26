@@ -1,14 +1,17 @@
 ﻿using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Identity;
 using SmartUni.PublicApi.Common.Domain;
+using SmartUni.PublicApi.Features.Tutor;
 using SmartUni.PublicApi.Persistence;
+using System.Security.Claims;
 
 namespace SmartUni.PublicApi.Features.Student.Commands
 {
     public class CreateStudent
     {
-        private sealed record Request(string Name, string Email, string PhoneNumber, string Gender,string Major);
+        private sealed record Request(string Name, string Email, string PhoneNumber, string Gender,string Major,string Password);
 
         public sealed class Endpoint : IEndpoint
         {
@@ -16,13 +19,20 @@ namespace SmartUni.PublicApi.Features.Student.Commands
             {
                 endpoints.MapPost("/student", HandleAsync)
                     .ProducesValidationProblem()
+                    .RequireAuthorization("api")
+                    .WithDescription("Create new student")
+                    .Accepts<Request>("application/json")
+                    .Produces(201)
+                    .Produces<BadRequest<List<ValidationFailure>>>(400)
                     .WithTags(nameof(Student));
             }
 
             private static async Task<Results<Created<Student>, BadRequest<ValidationResult>>> HandleAsync(
+                ClaimsPrincipal claims,
                 ILogger<Endpoint> logger,
                 SmartUniDbContext dbContext,
                 Request request,
+                UserManager<BaseUser> userManager,
                 CancellationToken cancellationToken)
             {
                 logger.LogInformation("Submitted to create a new student with request: {Request}", request);
@@ -36,8 +46,17 @@ namespace SmartUni.PublicApi.Features.Student.Commands
 
                 Student student = MapToDomain(request);
 
-                await dbContext.Student.AddAsync(student, cancellationToken);
-                await dbContext.SaveChangesAsync(cancellationToken);
+                student.CreatedBy = Guid.Parse(claims.FindFirstValue(ClaimTypes.NameIdentifier) ??
+                     throw new InvalidOperationException(ClaimTypes.NameIdentifier));
+                BaseUser user = new()
+                {
+                    Id = Guid.NewGuid(),
+                    UserName = request.Email,
+                    Email = request.Email,
+                    PhoneNumber = request.PhoneNumber,
+                    Student = student
+                };
+                IdentityResult result = await userManager.CreateAsync(user, request.Password);
 
                 logger.LogInformation("Successfully created a new student with ID: {Id}", student.Id);
 
@@ -52,7 +71,6 @@ namespace SmartUni.PublicApi.Features.Student.Commands
                     Name = request.Name,
                     Email = request.Email,
                     PhoneNumber = request.PhoneNumber,
-                    IsDeleted = false,
                     Gender = Enum.Parse<Enums.GenderType>(request.Gender),
                     Major = Enum.Parse<Enums.MajorType>(request.Major)
                 };

@@ -1,25 +1,35 @@
 ﻿using FluentValidation;
+using FluentValidation.Results;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Identity;
 using SmartUni.PublicApi.Common.Domain;
+using SmartUni.PublicApi.Features.Tutor;
 using SmartUni.PublicApi.Persistence;
+using System.Security.Claims;
 using ValidationResult = FluentValidation.Results.ValidationResult;
 
 namespace SmartUni.PublicApi.Features.Staff.Commands
 {
     public class CreateStaff
     {
-        private sealed record Request(string Name, string Email, string PhoneNumber,string  Gender);
+        private sealed record Request(string Name, string Email, string PhoneNumber,string  Gender,string Password);
 
         public sealed class Endpoint : IEndpoint
         {
             public static void MapEndpoint(IEndpointRouteBuilder endpoints)
             {
                 endpoints.MapPost("/staff", HandleAsync)
-                    .ProducesValidationProblem()
+                    .RequireAuthorization("api")
+                    .WithDescription("Create new staff")
+                    .Accepts<Request>("application/json")
+                    .Produces(201)
+                    .Produces<BadRequest<List<ValidationFailure>>>(400)
                     .WithTags(nameof(Staff));
             }
 
-            private static async Task<Results<Created<Staff>, BadRequest<ValidationResult>>> HandleAsync(
+            private static async Task<IResult> HandleAsync(
+                ClaimsPrincipal claims,
+                UserManager<BaseUser> userManager,
                 ILogger<Endpoint> logger,
                 SmartUniDbContext dbContext,
                 Request request,
@@ -35,13 +45,26 @@ namespace SmartUni.PublicApi.Features.Staff.Commands
                 }
 
                 Staff staff = MapToDomain(request);
+                staff.CreatedBy = Guid.Parse(claims.FindFirstValue(ClaimTypes.NameIdentifier) ??
+                                            throw new InvalidOperationException(ClaimTypes.NameIdentifier));
+                BaseUser user = new()
+                {
+                    Id = Guid.NewGuid(),
+                    UserName = request.Email,
+                    Email = request.Email,
+                    PhoneNumber = request.PhoneNumber,
+                    Staff = staff
+                };
+                IdentityResult result = await userManager.CreateAsync(user, request.Password);
+                if (!result.Succeeded)
+                {
+                    logger.LogInformation("Failed to create a new user with errors: {Errors}", result.Errors);
+                    return TypedResults.BadRequest(result.Errors);
+                }
 
-                await dbContext.Staff.AddAsync(staff, cancellationToken);
-                await dbContext.SaveChangesAsync(cancellationToken);
-
-                logger.LogInformation("Successfully created a new staff with ID: {Id}", staff.Id);
-
-                return TypedResults.Created($"/student/{staff.Id}", staff);
+                logger.LogInformation("Successfully created a new tutor with ID: {Id}", staff.Id);
+                return TypedResults.Created();
+                
             }
 
             private static Staff MapToDomain(Request request)
@@ -50,8 +73,6 @@ namespace SmartUni.PublicApi.Features.Staff.Commands
                 {
                     Id = Guid.NewGuid(),
                     Name = request.Name,
-                    Email = request.Email,
-                    PhoneNumber = request.PhoneNumber,
                     IsDeleted = false,
                     Gender = Enum.Parse<Enums.GenderType>(request.Gender)
                 };

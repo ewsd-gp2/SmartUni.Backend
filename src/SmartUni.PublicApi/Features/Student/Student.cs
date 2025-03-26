@@ -1,4 +1,5 @@
 ﻿using SmartUni.PublicApi.Common.Domain;
+using SmartUni.PublicApi.Common.Helpers;
 using SmartUni.PublicApi.Features.Meeting;
 using System.ComponentModel.DataAnnotations;
 
@@ -14,6 +15,7 @@ namespace SmartUni.PublicApi.Features.Student
 
         [MaxLength(20)] public required string PhoneNumber { get; set; }
         public bool IsDeleted { get; set; }
+
         public required Enums.GenderType Gender { get; set; }
 
         public required Enums.MajorType Major { get; set; }
@@ -21,6 +23,7 @@ namespace SmartUni.PublicApi.Features.Student
         //public Guid? AllocationID { get; set; }
         public Allocation.Allocation? Allocation { get; set; }
         public virtual BaseUser Identity { get; set; }
+        public string UserCode => UserCodeHelpers.GenerateUserCode(Enums.UserCodePrefix.Tut, Name, Identity.Email!);
         public Guid IdentityId { get; set; }
         public List<MeetingParticipant> Meetings { get; set; } = [];
 
