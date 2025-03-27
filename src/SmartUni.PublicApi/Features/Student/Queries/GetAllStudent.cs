@@ -15,7 +15,8 @@ namespace SmartUni.PublicApi.Features.Student.Queries
             Enums.GenderType Gender,
             Enums.MajorType Major,
             Guid? AllocationID,
-            bool IsAllocated);
+            bool IsAllocated,
+            string UserCode);
 
 
         public sealed class Endpoint : IEndpoint
@@ -47,6 +48,7 @@ namespace SmartUni.PublicApi.Features.Student.Queries
                     s.PhoneNumber,
                     s.Gender,
                     s.Major,
+                    s.UserCode,
                     IsAllocated = s.Allocation.Id != null && s.Allocation.Id != Guid.Empty
                 })
                 .ToListAsync();

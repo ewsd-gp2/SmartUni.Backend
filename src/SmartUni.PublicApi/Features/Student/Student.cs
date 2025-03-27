@@ -2,6 +2,7 @@
 using SmartUni.PublicApi.Common.Helpers;
 using SmartUni.PublicApi.Features.Meeting;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace SmartUni.PublicApi.Features.Student
 {
@@ -22,8 +23,9 @@ namespace SmartUni.PublicApi.Features.Student
 
         //public Guid? AllocationID { get; set; }
         public Allocation.Allocation? Allocation { get; set; }
+        [JsonIgnore]
         public virtual BaseUser Identity { get; set; }
-        public string UserCode => UserCodeHelpers.GenerateUserCode(Enums.UserCodePrefix.Tut, Name, Identity.Email!);
+        public string UserCode => UserCodeHelpers.GenerateUserCode(Enums.UserCodePrefix.Stu, Name, Identity.Email!);
         public Guid IdentityId { get; set; }
         public List<MeetingParticipant> Meetings { get; set; } = [];
 

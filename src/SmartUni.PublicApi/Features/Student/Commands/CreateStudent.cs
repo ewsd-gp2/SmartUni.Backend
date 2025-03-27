@@ -11,7 +11,7 @@ namespace SmartUni.PublicApi.Features.Student.Commands
 {
     public class CreateStudent
     {
-        private sealed record Request(string Name, string Email, string PhoneNumber, string Gender,string Major,string Password);
+        private sealed record Request(string Name, string Email, string PhoneNumber, string Gender, string Major, string Password);
 
         public sealed class Endpoint : IEndpoint
         {
@@ -27,13 +27,13 @@ namespace SmartUni.PublicApi.Features.Student.Commands
                     .WithTags(nameof(Student));
             }
 
-            private static async Task<Results<Created<Student>, BadRequest<ValidationResult>>> HandleAsync(
-                ClaimsPrincipal claims,
-                ILogger<Endpoint> logger,
-                SmartUniDbContext dbContext,
-                Request request,
-                UserManager<BaseUser> userManager,
-                CancellationToken cancellationToken)
+            private static async Task<IResult> HandleAsync(
+    ClaimsPrincipal claims,
+    ILogger<Endpoint> logger,
+    SmartUniDbContext dbContext,
+    Request request,
+    UserManager<BaseUser> userManager,
+    CancellationToken cancellationToken)
             {
                 logger.LogInformation("Submitted to create a new student with request: {Request}", request);
 
@@ -41,28 +41,37 @@ namespace SmartUni.PublicApi.Features.Student.Commands
                 if (!validationResult.IsValid)
                 {
                     logger.LogWarning("Request failed validation with errors: {Errors}", validationResult.Errors);
-                    return TypedResults.BadRequest(validationResult);
+                    return TypedResults.BadRequest(validationResult.Errors.Select(e => new { e.PropertyName, e.ErrorMessage }).ToList());
                 }
 
-                Student student = MapToDomain(request);
-
-                student.CreatedBy = Guid.Parse(claims.FindFirstValue(ClaimTypes.NameIdentifier) ??
-                     throw new InvalidOperationException(ClaimTypes.NameIdentifier));
                 BaseUser user = new()
                 {
                     Id = Guid.NewGuid(),
                     UserName = request.Email,
                     Email = request.Email,
-                    PhoneNumber = request.PhoneNumber,
-                    Student = student
+                    PhoneNumber = request.PhoneNumber
                 };
+
                 IdentityResult result = await userManager.CreateAsync(user, request.Password);
+                if (!result.Succeeded)
+                {
+                    logger.LogWarning("Failed to create user: {Errors}", result.Errors);
+                    return TypedResults.BadRequest(result.Errors.Select(e => new { e.Code, e.Description }).ToList());
+                }
+
+                
+                Student student = MapToDomain(request);
+                student.CreatedBy = Guid.Parse(claims.FindFirstValue(ClaimTypes.NameIdentifier) ??
+                    throw new InvalidOperationException(ClaimTypes.NameIdentifier));
+
+                student.IdentityId = user.Id;
+
+                dbContext.Student.Add(student);
+                await dbContext.SaveChangesAsync(cancellationToken); 
 
                 logger.LogInformation("Successfully created a new student with ID: {Id}", student.Id);
-
                 return TypedResults.Created($"/student/{student.Id}", student);
             }
-
             private static Student MapToDomain(Request request)
             {
                 return new Student
