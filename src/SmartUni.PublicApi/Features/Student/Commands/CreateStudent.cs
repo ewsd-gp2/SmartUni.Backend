@@ -43,13 +43,17 @@ namespace SmartUni.PublicApi.Features.Student.Commands
                     logger.LogWarning("Request failed validation with errors: {Errors}", validationResult.Errors);
                     return TypedResults.BadRequest(validationResult.Errors.Select(e => new { e.PropertyName, e.ErrorMessage }).ToList());
                 }
-
+                
+                Student student = MapToDomain(request);
+                student.CreatedBy = Guid.Parse(claims.FindFirstValue(ClaimTypes.NameIdentifier) ??
+                     throw new InvalidOperationException(ClaimTypes.NameIdentifier));
                 BaseUser user = new()
                 {
                     Id = Guid.NewGuid(),
-                    UserName = request.Email,
+                    UserName = request.Name,
                     Email = request.Email,
-                    PhoneNumber = request.PhoneNumber
+                    PhoneNumber = request.PhoneNumber,
+                    Student = student
                 };
 
                 IdentityResult result = await userManager.CreateAsync(user, request.Password);
@@ -59,15 +63,8 @@ namespace SmartUni.PublicApi.Features.Student.Commands
                     return TypedResults.BadRequest(result.Errors.Select(e => new { e.Code, e.Description }).ToList());
                 }
 
-                
-                Student student = MapToDomain(request);
-                student.CreatedBy = Guid.Parse(claims.FindFirstValue(ClaimTypes.NameIdentifier) ??
-                    throw new InvalidOperationException(ClaimTypes.NameIdentifier));
-
-                student.IdentityId = user.Id;
-
-                dbContext.Student.Add(student);
-                await dbContext.SaveChangesAsync(cancellationToken); 
+                //dbContext.Student.Add(student);
+                //await dbContext.SaveChangesAsync(cancellationToken); 
 
                 logger.LogInformation("Successfully created a new student with ID: {Id}", student.Id);
                 return TypedResults.Created($"/student/{student.Id}", student);
@@ -78,8 +75,6 @@ namespace SmartUni.PublicApi.Features.Student.Commands
                 {
                     Id = Guid.NewGuid(),
                     Name = request.Name,
-                    Email = request.Email,
-                    PhoneNumber = request.PhoneNumber,
                     Gender = Enum.Parse<Enums.GenderType>(request.Gender),
                     Major = Enum.Parse<Enums.MajorType>(request.Major)
                 };

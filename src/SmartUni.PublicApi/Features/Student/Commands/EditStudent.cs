@@ -3,6 +3,7 @@ using FluentValidation.Results;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using SmartUni.PublicApi.Common.Domain;
+using SmartUni.PublicApi.Features.Tutor;
 using SmartUni.PublicApi.Persistence;
 using System.Security.Claims;
 
@@ -10,7 +11,7 @@ namespace SmartUni.PublicApi.Features.Student.Commands
 {
     public class EditStudent
     {
-        private sealed record Request(string Name, string Email, string PhoneNumber, Enums.GenderType Gender, Enums.MajorType Major);
+        private sealed record Request(string Name, string Email, string PhoneNumber, string Gender, string Major);
 
         public sealed class Endpoint : IEndpoint
         {
@@ -46,7 +47,7 @@ namespace SmartUni.PublicApi.Features.Student.Commands
                     return TypedResults.BadRequest(validationResult);
                 }
 
-                Student? student = await dbContext.Student.FindAsync([id], cancellationToken);
+                Student? student = await dbContext.Student.Include(x => x.Identity).FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
 
                 if (student is null)
                 {
@@ -55,8 +56,8 @@ namespace SmartUni.PublicApi.Features.Student.Commands
                 }
 
                 student.UpdateStudentName(request.Name);
-                student.UpdateStudentEmail(request.Email);
-                student.UpdateStudentPhoneNumber(request.PhoneNumber);
+                student.Identity.Email = request.Email;
+                student.Identity.PhoneNumber = request.PhoneNumber;
                 student.UpdateStudentMajor(request.Major);
                 student.UpdateStudentGender(request.Gender);
                 student.UpdatedOn= DateTime.UtcNow;

@@ -8,7 +8,7 @@ using SmartUni.PublicApi.Common.Domain;
 namespace SmartUni.PublicApi.Migrations
 {
     /// <inheritdoc />
-    public partial class initial : Migration
+    public partial class Initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -202,8 +202,6 @@ namespace SmartUni.PublicApi.Migrations
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
                     name = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
-                    email = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
-                    phone_number = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
                     is_deleted = table.Column<bool>(type: "boolean", nullable: false),
                     gender = table.Column<Enums.GenderType>(type: "gender", nullable: false),
                     identity_id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -229,8 +227,6 @@ namespace SmartUni.PublicApi.Migrations
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
                     name = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
-                    email = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
-                    phone_number = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
                     is_deleted = table.Column<bool>(type: "boolean", nullable: false),
                     gender = table.Column<Enums.GenderType>(type: "gender", nullable: false),
                     major = table.Column<Enums.MajorType>(type: "major", nullable: false),
@@ -361,12 +357,12 @@ namespace SmartUni.PublicApi.Migrations
             migrationBuilder.InsertData(
                 table: "asp_net_user",
                 columns: new[] { "id", "access_failed_count", "concurrency_stamp", "email", "email_confirmed", "last_login_date", "lockout_enabled", "lockout_end", "normalized_email", "normalized_user_name", "password_hash", "phone_number", "phone_number_confirmed", "security_stamp", "two_factor_enabled", "user_name" },
-                values: new object[] { new Guid("8edcd6b3-0489-4766-abed-284e8945f13d"), 0, "eba2f237-2092-401e-9c31-3371ff170cdf", "super@gmail.com", false, null, false, null, "SUPER@GMAIL.COM", "super@gmail.com", "AQAAAAIAAYagAAAAEBO76UEQJKnMJnRWMaqsAZS3Qbuua1nQ47HoHOEDwe20rlsfO42Eqt1o58vU539ZhA==", null, false, null, false, "super@gmail.com" });
+                values: new object[] { new Guid("8edcd6b3-0489-4766-abed-284e8945f13d"), 0, "eba2f237-2092-401e-9c31-3371ff170cdf", "super@gmail.com", false, null, false, null, "SUPER@GMAIL.COM", "super@gmail.com", "AQAAAAIAAYagAAAAEBO76UEQJKnMJnRWMaqsAZS3Qbuua1nQ47HoHOEDwe20rlsfO42Eqt1o58vU539ZhA==", "0948827282", false, null, false, "super@gmail.com" });
 
             migrationBuilder.InsertData(
                 table: "staff",
-                columns: new[] { "id", "created_by", "created_on", "email", "gender", "identity_id", "is_deleted", "name", "phone_number", "updated_by", "updated_on" },
-                values: new object[] { new Guid("8fb67550-b862-4a0f-94fd-c212f5e35802"), new Guid("8fb67550-b862-4a0f-94fd-c212f5e35802"), new DateTime(2025, 3, 16, 17, 0, 0, 0, DateTimeKind.Utc), "super@gmail.com", Enums.GenderType.Male, new Guid("8edcd6b3-0489-4766-abed-284e8945f13d"), false, "super staff", "0948827282", null, null });
+                columns: new[] { "id", "created_by", "created_on", "gender", "identity_id", "is_deleted", "name", "updated_by", "updated_on" },
+                values: new object[] { new Guid("8fb67550-b862-4a0f-94fd-c212f5e35802"), new Guid("8fb67550-b862-4a0f-94fd-c212f5e35802"), new DateTime(2025, 3, 16, 17, 0, 0, 0, DateTimeKind.Utc), Enums.GenderType.Male, new Guid("8edcd6b3-0489-4766-abed-284e8945f13d"), false, "super staff", null, null });
 
             migrationBuilder.CreateIndex(
                 name: "ix_allocation_student_id",

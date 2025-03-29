@@ -12,9 +12,6 @@ namespace SmartUni.PublicApi.Features.Student
 
         [MaxLength(50)] public required string Name { get; set; }
 
-        [MaxLength(50)] public required string Email { get; set; }
-
-        [MaxLength(20)] public required string PhoneNumber { get; set; }
         public bool IsDeleted { get; set; }
 
         public required Enums.GenderType Gender { get; set; }
@@ -36,7 +33,7 @@ namespace SmartUni.PublicApi.Features.Student
 
         public void UpdateStudentEmail(string email)
         {
-            Email = email;
+            Identity.Email = email;
         }
 
         public void UpdateModifiedBy(Guid updatedBy)
@@ -51,7 +48,7 @@ namespace SmartUni.PublicApi.Features.Student
 
         public void UpdateStudentPhoneNumber(string phoneNumber)
         {
-            PhoneNumber = phoneNumber;
+            Identity.PhoneNumber = phoneNumber;
         }
 
         public void UpdateStudentMajor(Enums.MajorType major)

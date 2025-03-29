@@ -37,21 +37,22 @@ namespace SmartUni.PublicApi.Features.Student.Queries
                 logger.LogInformation("Submitted to get all students");
 
                 var student = await dbContext.Student
-                    .Include(x => x.Identity)
-                .Include(s => s.Allocation)
-                .Where(s => s.IsDeleted != true)// Eagerly load Allocation details
-                .Select(s => new
-                {
-                    s.Id,
-                    s.Name,
-                    s.Email,
-                    s.PhoneNumber,
-                    s.Gender,
-                    s.Major,
-                    s.UserCode,
-                    IsAllocated = s.Allocation.Id != null && s.Allocation.Id != Guid.Empty
-                })
-                .ToListAsync();
+    .Include(s => s.Identity)
+    .Include(s => s.Allocation)
+    .Where(s => !s.IsDeleted)
+    .Select(s => new
+    {
+        s.Id,
+        s.Name,
+        s.Identity.Email,
+        s.Identity.PhoneNumber,
+        s.Gender,
+        s.Major,
+        s.UserCode,
+        IsAllocated = s.Allocation != null && s.Allocation.Id != Guid.Empty
+    })
+    .ToListAsync();
+
 
                 if (!student.Any())
                 {
