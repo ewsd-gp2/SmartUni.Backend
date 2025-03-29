@@ -58,8 +58,8 @@ namespace SmartUni.PublicApi.Features.Student.Commands
                 student.UpdateStudentName(request.Name);
                 student.Identity.Email = request.Email;
                 student.Identity.PhoneNumber = request.PhoneNumber;
-                student.UpdateStudentMajor(request.Major);
-                student.UpdateStudentGender(request.Gender);
+                student.UpdateStudentMajor(Enum.Parse < Enums.MajorType >(request.Major));
+                student.UpdateStudentGender(Enum.Parse < Enums.GenderType >(request.Gender));
                 student.UpdatedOn= DateTime.UtcNow;
                 student.UpdatedBy = Guid.Parse(claims.FindFirstValue(ClaimTypes.NameIdentifier));
                 await dbContext.SaveChangesAsync(cancellationToken);
