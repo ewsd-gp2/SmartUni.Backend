@@ -39,6 +39,7 @@ namespace SmartUni.PublicApi.Features.Allocation.Queries
 
                 var detailAllocation = await dbContext.Allocation
                     .Where(x => x.Id == id)
+                     .Where(x => !x.IsDeleted)
                     .Join(dbContext.Student,
                         allocation => allocation.StudentId,
                         student => student.Id,

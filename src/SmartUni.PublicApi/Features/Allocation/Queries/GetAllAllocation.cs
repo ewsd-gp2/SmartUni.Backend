@@ -24,7 +24,7 @@ namespace SmartUni.PublicApi.Features.Allocation.Queries
             {
                 logger.LogInformation("Submitted to get all allocations");
 
-                IEnumerable<Response> allocation = await dbContext.Allocation
+                IEnumerable<Response> allocation = await dbContext.Allocation.Where(s => !s.IsDeleted)
                     .Select(t => new Response(t.Id, t.TutorId, t.StudentId))
                     .ToListAsync(cancellationToken);
 

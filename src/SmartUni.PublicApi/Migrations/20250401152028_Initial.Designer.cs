@@ -13,7 +13,7 @@ using SmartUni.PublicApi.Persistence;
 namespace SmartUni.PublicApi.Migrations
 {
     [DbContext(typeof(SmartUniDbContext))]
-    [Migration("20250329121903_Initial")]
+    [Migration("20250401152028_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -310,6 +310,10 @@ namespace SmartUni.PublicApi.Migrations
                     b.Property<DateTime>("CreatedOn")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_on");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
 
                     b.Property<Guid>("StudentId")
                         .HasColumnType("uuid")

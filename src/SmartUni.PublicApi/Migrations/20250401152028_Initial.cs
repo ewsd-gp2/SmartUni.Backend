@@ -280,6 +280,7 @@ namespace SmartUni.PublicApi.Migrations
                     id = table.Column<Guid>(type: "uuid", nullable: false),
                     tutor_id = table.Column<Guid>(type: "uuid", nullable: false),
                     student_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
                     created_by = table.Column<Guid>(type: "uuid", nullable: false),
                     created_on = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     updated_by = table.Column<Guid>(type: "uuid", nullable: true),
