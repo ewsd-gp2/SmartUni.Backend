@@ -10,7 +10,7 @@ namespace SmartUni.PublicApi.Features.Meeting.Commands
 {
     public class CreateMeeting
     {
-        public sealed record Request(
+        private sealed record Request(
             DateTime StartTime,
             DateTime EndTime,
             Guid OrganizerId,
@@ -18,7 +18,7 @@ namespace SmartUni.PublicApi.Features.Meeting.Commands
             string Title,
             bool IsOnline,
             string? Location,
-            string LinkType,
+            string? LinkType,
             string? Url,
             string? Agenda);
 
@@ -76,7 +76,7 @@ namespace SmartUni.PublicApi.Features.Meeting.Commands
                     Title = request.Title,
                     IsOnline = request.IsOnline,
                     Location = request.Location,
-                    LinkType = Enum.Parse<Enums.MeetingLinkType>(request.LinkType), 
+                    LinkType = string.IsNullOrEmpty(request.LinkType) ? null : Enum.Parse<Enums.MeetingLinkType>(request.LinkType), 
                     Url = request.Url,
                     Agenda = request.Agenda
                 };
@@ -85,7 +85,7 @@ namespace SmartUni.PublicApi.Features.Meeting.Commands
             }
         }
 
-        public class Validator : AbstractValidator<Request>
+        private class Validator : AbstractValidator<Request>
         {
             public Validator()
             {
@@ -94,7 +94,7 @@ namespace SmartUni.PublicApi.Features.Meeting.Commands
                 RuleFor(x => x.OrganizerId).NotEmpty();
                 RuleFor(x => x.Participants).NotEmpty();
                 RuleFor(x => x.Title).NotEmpty();
-                RuleFor(x => x.IsOnline).NotEmpty();
+                RuleFor(x => x.IsOnline).Must(p => p is true or false);
                 RuleFor(x => x.LinkType).IsEnumName(typeof(Enums.MeetingLinkType), false);
             }
         }
