@@ -18,7 +18,7 @@ namespace SmartUni.PublicApi.Features.Meeting.Commands
             string Title,
             bool IsOnline,
             string? Location,
-            Enums.MeetingLinkType? LinkType,
+            string LinkType,
             string? Url,
             string? Agenda);
 
@@ -76,7 +76,7 @@ namespace SmartUni.PublicApi.Features.Meeting.Commands
                     Title = request.Title,
                     IsOnline = request.IsOnline,
                     Location = request.Location,
-                    LinkType = request.LinkType,
+                    LinkType = Enum.Parse<Enums.MeetingLinkType>(request.LinkType), 
                     Url = request.Url,
                     Agenda = request.Agenda
                 };
@@ -95,6 +95,7 @@ namespace SmartUni.PublicApi.Features.Meeting.Commands
                 RuleFor(x => x.Participants).NotEmpty();
                 RuleFor(x => x.Title).NotEmpty();
                 RuleFor(x => x.IsOnline).NotEmpty();
+                RuleFor(x => x.LinkType).IsEnumName(typeof(Enums.MeetingLinkType), false);
             }
         }
     }
