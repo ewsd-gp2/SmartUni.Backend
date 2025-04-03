@@ -2,6 +2,7 @@
 using SmartUni.PublicApi.Common.Helpers;
 using SmartUni.PublicApi.Features.Meeting;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace SmartUni.PublicApi.Features.Student
 {
@@ -11,9 +12,6 @@ namespace SmartUni.PublicApi.Features.Student
 
         [MaxLength(50)] public required string Name { get; set; }
 
-        [MaxLength(50)] public required string Email { get; set; }
-
-        [MaxLength(20)] public required string PhoneNumber { get; set; }
         public bool IsDeleted { get; set; }
 
         public required Enums.GenderType Gender { get; set; }
@@ -22,8 +20,9 @@ namespace SmartUni.PublicApi.Features.Student
 
         //public Guid? AllocationID { get; set; }
         public Allocation.Allocation? Allocation { get; set; }
+        [JsonIgnore]
         public virtual BaseUser Identity { get; set; }
-        public string UserCode => UserCodeHelpers.GenerateUserCode(Enums.UserCodePrefix.Tut, Name, Identity.Email!);
+        public string UserCode => UserCodeHelpers.GenerateUserCode(Enums.UserCodePrefix.Stu, Name, Identity.Email!);
         public Guid IdentityId { get; set; }
         public List<MeetingParticipant> Meetings { get; set; } = [];
 
@@ -34,7 +33,7 @@ namespace SmartUni.PublicApi.Features.Student
 
         public void UpdateStudentEmail(string email)
         {
-            Email = email;
+            Identity.Email = email;
         }
 
         public void UpdateModifiedBy(Guid updatedBy)
@@ -49,7 +48,7 @@ namespace SmartUni.PublicApi.Features.Student
 
         public void UpdateStudentPhoneNumber(string phoneNumber)
         {
-            PhoneNumber = phoneNumber;
+            Identity.PhoneNumber = phoneNumber;
         }
 
         public void UpdateStudentMajor(Enums.MajorType major)

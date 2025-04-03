@@ -44,7 +44,7 @@ namespace SmartUni.PublicApi.Features.Staff.Queries
                     return TypedResults.NotFound();
                 }
 
-                Response response = new(staff.Id, staff.Name, staff.Email, staff.PhoneNumber, staff.Gender,staff.UserCode);
+                Response response = new(staff.Id, staff.Name, staff.Identity.Email, staff.Identity.PhoneNumber, staff.Gender,staff.UserCode);
                 logger.LogInformation("Successfully fetched details for staff with ID: {Id}", id);
                 return TypedResults.Ok(response);
             }
