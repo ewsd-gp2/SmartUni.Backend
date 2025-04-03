@@ -76,7 +76,7 @@ namespace SmartUni.PublicApi.Features.Meeting.Queries
                 {
                     IEnumerable<ParticipantResponse> participants =
                         meeting.Participants.Select(x =>
-                            new ParticipantResponse(x.Id, x.StudentId, x.Student.Name, x.Student.Email, "",
+                            new ParticipantResponse(x.Id, x.StudentId, x.Student.Name, x.Student.Identity.Email, "",
                                 x.Attendance.ToString(), x.Note)).ToList();
 
                     response.Add(new Response(meeting.OrganizerId, meeting.StartTime, meeting.EndTime,

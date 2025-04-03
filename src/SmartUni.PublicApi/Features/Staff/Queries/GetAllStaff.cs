@@ -27,7 +27,7 @@ namespace SmartUni.PublicApi.Features.Staff.Queries
                 IEnumerable<Response> staff = await dbContext.Staff
                     .Include(x => x.Identity)
                     .Where(x => !x.IsDeleted)
-                    .Select(t => new Response(t.Id, t.Name, t.Email, t.PhoneNumber, t.Gender))
+                    .Select(t => new Response(t.Id, t.Name, t.Identity.Email, t.Identity.PhoneNumber, t.Gender))
                     .ToListAsync(cancellationToken);
 
                 if (!staff.Any())

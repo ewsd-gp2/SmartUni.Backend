@@ -286,6 +286,7 @@ namespace SmartUni.PublicApi.Migrations
                             NormalizedEmail = "SUPER@GMAIL.COM",
                             NormalizedUserName = "super@gmail.com",
                             PasswordHash = "AQAAAAIAAYagAAAAEBO76UEQJKnMJnRWMaqsAZS3Qbuua1nQ47HoHOEDwe20rlsfO42Eqt1o58vU539ZhA==",
+                            PhoneNumber = "0948827282",
                             PhoneNumberConfirmed = false,
                             TwoFactorEnabled = false,
                             UserName = "super@gmail.com"
@@ -306,6 +307,10 @@ namespace SmartUni.PublicApi.Migrations
                     b.Property<DateTime>("CreatedOn")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_on");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
 
                     b.Property<Guid>("StudentId")
                         .HasColumnType("uuid")
@@ -519,12 +524,6 @@ namespace SmartUni.PublicApi.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_on");
 
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("email");
-
                     b.Property<Enums.GenderType>("Gender")
                         .HasColumnType("gender")
                         .HasColumnName("gender");
@@ -542,12 +541,6 @@ namespace SmartUni.PublicApi.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)")
                         .HasColumnName("name");
-
-                    b.Property<string>("PhoneNumber")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)")
-                        .HasColumnName("phone_number");
 
                     b.Property<Guid?>("UpdatedBy")
                         .HasColumnType("uuid")
@@ -572,12 +565,10 @@ namespace SmartUni.PublicApi.Migrations
                             Id = new Guid("8fb67550-b862-4a0f-94fd-c212f5e35802"),
                             CreatedBy = new Guid("8fb67550-b862-4a0f-94fd-c212f5e35802"),
                             CreatedOn = new DateTime(2025, 3, 16, 17, 0, 0, 0, DateTimeKind.Utc),
-                            Email = "super@gmail.com",
                             Gender = Enums.GenderType.Male,
                             IdentityId = new Guid("8edcd6b3-0489-4766-abed-284e8945f13d"),
                             IsDeleted = false,
-                            Name = "super staff",
-                            PhoneNumber = "0948827282"
+                            Name = "super staff"
                         });
                 });
 
@@ -595,12 +586,6 @@ namespace SmartUni.PublicApi.Migrations
                     b.Property<DateTime>("CreatedOn")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_on");
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("email");
 
                     b.Property<Enums.GenderType>("Gender")
                         .HasColumnType("gender")
@@ -623,12 +608,6 @@ namespace SmartUni.PublicApi.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)")
                         .HasColumnName("name");
-
-                    b.Property<string>("PhoneNumber")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)")
-                        .HasColumnName("phone_number");
 
                     b.Property<Guid?>("UpdatedBy")
                         .HasColumnType("uuid")

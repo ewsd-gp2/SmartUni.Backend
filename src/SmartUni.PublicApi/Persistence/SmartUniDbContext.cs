@@ -55,6 +55,7 @@ namespace SmartUni.PublicApi.Persistence
                 NormalizedUserName = "super@gmail.com",
                 Email = "super@gmail.com",
                 NormalizedEmail = "SUPER@GMAIL.COM",
+                PhoneNumber = "0948827282",
                 EmailConfirmed = false,
                 PasswordHash =
                     "AQAAAAIAAYagAAAAEBO76UEQJKnMJnRWMaqsAZS3Qbuua1nQ47HoHOEDwe20rlsfO42Eqt1o58vU539ZhA==",
@@ -65,13 +66,13 @@ namespace SmartUni.PublicApi.Persistence
             {
                 Id = adminId,
                 Name = "super staff",
-                Email = "super@gmail.com",
-                PhoneNumber = "0948827282",
                 Gender = Enums.GenderType.Male,
                 CreatedBy = adminId,
                 CreatedOn = new DateTime(new DateOnly(2025, 3, 16), new TimeOnly(17, 0, 0, 0), DateTimeKind.Utc),
                 IdentityId = userId
             });
+           
+
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

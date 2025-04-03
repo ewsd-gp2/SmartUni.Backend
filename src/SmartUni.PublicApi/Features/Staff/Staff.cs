@@ -10,13 +10,10 @@ namespace SmartUni.PublicApi.Features.Staff
 
         [MaxLength(50)] public required string Name { get; set; }
 
-        [MaxLength(50)] public  string Email { get; set; }
-
-        [MaxLength(20)] public  string PhoneNumber { get; set; }
         public bool IsDeleted { get; set; }
         public required Enums.GenderType Gender { get; set; }
         public virtual BaseUser Identity { get; set; }
-        public string UserCode => UserCodeHelpers.GenerateUserCode(Enums.UserCodePrefix.Tut, Name, Identity.Email!);
+        public string UserCode => UserCodeHelpers.GenerateUserCode(Enums.UserCodePrefix.Sta, Name, Identity.Email!);
         public Guid IdentityId { get; set; }
 
         public void UpdateStaffName(string name)
@@ -26,7 +23,7 @@ namespace SmartUni.PublicApi.Features.Staff
 
         public void UpdateStaffEmail(string email)
         {
-            Email = email;
+            Identity.Email = email;
         }
 
         public void UpdateStaffGender(Enums.GenderType Gender)
@@ -36,7 +33,7 @@ namespace SmartUni.PublicApi.Features.Staff
 
         public void UpdateStaffPhoneNumber(string phoneNumber)
         {
-            PhoneNumber = phoneNumber;
+            Identity.PhoneNumber = phoneNumber;
         }
 
         public void DeleteStaffAcc(bool isdeleted)

@@ -40,18 +40,18 @@ namespace SmartUni.PublicApi.Features.Student.Queries
             {
                 logger.LogInformation("Fetching details for student with ID: {Id}", id);
 
-                Student? student = await dbContext.Student.FindAsync(id, cancellationToken);
+                Student? student = await dbContext.Student.Include(x => x.Identity).Where(x => !x.IsDeleted).FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
                 if (student != null)
                 {
-                    bool isAllocated = student.Allocation.Id != null && student.Allocation.Id != Guid.Empty;
+                    bool isAllocated = student.Allocation?.Id != null && student.Allocation?.Id != Guid.Empty;
                     Response response = new(
                         student.Id,
                         student.Name,
-                        student.Email,
-                        student.PhoneNumber,
+                        student.Identity.Email,
+                        student.Identity.PhoneNumber,
                         student.Gender,
                         student.Major,
-                        student.Allocation.Id,
+                        student.Allocation?.Id,
                         isAllocated,// Set isAllocated to true if the student has an allocation, false otherwise
                         student.UserCode
                     );
