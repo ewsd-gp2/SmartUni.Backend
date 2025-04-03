@@ -22,6 +22,8 @@ namespace SmartUni.PublicApi.Features.Tutor
 
         public List<Meeting.Meeting> Meetings { get; set; }
 
+        public byte[]? Image { get; set; }
+        
         public void UpdateTutorName(string name)
         {
             Name = name;

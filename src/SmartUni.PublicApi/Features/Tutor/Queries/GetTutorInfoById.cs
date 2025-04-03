@@ -13,7 +13,8 @@ namespace SmartUni.PublicApi.Features.Tutor.Queries
             string PhoneNumber,
             string Gender,
             string Major,
-            string UserCode);
+            string UserCode,
+            string Image);
 
         public sealed class Endpoint : IEndpoint
         {
@@ -45,7 +46,7 @@ namespace SmartUni.PublicApi.Features.Tutor.Queries
                 Response response = new(tutor.Id, tutor.Name, tutor.Identity.Email!,
                     tutor.Identity.PhoneNumber!,
                     tutor.Gender.ToString(),
-                    tutor.Major.ToString(), tutor.UserCode);
+                    tutor.Major.ToString(), tutor.UserCode, tutor.Image is null ? string.Empty : Convert.ToBase64String(tutor.Image));
                 logger.LogInformation("Successfully fetched details for tutor with ID: {Id} with response: {Response}",
                     id, response);
                 return TypedResults.Ok(response);

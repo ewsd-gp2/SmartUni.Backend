@@ -51,7 +51,7 @@ namespace SmartUni.PublicApi.Common.Helpers
             context.Response.Cookies.Append("accessToken", token,
                 new CookieOptions
                 {
-                    Expires = DateTime.UtcNow.AddMinutes(10),
+                    Expires = DateTime.UtcNow.AddHours(2),
                     HttpOnly = true,
                     IsEssential = true,
                     Secure = true,
