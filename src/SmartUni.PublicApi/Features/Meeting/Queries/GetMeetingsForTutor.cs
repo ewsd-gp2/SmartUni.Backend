@@ -45,7 +45,7 @@ namespace SmartUni.PublicApi.Features.Meeting.Queries
             }
 
             private static async Task<IResult> Handle([FromRoute] Guid tutorId,
-                [FromBody] CreateMeeting.Request request,
+                [FromBody] Request request,
                 [FromServices] SmartUniDbContext dbContext,
                 [FromServices] ILogger<Endpoint> logger,
                 CancellationToken cancellationToken)
@@ -68,22 +68,32 @@ namespace SmartUni.PublicApi.Features.Meeting.Queries
                     .Where(m => m.StartTime >= request.StartTime)
                     .Where(m => m.EndTime <= request.EndTime)
                     .Include(m => m.Participants)
-                    .ThenInclude(mp => mp.Student)
+                    .ThenInclude(mp => mp.Student).ThenInclude(student => student.Identity)
                     .ToListAsync(cancellationToken);
 
                 List<Response> response = [];
-                foreach (Meeting meeting in meetings)
-                {
-                    IEnumerable<ParticipantResponse> participants =
-                        meeting.Participants.Select(x =>
-                            new ParticipantResponse(x.Id, x.StudentId, x.Student.Name, x.Student.Identity.Email, "",
-                                x.Attendance.ToString(), x.Note)).ToList();
-
-                    response.Add(new Response(meeting.OrganizerId, meeting.StartTime, meeting.EndTime,
-                        participants.ToList(), meeting.Status.ToString(), meeting.Title, meeting.IsOnline,
-                        meeting.Location,
-                        meeting.LinkType.ToString(), meeting.Url, meeting.Agenda));
-                }
+                response.AddRange(
+                    from meeting in meetings let participants = 
+                        meeting.Participants.Select(x => 
+                            new ParticipantResponse(
+                                x.Id, 
+                                x.StudentId, 
+                                x.Student.Name, 
+                                x.Student.Identity.Email, 
+                                "", 
+                                x.Attendance.ToString(), x.Note)).ToList() 
+                    select new Response(
+                        meeting.OrganizerId, 
+                        meeting.StartTime, 
+                        meeting.EndTime, 
+                        participants.ToList(), 
+                        meeting.Status.ToString(), 
+                        meeting.Title, 
+                        meeting.IsOnline, 
+                        meeting?.Location, 
+                        meeting?.LinkType.ToString(), 
+                        meeting?.Url, 
+                        meeting?.Agenda));
 
 
                 return Results.Ok(response);

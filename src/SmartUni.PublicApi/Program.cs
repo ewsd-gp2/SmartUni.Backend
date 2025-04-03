@@ -52,7 +52,7 @@ builder.Services.AddAuthentication(authOptions =>
         {
             ValidateIssuer = true,
             ValidateAudience = true,
-            ValidateLifetime = true,
+            ValidateLifetime = false,
             ValidateIssuerSigningKey = true,
             ValidIssuer = "http://localhost:7142",
             ValidAudience = "http://localhost:5173",

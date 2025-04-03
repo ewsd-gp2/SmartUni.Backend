@@ -40,7 +40,7 @@ namespace SmartUni.PublicApi.Features.Meeting.Queries
             }
 
             private static async Task<IResult> Handle([FromRoute] Guid studentId,
-                [FromBody] CreateMeeting.Request request,
+                [FromBody] Request request,
                 [FromServices] SmartUniDbContext dbContext,
                 [FromServices] ILogger<Endpoint> logger,
                 CancellationToken cancellationToken)
@@ -55,17 +55,27 @@ namespace SmartUni.PublicApi.Features.Meeting.Queries
 
                 if (!studentExists)
                 {
-                    return Results.NotFound("Invalid tutor id");
+                    return Results.NotFound("Invalid student id");
                 }
 
                 List<Response> response = await dbContext.MeetingParticipants
                     .Where(x => x.StudentId == studentId)
                     .Include(p => p.Meeting)
                     .ThenInclude(m => m.Organizer)
-                    .Select(x => new Response(x.Id, x.MeetingId, x.Meeting.OrganizerId, x.Meeting.Organizer.Name,
-                        x.Meeting.StartTime, x.Meeting.EndTime, x.Meeting.Status.ToString(), x.Meeting.Title,
+                    .Select(x => new Response(
+                        x.Id, 
+                        x.MeetingId, 
+                        x.Meeting.OrganizerId, 
+                        x.Meeting.Organizer.Name,
+                        x.Meeting.StartTime, 
+                        x.Meeting.EndTime, 
+                        x.Meeting.Status.ToString(), 
+                        x.Meeting.Title,
                         x.Meeting.IsOnline,
-                        x.Meeting.Location, x.Meeting.LinkType.ToString(), x.Meeting.Url, x.Meeting.Agenda,
+                        x.Meeting.Location, 
+                        x.Meeting.LinkType.ToString(), 
+                        x.Meeting.Url, 
+                        x.Meeting.Agenda,
                         x.Attendance.ToString(), x.Note))
                     .ToListAsync(cancellationToken);
 
