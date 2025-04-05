@@ -30,7 +30,7 @@ namespace SmartUni.PublicApi.Features.Meeting.Queries
         {
             public static void MapEndpoint(IEndpointRouteBuilder endpoints)
             {
-                endpoints.MapGet("/meeting/student/{studentId:guid}", Handle)
+                endpoints.MapPost("/meeting/student/{studentId:guid}", Handle)
                     .RequireAuthorization("api")
                     .WithDescription("Create new meeting for tutor and students")
                     .Accepts<Request>("application/json")
