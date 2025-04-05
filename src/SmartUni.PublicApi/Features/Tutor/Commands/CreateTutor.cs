@@ -60,6 +60,7 @@ namespace SmartUni.PublicApi.Features.Tutor.Commands
                     UserName = request.Email,
                     Email = request.Email,
                     PhoneNumber = request.PhoneNumber,
+                    IsFirstLogin = true,
                     Tutor = tutor
                 };
 

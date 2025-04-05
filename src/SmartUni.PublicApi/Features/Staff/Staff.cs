@@ -15,6 +15,7 @@ namespace SmartUni.PublicApi.Features.Staff
         public virtual BaseUser Identity { get; set; }
         public string UserCode => UserCodeHelpers.GenerateUserCode(Enums.UserCodePrefix.Sta, Name, Identity.Email!);
         public Guid IdentityId { get; set; }
+        public byte[]? Image { get; set; }
 
         public void UpdateStaffName(string name)
         {

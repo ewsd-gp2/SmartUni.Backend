@@ -25,7 +25,7 @@ namespace SmartUni.PublicApi.Features.Student
         public string UserCode => UserCodeHelpers.GenerateUserCode(Enums.UserCodePrefix.Stu, Name, Identity.Email!);
         public Guid IdentityId { get; set; }
         public List<MeetingParticipant> Meetings { get; set; } = [];
-
+        public byte[]? Image { get; set; }
         public void UpdateStudentName(string name)
         {
             Name = name;

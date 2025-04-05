@@ -38,6 +38,8 @@ namespace SmartUni.PublicApi.Features.Auth
                                     request.Email == "super@gmail.com" ? "Admin" : "Staff");
 
                                 TokenHelper.SetTokensInsideCookie(token, context);
+
+                                if (user.LastLoginDate is not null) user.IsFirstLogin = false;
                                 user.LastLoginDate = DateTime.UtcNow;
                                 await dbContext.SaveChangesAsync();
                             }

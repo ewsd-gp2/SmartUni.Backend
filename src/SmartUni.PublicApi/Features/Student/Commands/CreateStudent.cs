@@ -2,6 +2,7 @@
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using SmartUni.PublicApi.Common.Domain;
 using SmartUni.PublicApi.Features.Tutor;
 using SmartUni.PublicApi.Persistence;
@@ -11,7 +12,14 @@ namespace SmartUni.PublicApi.Features.Student.Commands
 {
     public class CreateStudent
     {
-        private sealed record Request(string Name, string Email, string PhoneNumber, string Gender, string Major, string Password);
+        private sealed record Request(
+            [FromForm(Name = "name")] string Name,
+            [FromForm(Name = "email")] string Email,
+            [FromForm(Name = "phoneNumber")] string PhoneNumber,
+            [FromForm(Name = "gender")] string Gender,
+            [FromForm(Name = "major")] string Major,
+            [FromForm(Name = "password")] string Password,
+            [FromForm(Name = "image")] IFormFile Image);
 
         public sealed class Endpoint : IEndpoint
         {
@@ -21,19 +29,20 @@ namespace SmartUni.PublicApi.Features.Student.Commands
                     .ProducesValidationProblem()
                     .RequireAuthorization("api")
                     .WithDescription("Create new student")
-                    .Accepts<Request>("application/json")
+                    .Accepts<Request>("multipart/form-data")
                     .Produces(201)
                     .Produces<BadRequest<List<ValidationFailure>>>(400)
-                    .WithTags(nameof(Student));
+                    .WithTags(nameof(Student))
+                    .DisableAntiforgery();
             }
 
             private static async Task<IResult> HandleAsync(
-    ClaimsPrincipal claims,
-    ILogger<Endpoint> logger,
-    SmartUniDbContext dbContext,
-    Request request,
-    UserManager<BaseUser> userManager,
-    CancellationToken cancellationToken)
+                ClaimsPrincipal claims,
+                ILogger<Endpoint> logger,
+                SmartUniDbContext dbContext,
+                [FromForm] Request request,
+                UserManager<BaseUser> userManager,
+                CancellationToken cancellationToken)
             {
                 logger.LogInformation("Submitted to create a new student with request: {Request}", request);
 
@@ -41,18 +50,20 @@ namespace SmartUni.PublicApi.Features.Student.Commands
                 if (!validationResult.IsValid)
                 {
                     logger.LogWarning("Request failed validation with errors: {Errors}", validationResult.Errors);
-                    return TypedResults.BadRequest(validationResult.Errors.Select(e => new { e.PropertyName, e.ErrorMessage }).ToList());
+                    return TypedResults.BadRequest(validationResult.Errors
+                        .Select(e => new { e.PropertyName, e.ErrorMessage }).ToList());
                 }
-                
+
                 Student student = MapToDomain(request);
                 student.CreatedBy = Guid.Parse(claims.FindFirstValue(ClaimTypes.NameIdentifier) ??
-                     throw new InvalidOperationException(ClaimTypes.NameIdentifier));
+                                               throw new InvalidOperationException(ClaimTypes.NameIdentifier));
                 BaseUser user = new()
                 {
                     Id = Guid.NewGuid(),
                     UserName = request.Email,
                     Email = request.Email,
                     PhoneNumber = request.PhoneNumber,
+                    IsFirstLogin = true,
                     Student = student
                 };
 
@@ -69,6 +80,7 @@ namespace SmartUni.PublicApi.Features.Student.Commands
                 logger.LogInformation("Successfully created a new student with ID: {Id}", student.Id);
                 return TypedResults.Created($"/student/{student.Id}", student);
             }
+
             private static Student MapToDomain(Request request)
             {
                 return new Student
@@ -76,7 +88,8 @@ namespace SmartUni.PublicApi.Features.Student.Commands
                     Id = Guid.NewGuid(),
                     Name = request.Name,
                     Gender = Enum.Parse<Enums.GenderType>(request.Gender),
-                    Major = Enum.Parse<Enums.MajorType>(request.Major)
+                    Major = Enum.Parse<Enums.MajorType>(request.Major),
+                    Image = GetFileArray(request.Image)
                 };
             }
         }
@@ -102,6 +115,13 @@ namespace SmartUni.PublicApi.Features.Student.Commands
                 // Validate Gender
                 RuleFor(x => x.Gender).IsEnumName(typeof(Enums.GenderType));
             }
+        }
+
+        private static byte[] GetFileArray(IFormFile file)
+        {
+            using MemoryStream ms = new();
+            file.CopyTo(ms);
+            return ms.ToArray();
         }
     }
 }
