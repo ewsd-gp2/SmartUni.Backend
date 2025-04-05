@@ -9,6 +9,7 @@ namespace SmartUni.PublicApi.Features.Auth
     public class SignInStudent
     {
         private sealed record Request(string Email, string Password);
+
         public class Endpoint : IEndpoint
         {
             public static void MapEndpoint(IEndpointRouteBuilder endpoints)
@@ -23,7 +24,7 @@ namespace SmartUni.PublicApi.Features.Auth
 
                             UserManager<BaseUser> userManager = sp.GetRequiredService<UserManager<BaseUser>>();
 
-                            BaseUser? user = await userManager.Users.Include(x => x.Tutor)
+                            BaseUser? user = await userManager.Users.Include(x => x.Student)
                                 .FirstOrDefaultAsync(x => x.Email == request.Email);
                             if (user != null)
                             {
@@ -36,6 +37,7 @@ namespace SmartUni.PublicApi.Features.Auth
                                 string token = TokenHelper.GenerateToken(user, "Student");
                                 TokenHelper.SetTokensInsideCookie(token, context);
 
+                                if (user.LastLoginDate is not null) user.IsFirstLogin = false;
                                 user.LastLoginDate = DateTime.UtcNow;
                                 await dbContext.SaveChangesAsync();
                             }

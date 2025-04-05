@@ -37,6 +37,7 @@ namespace SmartUni.PublicApi.Features.Auth
                                 string token = TokenHelper.GenerateToken(user, "Tutor");
                                 TokenHelper.SetTokensInsideCookie(token, context);
 
+                                if (user.LastLoginDate is not null) user.IsFirstLogin = false;
                                 user.LastLoginDate = DateTime.UtcNow;
                                 await dbContext.SaveChangesAsync();
                             }

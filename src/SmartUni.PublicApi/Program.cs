@@ -2,7 +2,6 @@
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
 using Serilog;
@@ -25,13 +24,10 @@ builder.Services.AddCors(options =>
     options.AddPolicy(corsPolicyName,
         policyBuilder =>
         {
-            policyBuilder.WithOrigins(builder.Configuration["ClientAppUrl"]!).AllowCredentials().AllowAnyMethod()
+            policyBuilder.AllowAnyOrigin().AllowAnyMethod()
                 .AllowAnyHeader();
         });
 });
-
-
-
 
 builder.Host.UseSerilog((context, configuration) =>
     configuration.ReadFrom.Configuration(context.Configuration));
@@ -64,15 +60,7 @@ builder.Services.AddAuthentication(authOptions =>
         {
             OnMessageReceived = context =>
             {
-                if (context.Request.Cookies.ContainsKey("accessToken"))
-                {
-                    Console.WriteLine("there is token in the header");
-                    context.Token = context.Request.Cookies["accessToken"];
-                }
-                else
-                {
-                    Console.WriteLine("there is no token in the header");
-                }
+                context.Token = context.Request.Cookies["accessToken"];
 
                 return Task.CompletedTask;
             }

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SmartUni.PublicApi.Common.Domain;
@@ -12,9 +13,11 @@ using SmartUni.PublicApi.Persistence;
 namespace SmartUni.PublicApi.Migrations
 {
     [DbContext(typeof(SmartUniDbContext))]
-    partial class SmartUniDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250405061501_first_login_flag_to_asp_net_user_table")]
+    partial class first_login_flag_to_asp_net_user_table
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -537,10 +540,6 @@ namespace SmartUni.PublicApi.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("identity_id");
 
-                    b.Property<byte[]>("Image")
-                        .HasColumnType("bytea")
-                        .HasColumnName("image");
-
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean")
                         .HasColumnName("is_deleted");
@@ -603,10 +602,6 @@ namespace SmartUni.PublicApi.Migrations
                     b.Property<Guid>("IdentityId")
                         .HasColumnType("uuid")
                         .HasColumnName("identity_id");
-
-                    b.Property<byte[]>("Image")
-                        .HasColumnType("bytea")
-                        .HasColumnName("image");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean")

@@ -15,7 +15,7 @@ namespace SmartUni.PublicApi.Persistence
     {
         public DbSet<Tutor> Tutor { get; set; }
         public DbSet<Staff> Staff { get; set; }
-        public DbSet<Student> Student { get; set; }
+        public DbSet<Student?> Student { get; set; }
         public DbSet<Allocation> Allocation { get; set; }
 
         public DbSet<ChatMessage> ChatMessage { get; set; }
