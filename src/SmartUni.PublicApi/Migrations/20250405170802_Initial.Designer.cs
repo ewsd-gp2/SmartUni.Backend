@@ -13,7 +13,7 @@ using SmartUni.PublicApi.Persistence;
 namespace SmartUni.PublicApi.Migrations
 {
     [DbContext(typeof(SmartUniDbContext))]
-    [Migration("20250401152028_Initial")]
+    [Migration("20250405170802_Initial")]
     partial class Initial
     {
         /// <inheritdoc />

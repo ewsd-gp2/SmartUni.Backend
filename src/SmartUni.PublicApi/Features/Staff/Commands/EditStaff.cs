@@ -50,7 +50,8 @@ namespace SmartUni.PublicApi.Features.Staff.Commands
                     return TypedResults.BadRequest(validationResult);
                 }
 
-                Staff? staff = await dbContext.Staff.FindAsync([id], cancellationToken);
+                Staff? staff = await dbContext.Staff.Where(x => !x.IsDeleted).Include(x => x.Identity)
+                    .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
 
                 if (staff is null)
                 {
@@ -59,8 +60,8 @@ namespace SmartUni.PublicApi.Features.Staff.Commands
                 }
 
                 staff.UpdateStaffName(request.Name);
-                staff.UpdateStaffEmail(request.Email);
-                staff.UpdateStaffPhoneNumber(request.PhoneNumber);
+                staff.Identity.Email = request.Email;
+                staff.Identity.PhoneNumber = request.PhoneNumber;
                 staff.UpdateStaffUpdatedOn(DateTime.UtcNow);
                 staff.UpdateStaffGender(request.Gender);
                 staff.CreatedBy = Guid.Parse(claims.FindFirstValue(ClaimTypes.NameIdentifier));
