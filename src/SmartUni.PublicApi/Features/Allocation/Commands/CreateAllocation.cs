@@ -1,7 +1,6 @@
 ﻿using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.EntityFrameworkCore;
 using SmartUni.PublicApi.Features.Allocation.Models;
 using SmartUni.PublicApi.Features.Tutor;
 using SmartUni.PublicApi.Persistence;
@@ -89,6 +88,7 @@ namespace SmartUni.PublicApi.Features.Allocation.Commands
             }
         }
 
+        // Validator for RequestModel
         private sealed class Validator : AbstractValidator<Request>
         {
             public Validator()

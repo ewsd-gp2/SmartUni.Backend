@@ -2,16 +2,20 @@
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
 using Serilog;
 using SmartUni.PublicApi.Common.Domain;
 using SmartUni.PublicApi.Extensions;
+using SmartUni.PublicApi.Features.Email;
+using SmartUni.PublicApi.Features.Email.Interface;
 using SmartUni.PublicApi.Features.Message;
 using SmartUni.PublicApi.Features.Message.Hubs;
 using SmartUni.PublicApi.Host;
 using SmartUni.PublicApi.Persistence;
 using System.Reflection;
+using IEmailSender = SmartUni.PublicApi.Features.Email.Interface.IEmailSender;
 
 Assembly appAssembly = Assembly.GetExecutingAssembly();
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
@@ -83,7 +87,7 @@ builder.Services.Configure<IdentityOptions>(options =>
     options.Password.RequireUppercase = false;
     options.Password.RequiredLength = 6;
 });
-
+builder.Services.AddScoped<IEmailSender, EmailSender>();
 builder.Services.AddSignalR();
 builder.Services.AddMediatR(typeof(Program).Assembly);
 builder.Services.AddSingleton<sharedDB>();
