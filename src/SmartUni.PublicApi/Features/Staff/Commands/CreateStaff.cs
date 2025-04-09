@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using SmartUni.PublicApi.Common.Domain;
+using SmartUni.PublicApi.Features.Student;
 using SmartUni.PublicApi.Features.Tutor;
 using SmartUni.PublicApi.Persistence;
 using System.Security.Claims;

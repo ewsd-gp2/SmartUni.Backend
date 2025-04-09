@@ -37,7 +37,7 @@ namespace SmartUni.PublicApi.Features.Staff.Queries
             {
                 logger.LogInformation("Fetching details for staff with ID: {Id}", id);
 
-                Staff? staff = await dbContext.Staff.FindAsync([id], cancellationToken);
+                Staff? staff = await dbContext.Staff.Include(x => x.Identity).Where(x=>!x.IsDeleted).FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
                 if (staff is null)
                 {
                     logger.LogWarning("Staff with ID: {Id} not found", id);

@@ -3,8 +3,11 @@ using FluentValidation.Results;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using SmartUni.PublicApi.Common.Domain;
+using SmartUni.PublicApi.Features.Student;
 using SmartUni.PublicApi.Persistence;
 using System.Security.Claims;
+using Student = SmartUni.PublicApi.Features.Student.Student;
+
 
 namespace SmartUni.PublicApi.Features.Allocation.Commands
 {
@@ -48,6 +51,14 @@ namespace SmartUni.PublicApi.Features.Allocation.Commands
                 allocation.IsDeleted = true;
                 allocation.UpdatedOn = DateTime.UtcNow;
                 allocation.UpdatedBy = Guid.Parse(claims.FindFirstValue(ClaimTypes.NameIdentifier));
+                //Student student = await dbContext.Student.FindAsync(allocation.StudentId, cancellationToken);
+                //if (student is not null)
+                //{
+                //    student.isa
+
+                //    student.UpdatedOn = DateTime.UtcNow;
+                //    student.UpdatedBy = allocation.UpdatedBy; // reuse updater if applicable
+                //}
                 await dbContext.SaveChangesAsync(cancellationToken);
 
                 logger.LogInformation("Successfully deleted allocation with ID: {Id}", id);
