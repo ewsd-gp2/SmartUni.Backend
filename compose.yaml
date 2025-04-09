@@ -12,6 +12,18 @@
     volumes:
       - postgres_data:/var/lib/postgresql/data/
 
+  smartuni.ollama:
+    image: ollama/ollama:latest
+    container_name: smartuni.ollama
+    ports:
+      - "11434:11434"
+    environment:
+      - OLLAMA_API_URL=http://localhost:11434
+    volumes:
+      - ollama_data:/.ollama
+  #    entrypoint: [ "/bin/sh", "-c" ]
+  #    command: ollama serve &> /var/log/ollama.log & while ! curl -s http://localhost:11434 > /dev/null; do echo "Waiting for ollama service..." && sleep 2; done && ollama run llama2 &>> /var/log/ollama.log && tail -f /dev/null
+
   smartuni.api:
     container_name: smartuni.api
     build:
@@ -19,6 +31,7 @@
       dockerfile: ./src/SmartUni.PublicApi/Dockerfile
     depends_on:
       - smartuni.db
+      - smartuni.ollama
     ports:
       - "7142:7142"
     environment:
@@ -35,6 +48,7 @@
       - "8080:80"
     environment:
       - ACCEPT_EULA=Y
-
+  
 volumes:
   postgres_data:
+  ollama_data:

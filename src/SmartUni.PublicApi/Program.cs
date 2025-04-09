@@ -2,6 +2,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.AI;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
 using Serilog;
@@ -16,8 +17,13 @@ using System.Reflection;
 Assembly appAssembly = Assembly.GetExecutingAssembly();
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 const string corsPolicyName = "localhost";
+IChatClient chatClient = new OllamaChatClient("localhost:11434", "llama3.2:3b")
+    .AsBuilder()
+    .UseFunctionInvocation()
+    .Build();
 
 builder.Services.ConfigureFeatures(builder.Configuration, appAssembly);
+builder.Services.AddScoped<IChatClient>(x => chatClient);
 builder.Services.AddOpenApi();
 builder.Services.AddCors(options =>
 {
@@ -96,7 +102,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.MapHub<ChatHub>("/ChatHub")
    .RequireCors();
-
 app.MapOpenApi();
 app.MapScalarApiReference(options =>
 {

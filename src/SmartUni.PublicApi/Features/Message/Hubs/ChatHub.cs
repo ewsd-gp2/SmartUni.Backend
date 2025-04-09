@@ -1,6 +1,4 @@
-﻿
-using Microsoft.AspNetCore.SignalR;
-using SmartUni.PublicApi.Features.Message;
+﻿using Microsoft.AspNetCore.SignalR;
 using SmartUni.PublicApi.Persistence;
 
 namespace SmartUni.PublicApi.Features.Message.Hubs
