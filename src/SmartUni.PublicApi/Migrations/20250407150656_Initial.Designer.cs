@@ -13,8 +13,8 @@ using SmartUni.PublicApi.Persistence;
 namespace SmartUni.PublicApi.Migrations
 {
     [DbContext(typeof(SmartUniDbContext))]
-    [Migration("20250403140648_add_tutor_image_col")]
-    partial class add_tutor_image_col
+    [Migration("20250407150656_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -218,6 +218,10 @@ namespace SmartUni.PublicApi.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("email_confirmed");
 
+                    b.Property<bool>("IsFirstLogin")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_first_login");
+
                     b.Property<DateTime?>("LastLoginDate")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("last_login_date");
@@ -285,6 +289,7 @@ namespace SmartUni.PublicApi.Migrations
                             ConcurrencyStamp = "eba2f237-2092-401e-9c31-3371ff170cdf",
                             Email = "super@gmail.com",
                             EmailConfirmed = false,
+                            IsFirstLogin = false,
                             LockoutEnabled = false,
                             NormalizedEmail = "SUPER@GMAIL.COM",
                             NormalizedUserName = "super@gmail.com",
@@ -535,6 +540,10 @@ namespace SmartUni.PublicApi.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("identity_id");
 
+                    b.Property<byte[]>("Image")
+                        .HasColumnType("bytea")
+                        .HasColumnName("image");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean")
                         .HasColumnName("is_deleted");
@@ -597,6 +606,10 @@ namespace SmartUni.PublicApi.Migrations
                     b.Property<Guid>("IdentityId")
                         .HasColumnType("uuid")
                         .HasColumnName("identity_id");
+
+                    b.Property<byte[]>("Image")
+                        .HasColumnType("bytea")
+                        .HasColumnName("image");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean")

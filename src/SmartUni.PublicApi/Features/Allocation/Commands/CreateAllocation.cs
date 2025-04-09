@@ -1,6 +1,7 @@
 ﻿using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.EntityFrameworkCore;
 using SmartUni.PublicApi.Features.Allocation.Models;
 using SmartUni.PublicApi.Features.Tutor;
 using SmartUni.PublicApi.Persistence;
@@ -24,10 +25,10 @@ namespace SmartUni.PublicApi.Features.Allocation.Commands
             private static async Task<Results<Created<RequestModel>, BadRequest<Dictionary<string, string[]>>>>
                 HandleAsync(
                 ClaimsPrincipal claims,
-                    ILogger<Endpoint> logger,
-                    SmartUniDbContext dbContext,
-                    Request request,
-                    CancellationToken cancellationToken)
+                ILogger<Endpoint> logger,
+                SmartUniDbContext dbContext,
+                Request request,
+                CancellationToken cancellationToken)
             {
                 logger.LogInformation("Submitted to create a new allocation with request: {Request}", request);
 
@@ -37,7 +38,6 @@ namespace SmartUni.PublicApi.Features.Allocation.Commands
                 {
                     logger.LogWarning("Request failed validation with errors: {Errors}", validationResult.Errors);
 
-                    // Create a dictionary to hold validation errors
                     Dictionary<string, string[]> errors = validationResult.Errors
                         .GroupBy(e => e.PropertyName)
                         .ToDictionary(
@@ -48,35 +48,43 @@ namespace SmartUni.PublicApi.Features.Allocation.Commands
                     return TypedResults.BadRequest(errors);
                 }
 
-                List<Allocation> allocations = MapToDomain(request.Data,claims);
+                List<Allocation> allocations = MapToDomain(request.Data, claims);
 
-                await dbContext.Allocation.AddRangeAsync(allocations, cancellationToken);
-                Dictionary<Guid, Guid> allocationMap = allocations
-                    .ToDictionary(a => a.StudentId, a => a.Id);
+                foreach (var allocation in allocations)
+                {
+                    var existing = await dbContext.Allocation
+                        .FirstOrDefaultAsync(a => a.StudentId == allocation.StudentId && a.IsDeleted, cancellationToken);
 
-                // Update the AllocationID column for each related Student
-                await dbContext.Student
-                    .Where(s => allocationMap.Keys.Contains(s.Id))
-                    .ForEachAsync(s => s.Allocation.Id = allocationMap[s.Id], cancellationToken);
+                    if (existing != null)
+                    {
+                        existing.TutorId = allocation.TutorId;
+                        existing.IsDeleted = false;
+                        existing.UpdatedOn = DateTime.UtcNow;
+                        existing.UpdatedBy = Guid.Parse(claims.FindFirstValue(ClaimTypes.NameIdentifier) ?? throw new InvalidOperationException(ClaimTypes.NameIdentifier));
+                    }
+                    else
+                    {
+                        await dbContext.Allocation.AddAsync(allocation, cancellationToken);
+                    }
+                }
+
                 await dbContext.SaveChangesAsync(cancellationToken);
-                logger.LogInformation("Successfully created allocations with IDs: {Ids}",
+
+                logger.LogInformation("Successfully processed allocations with IDs: {Ids}",
                     string.Join(", ", allocations.Select(a => a.Id)));
 
                 return TypedResults.Created("/allocation", request.Data);
             }
 
-            private static List<Allocation> MapToDomain(RequestModel requestModel, ClaimsPrincipal _claims)
+            private static List<Allocation> MapToDomain(RequestModel requestModel, ClaimsPrincipal claims)
             {
-                //Allocation.CreatedBy = Guid.Parse(claims.FindFirstValue(ClaimTypes.NameIdentifier) ??
-                // throw new InvalidOperationException(ClaimTypes.NameIdentifier));
-                // Map each RequestAllocationModel to an Allocation
                 return requestModel.requestAllocationModels.Select(requestAllocation => new Allocation
                 {
                     Id = Guid.NewGuid(),
                     StudentId = requestAllocation.StudentID,
                     TutorId = requestModel.TutorID,
-                    CreatedBy = Guid.Parse(_claims.FindFirstValue(ClaimTypes.NameIdentifier) ??
-                                             throw new InvalidOperationException(ClaimTypes.NameIdentifier))
+                    CreatedBy = Guid.Parse(claims.FindFirstValue(ClaimTypes.NameIdentifier) ??
+                                           throw new InvalidOperationException(ClaimTypes.NameIdentifier))
                 }).ToList();
             }
         }
@@ -87,10 +95,15 @@ namespace SmartUni.PublicApi.Features.Allocation.Commands
             {
                 RuleFor(x => x.Data.requestAllocationModels).NotEmpty()
                     .WithMessage("At least one allocation is required.");
-                RuleFor(x => x.Data.TutorID).NotEmpty().WithMessage("Tutor ID is required");
+                RuleFor(x => x.Data.TutorID)
+                    .NotEmpty().WithMessage("Tutor ID is required.")
+                    .Must(id => id != Guid.Empty).WithMessage("Tutor ID must be a valid GUID.");
+
                 RuleForEach(x => x.Data.requestAllocationModels).ChildRules(request =>
                 {
-                    request.RuleFor(x => x.StudentID).NotEmpty().WithMessage("Student ID is required.");
+                    request.RuleFor(x => x.StudentID)
+                        .NotEmpty().WithMessage("Student ID is required.")
+                        .Must(id => id != Guid.Empty).WithMessage("Invalid Student ID format.");
                 });
             }
         }
