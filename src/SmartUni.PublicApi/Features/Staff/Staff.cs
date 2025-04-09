@@ -21,12 +21,6 @@ namespace SmartUni.PublicApi.Features.Staff
         {
             Name = name;
         }
-
-        public void UpdateStaffEmail(string email)
-        {
-            Identity.Email = email;
-        }
-
         public void UpdateStaffGender(Enums.GenderType Gender)
         {
             this.Gender = Gender;
