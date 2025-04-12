@@ -1,12 +1,12 @@
 ﻿
-﻿using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using SmartUni.PublicApi.Common.Domain;
 using SmartUni.PublicApi.Persistence;
 
-namespace SmartUni.PublicApi.Features.Report
+namespace SmartUni.PublicApi.Features.Report.Queries
 {
     public class StudentsWithoutInteraction
     {

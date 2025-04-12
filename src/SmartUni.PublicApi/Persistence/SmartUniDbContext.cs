@@ -4,6 +4,7 @@ using SmartUni.PublicApi.Common.Domain;
 using SmartUni.PublicApi.Features.Allocation;
 using SmartUni.PublicApi.Features.Meeting;
 using SmartUni.PublicApi.Features.Message;
+using SmartUni.PublicApi.Features.Report;
 using SmartUni.PublicApi.Features.Staff;
 using SmartUni.PublicApi.Features.Student;
 using SmartUni.PublicApi.Features.Tutor;
@@ -24,6 +25,7 @@ namespace SmartUni.PublicApi.Persistence
         public DbSet<ChatParticipant> ChatParticipant { get; set; }
         public DbSet<Meeting> Meeting { get; set; }
         public DbSet<MeetingParticipant> MeetingParticipants { get; set; }
+        public DbSet<Page> Page { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
