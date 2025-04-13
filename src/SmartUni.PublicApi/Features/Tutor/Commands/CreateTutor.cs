@@ -28,6 +28,7 @@ namespace SmartUni.PublicApi.Features.Tutor.Commands
                 endpoints.MapPost("/tutor", HandleAsync)
                     .RequireAuthorization("api")
                     .WithDescription("Create new tutor")
+                    .Accepts<Request>("multipart/form-data")
                     .Produces(201)
                     .Produces<BadRequest<List<ValidationFailure>>>(400)
                     .WithTags(nameof(Tutor))
