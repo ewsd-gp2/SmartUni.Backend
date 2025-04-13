@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using SmartUni.PublicApi.Common.Domain;
+using System.ComponentModel.DataAnnotations;
 
 namespace SmartUni.PublicApi.Features.Message
 {
@@ -10,8 +11,9 @@ namespace SmartUni.PublicApi.Features.Message
 
         
         public required string SenderId { get; set; } = string.Empty;
+        public required string SenderName { get; set; } = string.Empty;
 
-       
+        public required Enums.SenderType SenderType { get; set; }
         public required string ChatRoomId { get; set; } = string.Empty;
 
       

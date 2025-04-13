@@ -1,7 +1,10 @@
 ﻿
+using MediatR;
 using Microsoft.AspNetCore.SignalR;
+using SmartUni.PublicApi.Common.Domain;
 using SmartUni.PublicApi.Features.Message;
 using SmartUni.PublicApi.Persistence;
+using static SmartUni.PublicApi.Common.Domain.Enums;
 
 namespace SmartUni.PublicApi.Features.Message.Hubs
 {
@@ -73,9 +76,10 @@ namespace SmartUni.PublicApi.Features.Message.Hubs
                 {
                     SenderId = conn.UserName,
                     ChatRoomId = conn.ChatRoom,
+                    SenderType= Enum.Parse<Enums.SenderType>(conn.UserType),
+                    SenderName=conn.SenderName,
                     Content = msg
                 };
-
                 // Save to database
                 await _dbContext.ChatMessage.AddAsync(message);
                 await _dbContext.SaveChangesAsync();

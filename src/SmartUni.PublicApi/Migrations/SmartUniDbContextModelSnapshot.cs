@@ -475,6 +475,15 @@ namespace SmartUni.PublicApi.Migrations
                         .HasColumnType("text")
                         .HasColumnName("sender_id");
 
+                    b.Property<string>("SenderName")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("sender_name");
+
+                    b.Property<int>("SenderType")
+                        .HasColumnType("integer")
+                        .HasColumnName("sender_type");
+
                     b.Property<DateTime>("Timestamp")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("timestamp");

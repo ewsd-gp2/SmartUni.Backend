@@ -25,9 +25,9 @@ public class SendEmail
     {
         public static void MapEndpoint(IEndpointRouteBuilder endpoints)
         {
-            endpoints.MapPost("/send-tutoring-notification", HandleAsync)
+            endpoints.MapPost("/email", HandleAsync)
                 .ProducesValidationProblem()
-                .WithTags("Tutoring")
+                .WithTags("Email")
                 .WithName("SendTutoringAllocationEmail");
         }
 

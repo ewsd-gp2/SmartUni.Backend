@@ -67,6 +67,8 @@ namespace SmartUni.PublicApi.Migrations
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
                     sender_id = table.Column<string>(type: "text", nullable: false),
+                    sender_name = table.Column<string>(type: "text", nullable: false),
+                    sender_type = table.Column<int>(type: "integer", nullable: false),
                     chat_room_id = table.Column<string>(type: "text", nullable: false),
                     content = table.Column<string>(type: "text", nullable: false),
                     timestamp = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
