@@ -39,17 +39,20 @@ namespace SmartUni.PublicApi.Features.Report.Queries
             }
 
             private static async Task<Results<Ok<List<Response>>, NotFound, BadRequest<string>>> HandleAsync(
-                string dateBefore,
-                ILogger<Endpoint> logger,
-                SmartUniDbContext dbContext,
-                CancellationToken cancellationToken)
+    string dateBefore,
+    ILogger<Endpoint> logger,
+    SmartUniDbContext dbContext,
+    CancellationToken cancellationToken)
             {
                 logger.LogInformation("Fetching students who haven't interacted since {DateBefore}", dateBefore);
 
-                if (!DateTime.TryParse(dateBefore, out var cutoffDate))
+                if (!DateTime.TryParse(dateBefore, out var parsedDate))
                 {
                     return TypedResults.BadRequest("Invalid date format. Please use yyyy-MM-dd.");
                 }
+
+                // Force UTC to avoid PostgreSQL error
+                var cutoffDate = DateTime.SpecifyKind(parsedDate, DateTimeKind.Utc);
 
                 var students = await dbContext.Student
                     .Include(s => s.Identity)
@@ -80,6 +83,7 @@ namespace SmartUni.PublicApi.Features.Report.Queries
                 logger.LogInformation("Retrieved {Count} students with last login before {Date}", students.Count, cutoffDate);
                 return TypedResults.Ok(students);
             }
+
         }
     }
 }
