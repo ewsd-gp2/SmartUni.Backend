@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using SmartUni.PublicApi.Common.Domain;
+using SmartUni.PublicApi.Features.Tutor;
 using SmartUni.PublicApi.Persistence;
 
 namespace SmartUni.PublicApi.Features.Student.Queries
@@ -16,7 +17,8 @@ namespace SmartUni.PublicApi.Features.Student.Queries
             Enums.MajorType Major,
             Guid? AllocationID,
             bool IsAllocated,
-            string UserCode);
+            string UserCode,
+            string Image);
 
         public sealed class Endpoint : IEndpoint
         {
@@ -53,7 +55,8 @@ namespace SmartUni.PublicApi.Features.Student.Queries
                         student.Major,
                         student.Allocation?.Id,
                         isAllocated,// Set isAllocated to true if the student has an allocation, false otherwise
-                        student.UserCode
+                    student.UserCode,
+                    student.Image is null ? string.Empty : Convert.ToBase64String(student.Image)
                     );
 
                     logger.LogInformation("Successfully fetched details for student with ID: {Id}", id);

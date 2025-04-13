@@ -51,6 +51,12 @@ namespace SmartUni.PublicApi.Common.Domain
             [Description("Tutor DashBoard")] TutorDashboard,
             Chat,
             Blog,
+            [Description("Landing Page")]LandingPage
+        }
+        public enum SenderType
+        {
+            Student,
+            Tutor
         }
     }
 }
