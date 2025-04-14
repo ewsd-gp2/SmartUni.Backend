@@ -424,7 +424,6 @@ namespace SmartUni.PublicApi.Migrations
             modelBuilder.Entity("SmartUni.PublicApi.Features.Blog.BlogComment", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
@@ -460,7 +459,6 @@ namespace SmartUni.PublicApi.Migrations
             modelBuilder.Entity("SmartUni.PublicApi.Features.Blog.BlogReaction", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
