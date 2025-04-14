@@ -12,7 +12,7 @@ namespace SmartUni.PublicApi.Features.Staff.Commands
 {
     public class EditStaff
     {
-        private sealed record Request(string Name, string Email, string PhoneNumber, Enums.GenderType Gender);
+        private sealed record Request(string Name, string Email, string PhoneNumber, string Gender);
 
         public sealed class Endpoint : IEndpoint
         {
@@ -63,7 +63,7 @@ namespace SmartUni.PublicApi.Features.Staff.Commands
                 staff.Identity.Email = request.Email;
                 staff.Identity.PhoneNumber = request.PhoneNumber;
                 staff.UpdateStaffUpdatedOn(DateTime.UtcNow);
-                staff.UpdateStaffGender(request.Gender);
+                staff.UpdateStaffGender(Enum.Parse<Enums.GenderType>(request.Gender));
                 staff.CreatedBy = Guid.Parse(claims.FindFirstValue(ClaimTypes.NameIdentifier));
                 await dbContext.SaveChangesAsync(cancellationToken);
 
@@ -80,7 +80,7 @@ namespace SmartUni.PublicApi.Features.Staff.Commands
                 RuleFor(x => x.Name).NotEmpty();
                 RuleFor(x => x.Email).NotEmpty();
                 RuleFor(x => x.PhoneNumber).NotEmpty();
-                RuleFor(x => x.Gender).IsInEnum();
+                RuleFor(x => x.Gender).IsEnumName(typeof(Enums.GenderType));
 
             }
         }

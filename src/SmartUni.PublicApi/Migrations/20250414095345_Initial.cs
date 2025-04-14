@@ -67,6 +67,8 @@ namespace SmartUni.PublicApi.Migrations
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
                     sender_id = table.Column<string>(type: "text", nullable: false),
+                    sender_name = table.Column<string>(type: "text", nullable: false),
+                    sender_type = table.Column<int>(type: "integer", nullable: false),
                     chat_room_id = table.Column<string>(type: "text", nullable: false),
                     content = table.Column<string>(type: "text", nullable: false),
                     timestamp = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
@@ -89,6 +91,19 @@ namespace SmartUni.PublicApi.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("pk_chatparticipant", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "page",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    page_name = table.Column<int>(type: "integer", nullable: false),
+                    view_count = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_page", x => x.id);
                 });
 
             migrationBuilder.CreateTable(
@@ -477,6 +492,9 @@ namespace SmartUni.PublicApi.Migrations
 
             migrationBuilder.DropTable(
                 name: "meetingparticipant");
+
+            migrationBuilder.DropTable(
+                name: "page");
 
             migrationBuilder.DropTable(
                 name: "staff");

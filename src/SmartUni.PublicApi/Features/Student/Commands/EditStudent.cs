@@ -77,8 +77,8 @@ namespace SmartUni.PublicApi.Features.Student.Commands
                 RuleFor(x => x.Name).NotEmpty();
                 RuleFor(x => x.Email).NotEmpty().EmailAddress();
                 RuleFor(x => x.PhoneNumber).NotEmpty();
-                RuleFor(x => x.Gender).IsInEnum();
-                RuleFor(x => x.Major).IsInEnum();
+                RuleFor(x => x.Gender).IsEnumName(typeof(Enums.GenderType));
+                RuleFor(x => x.Major).IsEnumName(typeof(Enums.MajorType));
             }
         }
     }

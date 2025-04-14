@@ -6,8 +6,13 @@ namespace SmartUni.PublicApi.Features.Message.Queries
 {
     public class UserChatList
     {
-        public record Response(string ChatRoomId, string LastMessage, string Sender, DateTime Timestamp);
-
+        public record Response(
+    string ChatRoomId,
+    string LastMessage,
+    DateTime Timestamp,
+    string SenderId,
+    List<byte[]> ChatProfileImages
+);
         public sealed class Endpoint : IEndpoint
         {
             public static void MapEndpoint(IEndpointRouteBuilder endpoints)
@@ -25,7 +30,6 @@ namespace SmartUni.PublicApi.Features.Message.Queries
             {
                 logger.LogInformation("Fetching chat list for user {UserId}", userId);
 
-                // Get chat rooms the user participates in
                 var chatRoomIds = await dbContext.ChatParticipant
                     .Where(p => p.UserId == userId)
                     .Select(p => p.ChatRoomId)
@@ -33,25 +37,60 @@ namespace SmartUni.PublicApi.Features.Message.Queries
 
                 if (!chatRoomIds.Any())
                 {
-                    logger.LogWarning("No chat rooms found for user {UserId}", userId);
                     return TypedResults.NotFound();
                 }
 
-                // Get latest message per chat room
                 var latestMessages = await dbContext.ChatMessage
                     .Where(m => chatRoomIds.Contains(m.ChatRoomId))
                     .GroupBy(m => m.ChatRoomId)
                     .Select(g => g.OrderByDescending(m => m.Timestamp).FirstOrDefault())
                     .ToListAsync(cancellationToken);
 
-                var response = latestMessages.Select(m => new Response(
-                    m.ChatRoomId,
-                    m.Content,
-                    m.SenderId,
-                    m.Timestamp
-                ));
+                var responseList = new List<Response>();
 
-                return TypedResults.Ok(response);
+                foreach (var message in latestMessages)
+                {
+                    if (message == null) continue;
+
+                    // Get the other participant in this chat room
+                    var otherUserIds = await dbContext.ChatParticipant
+     .Where(p => p.ChatRoomId == message.ChatRoomId && p.UserId != userId)
+     .Select(p => p.UserId)
+     .ToListAsync(cancellationToken);
+
+                    var profileImages = new List<byte[]>();
+
+                    foreach (var otherUserId in otherUserIds)
+                    {
+                        byte[]? image = await dbContext.Student
+                            .Where(s => s.Id.ToString() == otherUserId)
+                            .Select(s => s.Image)
+                            .FirstOrDefaultAsync(cancellationToken);
+
+                        if (image == null)
+                        {
+                            image = await dbContext.Tutor
+                                .Where(t => t.Id.ToString() == otherUserId)
+                                .Select(t => t.Image)
+                                .FirstOrDefaultAsync(cancellationToken);
+                        }
+
+                        if (image != null)
+                        {
+                            profileImages.Add(image);
+                        }
+                    }
+
+                    responseList.Add(new Response(
+                        message.ChatRoomId,
+                        message.Content,
+                        message.Timestamp,
+                        message.SenderId,
+                        profileImages
+                    ));
+                }
+
+                return TypedResults.Ok<IEnumerable<Response>>(responseList);
             }
         }
     }

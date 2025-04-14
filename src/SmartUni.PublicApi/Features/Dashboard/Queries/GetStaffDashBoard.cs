@@ -1,37 +1,36 @@
-﻿using Microsoft.AspNetCore.Http.HttpResults;
+﻿
+using global::SmartUni.PublicApi.Persistence;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
-using SmartUni.PublicApi.Common.Domain;
-using SmartUni.PublicApi.Features.Tutor;
 using SmartUni.PublicApi.Persistence;
 
-namespace SmartUni.PublicApi.Features.Staff.Queries
+namespace SmartUni.PublicApi.Features.Dashboard.Queries
 {
-    public class GetStaffDetail
+    public class GetStaffDashboard
     {
         private sealed record Response(
-            Guid Id,
+            Guid StaffId,
             string Name,
             string Email,
             string PhoneNumber,
-            Enums.GenderType Gender,
-            string UserCode,
-            string Image);
+            string Gender,
+            byte[] Profile);
 
-        public sealed class Endpoint : IEndpoint
+        public class Endpoint : IEndpoint
         {
             public static void MapEndpoint(IEndpointRouteBuilder endpoints)
             {
-                endpoints.MapGet("/staff/{id:guid}",
+                endpoints.MapGet("/dashboard/staff/{id:guid}/",
                         ([FromRoute] Guid id, [FromServices] SmartUniDbContext dbContext,
                                 [FromServices] ILogger<Endpoint> logger, CancellationToken cancellationToken) =>
                             HandleAsync(id, dbContext, logger, cancellationToken))
-                    .RequireAuthorization("api")
+                    .WithDescription("Get dashboard details for a staff member")
                     .Produces<Ok<Response>>()
                     .Produces<NotFound>()
-                    .WithTags(nameof(Staff));
+                    .WithTags("Dashboard");
             }
 
-            private static async Task<Results<Ok<Response>, NotFound>> HandleAsync(
+            private static async Task<IResult> HandleAsync(
                 Guid id,
                 SmartUniDbContext dbContext,
                 ILogger<Endpoint> logger,
@@ -39,17 +38,30 @@ namespace SmartUni.PublicApi.Features.Staff.Queries
             {
                 logger.LogInformation("Fetching details for staff with ID: {Id}", id);
 
-                Staff? staff = await dbContext.Staff.Include(x => x.Identity).Where(x=>!x.IsDeleted).FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+                var staff = await dbContext.Staff
+                    .Include(s => s.Identity)
+                    .FirstOrDefaultAsync(s => s.Id == id, cancellationToken);
+
                 if (staff is null)
                 {
-                    logger.LogWarning("Staff with ID: {Id} not found", id);
+                    logger.LogInformation("Staff with ID: {Id} not found", id);
                     return TypedResults.NotFound();
                 }
 
-                Response response = new(staff.Id, staff.Name, staff.Identity.Email, staff.Identity.PhoneNumber, staff.Gender,staff.UserCode, staff.Image is null ? string.Empty : Convert.ToBase64String(staff.Image));
+                var response = new Response(
+                    staff.Id,
+                    staff.Name,
+                    staff.Identity.Email!,
+                    staff.Identity.PhoneNumber!,
+                    staff.Gender.ToString(),
+                    staff.Image
+                );
+
                 logger.LogInformation("Successfully fetched details for staff with ID: {Id}", id);
                 return TypedResults.Ok(response);
             }
         }
     }
 }
+
+

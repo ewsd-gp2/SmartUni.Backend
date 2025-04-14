@@ -44,5 +44,19 @@ namespace SmartUni.PublicApi.Common.Domain
             Tut,
             Stu
         }
+        public enum MostViewPage
+        {
+            [Description("Assign Allocation")]AssignAllocation,
+            [Description("Student DashBoard")]StudentDashboard,
+            [Description("Tutor DashBoard")] TutorDashboard,
+            Chat,
+            Blog,
+            [Description("Landing Page")]LandingPage
+        }
+        public enum SenderType
+        {
+            Student,
+            Tutor
+        }
     }
 }

@@ -1,12 +1,15 @@
 ﻿using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
+using SmartUni.PublicApi.Common.Domain;
 using SmartUni.PublicApi.Persistence;
+using System.Linq;
 
 namespace SmartUni.PublicApi.Features.Message.Queries
 {
     public class TotalMessage
     {
-        private record Response(string SenderId,int MessageCount);
+        private record Response(string SenderId,int MessageCount,string SenderType,string senderName);
+        //private record SenderType(string SenderId,Enums.SenderType senderType);
 
         public sealed class Endpoint : IEndpoint
         {
@@ -14,7 +17,7 @@ namespace SmartUni.PublicApi.Features.Message.Queries
             {
                 endpoints.MapGet("/message", HandleAsync)
                     .Produces<Results<IResult, NotFound>>()
-                    .WithTags(nameof(Message));
+                    .WithTags(nameof(Report));
             }
             
             public static async Task<Results<IResult, NotFound>> HandleAsync(
@@ -24,9 +27,14 @@ namespace SmartUni.PublicApi.Features.Message.Queries
             {
                 logger.LogInformation("Submitted to get all allocations");
                 IEnumerable<Response> messageCounts = await dbContext.ChatMessage
-    .GroupBy(m => m.SenderId) 
-    .Select(g => new Response(g.Key, g.Count()))
-    .ToListAsync(cancellationToken);
+    .GroupBy(m => new { m.SenderId, m.SenderType, m.SenderName })
+    .Select(g => new Response(
+        g.Key.SenderId,
+        g.Count(),
+        g.Key.SenderType.ToString(),
+        g.Key.SenderName
+    ))
+    .ToListAsync();
 
                 if (!messageCounts.Any())
                 {

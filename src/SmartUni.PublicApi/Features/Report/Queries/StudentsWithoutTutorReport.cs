@@ -2,7 +2,7 @@
 using SmartUni.PublicApi.Common.Domain;
 using SmartUni.PublicApi.Persistence;
 
-namespace SmartUni.PublicApi.Features.Report
+namespace SmartUni.PublicApi.Features.Report.Queries
 {
     public class StudentsWIthoutTutorReport
     {
