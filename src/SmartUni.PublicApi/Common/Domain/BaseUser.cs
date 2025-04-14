@@ -12,5 +12,6 @@ namespace SmartUni.PublicApi.Common.Domain
         public virtual Student Student { get; set; }
         public DateTime? LastLoginDate { get; set; }
         public bool IsFirstLogin { get; set; }
+        public Enums.RoleType Role { get; set; }
     }
 }

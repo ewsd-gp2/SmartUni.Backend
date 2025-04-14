@@ -22,7 +22,9 @@ namespace SmartUni.PublicApi.Extensions
                 .MapEnum<Enums.MajorType>("major")
                 .MapEnum<Enums.MeetingStatus>("meeting_status")
                 .MapEnum<Enums.AttendanceStatus>("attendance_status")
-                .MapEnum<Enums.MeetingLinkType>("meeting_link_type");
+                .MapEnum<Enums.MeetingLinkType>("meeting_link_type")
+                .MapEnum<Enums.RoleType>("role_type")
+                .MapEnum<Enums.BlogType>("blog_type");
         }
     }
 }

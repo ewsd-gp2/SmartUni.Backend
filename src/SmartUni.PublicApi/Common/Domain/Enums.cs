@@ -53,10 +53,25 @@ namespace SmartUni.PublicApi.Common.Domain
             Blog,
             [Description("Landing Page")]LandingPage
         }
+        
         public enum SenderType
         {
             Student,
             Tutor
+        }
+
+        public enum RoleType
+        {
+            Staff,
+            Tutor,
+            Student
+        }
+
+        public enum BlogType
+        {
+            [Description("News Letter")] NewsLetter,
+            [Description("Knowledge Sharing")] KnowledgeSharing,
+            Announcement
         }
     }
 }
