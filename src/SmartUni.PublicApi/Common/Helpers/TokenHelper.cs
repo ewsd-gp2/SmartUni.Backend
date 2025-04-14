@@ -8,15 +8,15 @@ namespace SmartUni.PublicApi.Common.Helpers
 {
     public static class TokenHelper
     {
-        public static string GenerateToken(BaseUser user, string role)
+        public static string GenerateToken(BaseUser user)
         {
             byte[] key = "DoNotShareThisSuperSecretKey!@SDF123!@#"u8.ToArray();
             JsonWebTokenHandler tokenHandler = new();
-            string userId = role switch
+            string userId = user.Role switch
             {
-                "Tutor" => user.Tutor.Id.ToString(),
-                "Admin" or "Staff" => user.Staff.Id.ToString(),
-                "Student" => user.Student.Id.ToString(),
+                Enums.RoleType.Tutor => user.Tutor.Id.ToString(),
+                Enums.RoleType.Staff => user.Staff.Id.ToString(),
+                Enums.RoleType.Student => user.Student.Id.ToString(),
                 _ => string.Empty
             };
 
@@ -27,7 +27,8 @@ namespace SmartUni.PublicApi.Common.Helpers
                 new(JwtRegisteredClaimNames.Name, user.UserName!),
                 new(JwtRegisteredClaimNames.Email, user.Email!),
                 new(JwtRegisteredClaimNames.Iat, DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString()),
-                new("role", role),
+                new("role", user.Role.ToString()),
+                new("identityId", user.Id.ToString()),
                 new("isFirstLogin", user.LastLoginDate is null ? true.ToString() : false.ToString())
             ];
 

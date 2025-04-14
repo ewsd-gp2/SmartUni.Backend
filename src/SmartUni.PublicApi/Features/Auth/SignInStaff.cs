@@ -34,8 +34,7 @@ namespace SmartUni.PublicApi.Features.Auth
                                     return Results.Unauthorized();
                                 }
 
-                                string token = TokenHelper.GenerateToken(user,
-                                    request.Email == "super@gmail.com" ? "Admin" : "Staff");
+                                string token = TokenHelper.GenerateToken(user);
 
                                 TokenHelper.SetTokensInsideCookie(token, context);
 

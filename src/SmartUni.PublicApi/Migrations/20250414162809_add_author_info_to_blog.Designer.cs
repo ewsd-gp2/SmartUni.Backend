@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SmartUni.PublicApi.Common.Domain;
@@ -12,9 +13,11 @@ using SmartUni.PublicApi.Persistence;
 namespace SmartUni.PublicApi.Migrations
 {
     [DbContext(typeof(SmartUniDbContext))]
-    partial class SmartUniDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250414162809_add_author_info_to_blog")]
+    partial class add_author_info_to_blog
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -361,10 +364,6 @@ namespace SmartUni.PublicApi.Migrations
                         .HasColumnType("bytea")
                         .HasColumnName("attachment");
 
-                    b.Property<string>("AttachmentName")
-                        .HasColumnType("text")
-                        .HasColumnName("attachment_name");
-
                     b.Property<byte[]>("AuthorAvatar")
                         .HasColumnType("bytea")
                         .HasColumnName("author_avatar");
@@ -390,13 +389,6 @@ namespace SmartUni.PublicApi.Migrations
                     b.Property<DateTime>("CreatedOn")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_on");
-
-                    b.Property<byte[]>("RowVersion")
-                        .IsConcurrencyToken()
-                        .IsRequired()
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("bytea")
-                        .HasColumnName("row_version");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -467,6 +459,10 @@ namespace SmartUni.PublicApi.Migrations
                     b.Property<Guid>("BlogId")
                         .HasColumnType("uuid")
                         .HasColumnName("blog_id");
+
+                    b.Property<DateTime>("ReactedOn")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("reacted_on");
 
                     b.Property<Guid>("ReacterId")
                         .HasColumnType("uuid")

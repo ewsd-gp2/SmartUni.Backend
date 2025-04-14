@@ -64,7 +64,8 @@ namespace SmartUni.PublicApi.Features.Student.Commands
                     Email = request.Email,
                     PhoneNumber = request.PhoneNumber,
                     IsFirstLogin = true,
-                    Student = student
+                    Student = student,
+                    Role = Enums.RoleType.Student
                 };
 
                 IdentityResult result = await userManager.CreateAsync(user, request.Password);
