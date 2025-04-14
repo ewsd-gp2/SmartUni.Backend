@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SmartUni.PublicApi.Common.Domain;
@@ -12,9 +13,11 @@ using SmartUni.PublicApi.Persistence;
 namespace SmartUni.PublicApi.Migrations
 {
     [DbContext(typeof(SmartUniDbContext))]
-    partial class SmartUniDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250414153618_add_blog_table")]
+    partial class add_blog_table
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -361,19 +364,6 @@ namespace SmartUni.PublicApi.Migrations
                         .HasColumnType("bytea")
                         .HasColumnName("attachment");
 
-                    b.Property<string>("AttachmentName")
-                        .HasColumnType("text")
-                        .HasColumnName("attachment_name");
-
-                    b.Property<byte[]>("AuthorAvatar")
-                        .HasColumnType("bytea")
-                        .HasColumnName("author_avatar");
-
-                    b.Property<string>("AuthorName")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("author_name");
-
                     b.Property<string>("Content")
                         .IsRequired()
                         .HasColumnType("text")
@@ -390,13 +380,6 @@ namespace SmartUni.PublicApi.Migrations
                     b.Property<DateTime>("CreatedOn")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_on");
-
-                    b.Property<byte[]>("RowVersion")
-                        .IsConcurrencyToken()
-                        .IsRequired()
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("bytea")
-                        .HasColumnName("row_version");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -428,7 +411,7 @@ namespace SmartUni.PublicApi.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
-                    b.Property<Guid>("BlogId")
+                    b.Property<Guid?>("BlogId")
                         .HasColumnType("uuid")
                         .HasColumnName("blog_id");
 
@@ -464,9 +447,13 @@ namespace SmartUni.PublicApi.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
-                    b.Property<Guid>("BlogId")
+                    b.Property<Guid?>("BlogId")
                         .HasColumnType("uuid")
                         .HasColumnName("blog_id");
+
+                    b.Property<DateTime>("ReactedOn")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("reacted_on");
 
                     b.Property<Guid>("ReacterId")
                         .HasColumnType("uuid")
@@ -475,12 +462,11 @@ namespace SmartUni.PublicApi.Migrations
                     b.HasKey("Id")
                         .HasName("pk_blogreaction");
 
+                    b.HasIndex("BlogId")
+                        .HasDatabaseName("ix_blogreaction_blog_id");
+
                     b.HasIndex("ReacterId")
                         .HasDatabaseName("ix_blogreaction_reacter_id");
-
-                    b.HasIndex("BlogId", "ReacterId")
-                        .IsUnique()
-                        .HasDatabaseName("ix_blogreaction_blog_id_reacter_id");
 
                     b.ToTable("blogreaction", (string)null);
                 });
@@ -617,15 +603,6 @@ namespace SmartUni.PublicApi.Migrations
                         .HasColumnType("text")
                         .HasColumnName("sender_id");
 
-                    b.Property<string>("SenderName")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("sender_name");
-
-                    b.Property<int>("SenderType")
-                        .HasColumnType("integer")
-                        .HasColumnName("sender_type");
-
                     b.Property<DateTime>("Timestamp")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("timestamp");
@@ -663,27 +640,6 @@ namespace SmartUni.PublicApi.Migrations
                         .HasName("pk_chatparticipant");
 
                     b.ToTable("chatparticipant", (string)null);
-                });
-
-            modelBuilder.Entity("SmartUni.PublicApi.Features.Report.Page", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<int>("PageName")
-                        .HasColumnType("integer")
-                        .HasColumnName("page_name");
-
-                    b.Property<int>("ViewCount")
-                        .HasColumnType("integer")
-                        .HasColumnName("view_count");
-
-                    b.HasKey("Id")
-                        .HasName("pk_page");
-
-                    b.ToTable("page", (string)null);
                 });
 
             modelBuilder.Entity("SmartUni.PublicApi.Features.Staff.Staff", b =>
@@ -942,11 +898,9 @@ namespace SmartUni.PublicApi.Migrations
 
             modelBuilder.Entity("SmartUni.PublicApi.Features.Blog.BlogComment", b =>
                 {
-                    b.HasOne("SmartUni.PublicApi.Features.Blog.Blog", "Blog")
+                    b.HasOne("SmartUni.PublicApi.Features.Blog.Blog", null)
                         .WithMany("Comments")
                         .HasForeignKey("BlogId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
                         .HasConstraintName("fk_blogcomment_blog_blog_id");
 
                     b.HasOne("SmartUni.PublicApi.Common.Domain.BaseUser", "Commenter")
@@ -956,18 +910,14 @@ namespace SmartUni.PublicApi.Migrations
                         .IsRequired()
                         .HasConstraintName("fk_blogcomment_baseuser_commenter_id");
 
-                    b.Navigation("Blog");
-
                     b.Navigation("Commenter");
                 });
 
             modelBuilder.Entity("SmartUni.PublicApi.Features.Blog.BlogReaction", b =>
                 {
-                    b.HasOne("SmartUni.PublicApi.Features.Blog.Blog", "Blog")
+                    b.HasOne("SmartUni.PublicApi.Features.Blog.Blog", null)
                         .WithMany("Reactions")
                         .HasForeignKey("BlogId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
                         .HasConstraintName("fk_blogreaction_blog_blog_id");
 
                     b.HasOne("SmartUni.PublicApi.Common.Domain.BaseUser", "Reacter")
@@ -976,8 +926,6 @@ namespace SmartUni.PublicApi.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_blogreaction_baseuser_reacter_id");
-
-                    b.Navigation("Blog");
 
                     b.Navigation("Reacter");
                 });

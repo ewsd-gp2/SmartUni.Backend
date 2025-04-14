@@ -34,7 +34,7 @@ namespace SmartUni.PublicApi.Features.Auth
                                     return Results.Unauthorized();
                                 }
 
-                                string token = TokenHelper.GenerateToken(user, "Student");
+                                string token = TokenHelper.GenerateToken(user);
                                 TokenHelper.SetTokensInsideCookie(token, context);
 
                                 if (user.LastLoginDate is not null) user.IsFirstLogin = false;
