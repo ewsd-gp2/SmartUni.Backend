@@ -77,7 +77,6 @@ namespace SmartUni.PublicApi.Migrations
                     author_name = table.Column<string>(type: "text", nullable: false),
                     author_avatar = table.Column<byte[]>(type: "bytea", nullable: true),
                     type = table.Column<Enums.BlogType>(type: "blog_type", nullable: false),
-                    row_version = table.Column<byte[]>(type: "bytea", rowVersion: true, nullable: false),
                     created_by = table.Column<Guid>(type: "uuid", nullable: false),
                     created_on = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     updated_by = table.Column<Guid>(type: "uuid", nullable: true),
