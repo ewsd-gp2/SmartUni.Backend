@@ -3,69 +3,77 @@ using FluentValidation.Results;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using SmartUni.PublicApi.Common.Domain;
-using SmartUni.PublicApi.Features.Student;
 using SmartUni.PublicApi.Persistence;
 using System.Security.Claims;
-using Student = SmartUni.PublicApi.Features.Student.Student;
-
 
 namespace SmartUni.PublicApi.Features.Allocation.Commands
 {
     public class DeleteAllocation
     {
-        //private sealed record Request(Guid? AllocationID);
+        private sealed record Request([FromBody] List<Guid> AllocationIds);
 
         public sealed class Endpoint : IEndpoint
         {
             public static void MapEndpoint(IEndpointRouteBuilder endpoints)
             {
-                endpoints.MapPut("/allocation/{id:guid}",
-                        ([FromRoute] Guid id, [FromServices] ILogger<Endpoint> logger,
-                                [FromServices] SmartUniDbContext dbContext, ClaimsPrincipal claims, CancellationToken cancellationToken) =>
-                            HandleAsync(id, logger, dbContext, claims, cancellationToken))
-                    .WithDescription("Delete an existing student")
+                endpoints.MapPut("/allocation",
+                        async ([FromBody] Request request,
+                               [FromServices] ILogger<Endpoint> logger,
+                               [FromServices] SmartUniDbContext dbContext,
+                               ClaimsPrincipal claims,
+                               CancellationToken cancellationToken) =>
+                            await HandleAsync(request, logger, dbContext, claims, cancellationToken))
+                    .WithDescription("Soft delete a list of allocations")
                     .Produces(200)
                     .RequireAuthorization("api")
                     .Produces<BadRequest<List<ValidationFailure>>>(400)
-                    .Produces<NotFound>(404)
                     .WithTags(nameof(Allocation));
             }
 
-            private static async Task<Results<Ok, IResult>> HandleAsync(
-                Guid id,
+            private static async Task<Results<Ok, BadRequest<List<ValidationFailure>>>> HandleAsync(
+                Request request,
                 ILogger<Endpoint> logger,
                 SmartUniDbContext dbContext,
                 ClaimsPrincipal claims,
                 CancellationToken cancellationToken)
             {
-                logger.LogInformation("Submitted to delete allocation with ID: {Id} and request: {Request}", id);
+                logger.LogInformation("Request to delete allocations: {@Ids}", request.AllocationIds);
 
-                Allocation? allocation = await dbContext.Allocation.FindAsync([id], cancellationToken);
-
-                if (allocation is null)
+                var validator = new Validator();
+                var validationResult = await validator.ValidateAsync(request, cancellationToken);
+                if (!validationResult.IsValid)
                 {
-                    logger.LogWarning("Allocation with ID: {Id} not found", id);
-                    return TypedResults.NotFound();
+                    logger.LogWarning("Validation failed: {@Errors}", validationResult.Errors);
+                    return TypedResults.BadRequest(validationResult.Errors);
                 }
 
-                allocation.IsDeleted = true;
-                allocation.UpdatedOn = DateTime.UtcNow;
-                allocation.UpdatedBy = Guid.Parse(claims.FindFirstValue(ClaimTypes.NameIdentifier));
-                //Student student = await dbContext.Student.FindAsync(allocation.StudentId, cancellationToken);
-                //if (student is not null)
-                //{
-                //    student.isa
+                var userId = Guid.Parse(claims.FindFirstValue(ClaimTypes.NameIdentifier));
+                var allocations = await dbContext.Allocation
+                    .Where(a => request.AllocationIds.Contains(a.Id))
+                    .ToListAsync(cancellationToken);
 
-                //    student.UpdatedOn = DateTime.UtcNow;
-                //    student.UpdatedBy = allocation.UpdatedBy; // reuse updater if applicable
-                //}
+                foreach (var allocation in allocations)
+                {
+                    allocation.IsDeleted = true;
+                    allocation.UpdatedOn = DateTime.UtcNow;
+                    allocation.UpdatedBy = userId;
+                }
+
                 await dbContext.SaveChangesAsync(cancellationToken);
-
-                logger.LogInformation("Successfully deleted allocation with ID: {Id}", id);
+                logger.LogInformation("Successfully deleted {Count} allocations.", allocations.Count);
 
                 return TypedResults.Ok();
             }
         }
 
+        private sealed class Validator : AbstractValidator<Request>
+        {
+            public Validator()
+            {
+                RuleFor(x => x.AllocationIds)
+                    .NotEmpty().WithMessage("At least one ID must be provided.")
+                    .ForEach(idRule => idRule.NotEmpty().WithMessage("Invalid allocation ID."));
+            }
+        }
     }
 }
