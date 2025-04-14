@@ -114,6 +114,7 @@ namespace SmartUni.PublicApi.Features.Student.Commands
 
                 // Validate Gender
                 RuleFor(x => x.Gender).IsEnumName(typeof(Enums.GenderType));
+                RuleFor(x => x.Major).IsEnumName(typeof(Enums.MajorType));
             }
         }
 
