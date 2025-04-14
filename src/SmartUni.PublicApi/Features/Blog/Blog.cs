@@ -15,9 +15,6 @@ namespace SmartUni.PublicApi.Features.Blog
         public string AuthorName { get; set; }
         public byte[]? AuthorAvatar { get; set; }
         public Enums.BlogType Type { get; set; }
-        
-        [Timestamp]
-        public byte[] RowVersion { get; set; }
         public List<BlogReaction> Reactions { get; set; } = [];
         public List<BlogComment> Comments { get; set; } = [];
     }

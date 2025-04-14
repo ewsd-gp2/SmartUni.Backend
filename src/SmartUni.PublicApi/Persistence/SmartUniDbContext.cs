@@ -32,9 +32,6 @@ namespace SmartUni.PublicApi.Persistence
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(SmartUniDbContext).Assembly);
-            modelBuilder.Entity<Blog>()
-                .Property(b => b.RowVersion)
-                .IsRowVersion();
             base.OnModelCreating(modelBuilder);
 
             // ref: https://stackoverflow.com/questions/37493095/entity-framework-core-rc2-table-name-pluralization
