@@ -8,17 +8,19 @@ using SmartUni.PublicApi.Common.Domain;
 namespace SmartUni.PublicApi.Migrations
 {
     /// <inheritdoc />
-    public partial class Initial : Migration
+    public partial class init : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AlterDatabase()
                 .Annotation("Npgsql:Enum:attendance_status", "absent,leave,present")
+                .Annotation("Npgsql:Enum:blog_type", "announcement,knowledge_sharing,news_letter")
                 .Annotation("Npgsql:Enum:gender", "female,male")
                 .Annotation("Npgsql:Enum:major", "computing,information_systems,networking")
                 .Annotation("Npgsql:Enum:meeting_link_type", "google_meet,microsoft_teams,zoom")
-                .Annotation("Npgsql:Enum:meeting_status", "cancelled,completed,new");
+                .Annotation("Npgsql:Enum:meeting_status", "cancelled,completed,new")
+                .Annotation("Npgsql:Enum:role_type", "staff,student,tutor");
 
             migrationBuilder.CreateTable(
                 name: "asp_net_role",
@@ -41,6 +43,7 @@ namespace SmartUni.PublicApi.Migrations
                     id = table.Column<Guid>(type: "uuid", nullable: false),
                     last_login_date = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     is_first_login = table.Column<bool>(type: "boolean", nullable: false),
+                    role = table.Column<Enums.RoleType>(type: "role_type", nullable: false),
                     user_name = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     normalized_user_name = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     email = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
@@ -59,6 +62,29 @@ namespace SmartUni.PublicApi.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("pk_asp_net_user", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "blog",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    title = table.Column<string>(type: "text", nullable: false),
+                    content = table.Column<string>(type: "text", nullable: false),
+                    cover_image = table.Column<byte[]>(type: "bytea", nullable: true),
+                    attachment = table.Column<byte[]>(type: "bytea", nullable: true),
+                    attachment_name = table.Column<string>(type: "text", nullable: true),
+                    author_name = table.Column<string>(type: "text", nullable: false),
+                    author_avatar = table.Column<byte[]>(type: "bytea", nullable: true),
+                    type = table.Column<Enums.BlogType>(type: "blog_type", nullable: false),
+                    created_by = table.Column<Guid>(type: "uuid", nullable: false),
+                    created_on = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    updated_by = table.Column<Guid>(type: "uuid", nullable: true),
+                    updated_on = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_blog", x => x.id);
                 });
 
             migrationBuilder.CreateTable(
@@ -293,6 +319,58 @@ namespace SmartUni.PublicApi.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "blogcomment",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    blog_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    commenter_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    comment = table.Column<string>(type: "text", nullable: false),
+                    commented_on = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_blogcomment", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_blogcomment_baseuser_commenter_id",
+                        column: x => x.commenter_id,
+                        principalTable: "asp_net_user",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "fk_blogcomment_blog_blog_id",
+                        column: x => x.blog_id,
+                        principalTable: "blog",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "blogreaction",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    blog_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    reacter_id = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_blogreaction", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_blogreaction_baseuser_reacter_id",
+                        column: x => x.reacter_id,
+                        principalTable: "asp_net_user",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "fk_blogreaction_blog_blog_id",
+                        column: x => x.blog_id,
+                        principalTable: "blog",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "allocation",
                 columns: table => new
                 {
@@ -376,8 +454,8 @@ namespace SmartUni.PublicApi.Migrations
 
             migrationBuilder.InsertData(
                 table: "asp_net_user",
-                columns: new[] { "id", "access_failed_count", "concurrency_stamp", "email", "email_confirmed", "is_first_login", "last_login_date", "lockout_enabled", "lockout_end", "normalized_email", "normalized_user_name", "password_hash", "phone_number", "phone_number_confirmed", "security_stamp", "two_factor_enabled", "user_name" },
-                values: new object[] { new Guid("8edcd6b3-0489-4766-abed-284e8945f13d"), 0, "eba2f237-2092-401e-9c31-3371ff170cdf", "super@gmail.com", false, false, null, false, null, "SUPER@GMAIL.COM", "super@gmail.com", "AQAAAAIAAYagAAAAEBO76UEQJKnMJnRWMaqsAZS3Qbuua1nQ47HoHOEDwe20rlsfO42Eqt1o58vU539ZhA==", "0948827282", false, null, false, "super@gmail.com" });
+                columns: new[] { "id", "access_failed_count", "concurrency_stamp", "email", "email_confirmed", "is_first_login", "last_login_date", "lockout_enabled", "lockout_end", "normalized_email", "normalized_user_name", "password_hash", "phone_number", "phone_number_confirmed", "role", "security_stamp", "two_factor_enabled", "user_name" },
+                values: new object[] { new Guid("8edcd6b3-0489-4766-abed-284e8945f13d"), 0, "eba2f237-2092-401e-9c31-3371ff170cdf", "super@gmail.com", false, false, null, false, null, "SUPER@GMAIL.COM", "super@gmail.com", "AQAAAAIAAYagAAAAEBO76UEQJKnMJnRWMaqsAZS3Qbuua1nQ47HoHOEDwe20rlsfO42Eqt1o58vU539ZhA==", "0948827282", false, Enums.RoleType.Staff, null, false, "super@gmail.com" });
 
             migrationBuilder.InsertData(
                 table: "staff",
@@ -426,6 +504,27 @@ namespace SmartUni.PublicApi.Migrations
                 name: "ix_asp_net_user_role_role_id",
                 table: "asp_net_user_role",
                 column: "role_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_blogcomment_blog_id",
+                table: "blogcomment",
+                column: "blog_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_blogcomment_commenter_id",
+                table: "blogcomment",
+                column: "commenter_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_blogreaction_blog_id_reacter_id",
+                table: "blogreaction",
+                columns: new[] { "blog_id", "reacter_id" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "ix_blogreaction_reacter_id",
+                table: "blogreaction",
+                column: "reacter_id");
 
             migrationBuilder.CreateIndex(
                 name: "ix_meeting_organizer_id_start_time",
@@ -485,6 +584,12 @@ namespace SmartUni.PublicApi.Migrations
                 name: "asp_net_user_token");
 
             migrationBuilder.DropTable(
+                name: "blogcomment");
+
+            migrationBuilder.DropTable(
+                name: "blogreaction");
+
+            migrationBuilder.DropTable(
                 name: "chatmessage");
 
             migrationBuilder.DropTable(
@@ -501,6 +606,9 @@ namespace SmartUni.PublicApi.Migrations
 
             migrationBuilder.DropTable(
                 name: "asp_net_role");
+
+            migrationBuilder.DropTable(
+                name: "blog");
 
             migrationBuilder.DropTable(
                 name: "meeting");
