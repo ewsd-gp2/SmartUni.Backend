@@ -35,7 +35,7 @@ namespace SmartUni.PublicApi.Features.Report.Queries
                      [FromServices] ILogger<Endpoint> logger,
                      CancellationToken cancellationToken) =>
                         HandleAsync(dateBefore, logger, dbContext, cancellationToken))
-                    //.RequireAuthorization("api")
+                    .RequireAuthorization("api")
                     .Produces<List<Response>>()
                     .Produces<NotFound>()
                     .WithTags(nameof(Report));
