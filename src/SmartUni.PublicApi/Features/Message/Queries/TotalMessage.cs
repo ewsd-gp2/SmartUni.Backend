@@ -31,7 +31,9 @@ public class TotalMessage
             SmartUniDbContext dbContext,
             CancellationToken cancellationToken)
         {
+            var sevenDaysAgo = DateTime.UtcNow.AddDays(-7);
             var messageGroups = await dbContext.ChatMessage
+                 .Where(m => m.Timestamp >= sevenDaysAgo)
                 .GroupBy(m => new { m.SenderId, m.SenderType, m.SenderName })
                 .ToListAsync(cancellationToken);
 
