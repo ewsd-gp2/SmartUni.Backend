@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http.HttpResults;
 using SmartUni.PublicApi.Common.Domain;
+using SmartUni.PublicApi.Features.Tutor;
 using SmartUni.PublicApi.Persistence;
 
 namespace SmartUni.PublicApi.Features.Student.Queries
@@ -12,8 +13,8 @@ namespace SmartUni.PublicApi.Features.Student.Queries
             string Name,
             string Email,
             string PhoneNumber,
-            Enums.GenderType Gender,
-            Enums.MajorType Major,
+            string Gender,
+            string Major,
             Guid? AllocationID,
             bool IsAllocated,
             string UserCode);
@@ -46,8 +47,8 @@ namespace SmartUni.PublicApi.Features.Student.Queries
         s.Name,
         s.Identity.Email,
         s.Identity.PhoneNumber,
-        s.Gender,
-        s.Major,
+        Gender = char.ToUpper(s.Gender.ToString()[0]) + s.Gender.ToString().Substring(1).ToLower(),
+        Major = char.ToUpper(s.Major.ToString()[0]) + s.Major.ToString().Substring(1).ToLower(),
         s.UserCode,
         IsAllocated = s.Allocation != null && s.Allocation.Id != Guid.Empty
     })
@@ -59,7 +60,6 @@ namespace SmartUni.PublicApi.Features.Student.Queries
                     logger.LogWarning("No students found");
                     return TypedResults.NotFound();
                 }
-
                 logger.LogInformation("Successfully retrieved all students. Found {StudentCount} students",
                     student.Count());
                 return TypedResults.Ok(student);
