@@ -46,12 +46,20 @@ namespace SmartUni.PublicApi.Common.Domain
         }
         public enum MostViewPage
         {
-            [Description("Assign Allocation")]AssignAllocation,
+            Allocation,
             [Description("Student DashBoard")]StudentDashboard,
-            [Description("Tutor DashBoard")] TutorDashboard,
+            [Description("Tutor DashBoard")]TutorDashboard,
+            [Description("Student List")]StudentList,
+            [Description("Tutor List")]TutorList,
             Chat,
             Blog,
-            [Description("Landing Page")]LandingPage
+            Meeting,
+            Profile,
+            [Description("Students Without Interaction")]StudentsWithoutAllocation,
+            [Description("Students Without Tutors")]StudentsWithoutTutor,
+            [Description("Total Message")] TotalMessage,
+            [Description("Most Viewed Pages")]MostViewedPages,
+            [Description("Chatting WIth AI")]ChattingWithAI,
         }
         
         public enum SenderType

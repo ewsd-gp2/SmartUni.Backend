@@ -11,11 +11,12 @@ namespace SmartUni.PublicApi.Features.Report.Queries
            string Name,
            string Email,
            string PhoneNumber,
-           Enums.GenderType Gender,
-           Enums.MajorType Major,
+           string Gender,
+           string Major,
            Guid? AllocationID,
            bool IsAllocated,
-           string UserCode);
+           string UserCode,
+           string? Image);
 
 
         public sealed class Endpoint : IEndpoint
@@ -45,11 +46,11 @@ namespace SmartUni.PublicApi.Features.Report.Queries
         s.Name,
         s.Identity.Email,
         s.Identity.PhoneNumber,
-        s.Gender,
-        s.Major,
+        Gender = char.ToUpper(s.Gender.ToString()[0]) + s.Gender.ToString().Substring(1).ToLower(),
+        Major = char.ToUpper(s.Major.ToString()[0]) + s.Major.ToString().Substring(1).ToLower(),
         s.UserCode,
         IsAllocated = s.Allocation != null && s.Allocation.Id != Guid.Empty && s.Allocation.IsDeleted == false,
-
+        s.Image
     })
     .ToListAsync();
 

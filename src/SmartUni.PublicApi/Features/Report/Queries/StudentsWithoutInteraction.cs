@@ -4,7 +4,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using SmartUni.PublicApi.Common.Domain;
+using SmartUni.PublicApi.Features.Tutor;
 using SmartUni.PublicApi.Persistence;
+using System;
 
 namespace SmartUni.PublicApi.Features.Report.Queries
 {
@@ -15,11 +17,12 @@ namespace SmartUni.PublicApi.Features.Report.Queries
             string Name,
             string Email,
             string PhoneNumber,
-            Enums.GenderType Gender,
-            Enums.MajorType Major,
+            string Gender,
+            string Major,
             Guid? AllocationID,
             DateTime? LastLoginDate,
-            string UserCode
+            string UserCode,
+            string? Image
         );
 
         public sealed class Endpoint : IEndpoint
@@ -66,11 +69,12 @@ namespace SmartUni.PublicApi.Features.Report.Queries
                         s.Name,
                         s.Identity.Email,
                         s.Identity.PhoneNumber,
-                        s.Gender,
-                        s.Major,
+                        s.Gender.ToString(),
+                        s.Major.ToString(),
                         s.Allocation != null && !s.Allocation.IsDeleted ? s.Allocation.Id : null,
                         s.Identity.LastLoginDate,
-                        s.UserCode
+                    s.UserCode,
+                        Convert.ToBase64String(s.Image)
                     ))
                     .ToListAsync(cancellationToken);
 
