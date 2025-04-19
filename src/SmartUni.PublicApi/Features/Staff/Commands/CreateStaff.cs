@@ -63,7 +63,8 @@ namespace SmartUni.PublicApi.Features.Staff.Commands
                     Email = request.Email,
                     PhoneNumber = request.PhoneNumber,
                     IsFirstLogin = true,
-                    Staff = staff
+                    Staff = staff,
+                    Role = Enums.RoleType.Staff
                 };
                 IdentityResult result = await userManager.CreateAsync(user, request.Password);
                 if (!result.Succeeded)

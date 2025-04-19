@@ -58,7 +58,7 @@ namespace SmartUni.PublicApi.Features.Meeting.Queries
                     return Results.NotFound("Invalid student id");
                 }
 
-                List<Response> response = await dbContext.MeetingParticipants
+                List<Response> response = await dbContext.MeetingParticipant
                     .Where(x => x.StudentId == studentId)
                     .Include(p => p.Meeting)
                     .ThenInclude(m => m.Organizer)

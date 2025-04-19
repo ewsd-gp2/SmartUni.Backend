@@ -1,6 +1,9 @@
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using SmartUni.PublicApi.Common.Domain;
+using SmartUni.PublicApi.Common.Helpers;
 using SmartUni.PublicApi.Persistence;
+using Convert = System.Convert;
 
 namespace SmartUni.PublicApi.Features.Dashboard.Queries
 {
@@ -10,12 +13,21 @@ namespace SmartUni.PublicApi.Features.Dashboard.Queries
             Guid TutorId,
             string Name,
             string Email,
+            string Avatar,
             string PhoneNumber,
             string Gender,
             string Major,
-            List<AllocationResponse> Students);
+            List<AllocationResponse> Students,
+            List<NotificationResponse> Notifications);
 
-        private sealed record AllocationResponse(Guid AllocationId, Guid StudentId, string Name);
+        private record NotificationResponse(
+            Guid BlogId,
+            string Name,
+            string Avatar,
+            DateTime CreatedOn,
+            Enums.NotificationType NotificationType);
+
+        private sealed record AllocationResponse(Guid AllocationId, Guid StudentId, string Name, string Avatar);
 
         public class Endpoint : IEndpoint
         {
@@ -50,10 +62,46 @@ namespace SmartUni.PublicApi.Features.Dashboard.Queries
 
                 List<AllocationResponse> allocations = dbContext.Allocation.Where(a => a.TutorId == id)
                     .Include(a => a.Student)
-                    .Select(a => new AllocationResponse(a.Id, a.StudentId, a.Student.Name)).ToList();
-                Response response = new(tutor!.Id, tutor.Name, tutor.Identity.Email!,
-                    tutor.Identity.PhoneNumber!, tutor.Gender.ToString(),
-                    tutor.Major.ToString(), allocations);
+                    .Select(a => new AllocationResponse(
+                        a.Id,
+                        a.StudentId,
+                        a.Student.Name,
+                        Convert.ToBase64String(tutor.Image ?? Array.Empty<byte>()))
+                    ).ToList();
+
+                List<NotificationResponse> notifications = [];
+                notifications.AddRange(dbContext.Blog.Where(x => x.CreatedBy == id).Include(b => b.Reactions)
+                    .OrderByDescending(x => x.CreatedOn)
+                    .SelectMany(x => x.Reactions)
+                    .OrderByDescending(x => x.ReactedOn)
+                    .Select(x => new NotificationResponse(x.BlogId,
+                        UserHelper.GetUserNameByUserId(x.ReacterId, dbContext).Result,
+                        Convert.ToBase64String(UserHelper.GetUserAvatarByUserId(x.ReacterId, dbContext).Result ??
+                                               Array.Empty<byte>()),
+                        x.ReactedOn,
+                        Enums.NotificationType.Reaction)));
+                notifications.AddRange(dbContext.Blog.Where(x => x.CreatedBy == id).Include(b => b.Comments)
+                    .OrderByDescending(x => x.CreatedOn)
+                    .SelectMany(x => x.Comments)
+                    .OrderByDescending(x => x.CommentedOn)
+                    .Select(x => new NotificationResponse(x.BlogId,
+                        UserHelper.GetUserNameByUserId(x.CommenterId, dbContext).Result,
+                        Convert.ToBase64String(UserHelper.GetUserAvatarByUserId(x.CommenterId, dbContext).Result ??
+                                               Array.Empty<byte>()),
+                        x.CommentedOn,
+                        Enums.NotificationType.Comment)));
+
+                Response response = new(
+                    tutor!.Id,
+                    tutor.Name,
+                    tutor.Identity.Email!,
+                    Convert.ToBase64String(tutor.Image ?? []),
+                    tutor.Identity.PhoneNumber!,
+                    tutor.Gender.ToString(),
+                    tutor.Major.ToString(),
+                    allocations,
+                    notifications
+                );
                 logger.LogInformation("Successfully fetched details for tutor with ID: {Id} with response: {Response}",
                     id, response);
                 return TypedResults.Ok(response);
