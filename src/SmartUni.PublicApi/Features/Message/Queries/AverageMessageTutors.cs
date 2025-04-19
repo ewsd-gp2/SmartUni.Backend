@@ -11,7 +11,7 @@ public class AverageMessageTutors
 {
     public record Response(
         string SenderId,
-        int MessageCount,
+        double MessageCount,
         string SenderName,
         string? Image
     );
@@ -30,49 +30,50 @@ public class AverageMessageTutors
             SmartUniDbContext dbContext,
             CancellationToken cancellationToken)
         {
-            // Get all tutor messages
+
             var tutorMessages = await dbContext.ChatMessage
-                .Where(m => m.SenderType == Enums.SenderType.Tutor)
-                .ToListAsync(cancellationToken);
+    .Where(m => m.SenderType == Enums.SenderType.Tutor)
+    .GroupBy(m => new { m.SenderId, m.SenderName })
+    .ToListAsync(cancellationToken);
 
-            // Get distinct sender IDs
-            var tutorIds = tutorMessages.Select(m => m.SenderId).Distinct().ToList();
+            var results = new List<Response>();
 
-var tutors = await dbContext.Tutor
-    .Where(u => tutorIds.Contains(u.Id.ToString()))
-    .ToDictionaryAsync(u => u.Id, cancellationToken);
-
-            // Calculate average messages per day
-            var response = tutorMessages
-                .GroupBy(m => new { m.SenderId, m.SenderName })
-                .Select(g =>
-                {
-                    var totalMessages = g.Count();
-                    var firstDate = g.Min(m => m.Timestamp).Date;
-                    var lastDate = g.Max(m => m.Timestamp).Date;
-                    var totalDays = (lastDate - firstDate).TotalDays + 1;
-
-                    var averagePerDay = totalDays > 0
-                        ? totalMessages / totalDays
-                        : totalMessages;
-
-                    tutors.TryGetValue(Guid.Parse(g.Key.SenderId), out var tutor);
-
-                    return new Response(
-                        SenderId: g.Key.SenderId,
-                        MessageCount: (int)Math.Round(averagePerDay),
-                        SenderName: g.Key.SenderName,
-                        Image: Convert.ToBase64String(tutor?.Image)
-                    );
-                })
-                .ToList();
-
-            if (!response.Any())
+            foreach (var group in tutorMessages)
             {
-                return TypedResults.NotFound();
+                // All messages for this tutor
+                var allMessages = group.ToList();
+
+                // Unique dates the tutor sent messages
+                var totalDays = allMessages
+                    .Select(m => m.Timestamp.Date)
+                    .Distinct()
+                    .Count();
+
+                // Calculate average
+                double averageMessageCount = totalDays > 0
+                    ? (double)allMessages.Count / totalDays
+                    : 0;
+
+                var tutor = await dbContext.Tutor
+                    .Where(t => t.Id.ToString() == group.Key.SenderId && !t.IsDeleted)
+                    .Select(t => new { t.Image })
+                    .FirstOrDefaultAsync(cancellationToken);
+
+                string? base64Image = tutor?.Image != null
+                    ? Convert.ToBase64String(tutor.Image)
+                    : null;
+
+                results.Add(new Response(
+                    SenderId: group.Key.SenderId,
+                    MessageCount: Math.Round(averageMessageCount, 2),
+                    SenderName: group.Key.SenderName,
+                    Image: base64Image
+                ));
             }
 
-            return TypedResults.Ok(response);
+
+            return TypedResults.Ok(results);
+
         }
     }
 }
