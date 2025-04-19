@@ -13,7 +13,7 @@ namespace SmartUni.PublicApi.Features.Staff.Queries
             string Name,
             string Email,
             string PhoneNumber,
-            string Gender,
+            Enums.GenderType Gender,
             string UserCode,
             string Image);
 
@@ -46,7 +46,7 @@ namespace SmartUni.PublicApi.Features.Staff.Queries
                     return TypedResults.NotFound();
                 }
 
-                Response response = new(staff.Id, staff.Name, staff.Identity.Email, staff.Identity.PhoneNumber, staff.Gender.ToString(),staff.UserCode, staff.Image is null ? string.Empty : Convert.ToBase64String(staff.Image));
+                Response response = new(staff.Id, staff.Name, staff.Identity.Email, staff.Identity.PhoneNumber, staff.Gender,staff.UserCode, staff.Image is null ? string.Empty : Convert.ToBase64String(staff.Image));
                 logger.LogInformation("Successfully fetched details for staff with ID: {Id}", id);
                 return TypedResults.Ok(response);
             }
