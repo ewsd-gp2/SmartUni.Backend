@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using SmartUni.PublicApi.Common.Domain;
+using SmartUni.PublicApi.Common.Helpers;
 using SmartUni.PublicApi.Persistence;
 
 namespace SmartUni.PublicApi.Features.Dashboard.Queries
@@ -13,10 +15,18 @@ namespace SmartUni.PublicApi.Features.Dashboard.Queries
             string PhoneNumber,
             string Gender,
             string Major,
-            byte[] Profile,
-            AllocationResponse allocation);
+            string Profile,
+            AllocationResponse? allocation,
+            List<NotificationResponse> Notifications);
 
-        private sealed record AllocationResponse(Guid AllocationId, Guid TutorId, string Name);
+        private record NotificationResponse(
+            Guid BlogId,
+            string Name,
+            string Avatar,
+            DateTime CreatedOn,
+            Enums.NotificationType NotificationType);
+
+        private sealed record AllocationResponse(Guid AllocationId, Guid TutorId, string Name, string Profile);
 
         public class Endpoint : IEndpoint
         {
@@ -33,14 +43,14 @@ namespace SmartUni.PublicApi.Features.Dashboard.Queries
             }
 
             private static async Task<IResult> HandleAsync(
-    Guid id,
-    SmartUniDbContext dbContext,
-    ILogger<Endpoint> logger,
-    CancellationToken cancellationToken)
+                Guid id,
+                SmartUniDbContext dbContext,
+                ILogger<Endpoint> logger,
+                CancellationToken cancellationToken)
             {
                 logger.LogInformation("Fetching details for student with ID: {Id}", id);
 
-                var student = await dbContext.Student
+                Student.Student? student = await dbContext.Student
                     .Include(x => x.Identity)
                     .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
 
@@ -68,25 +78,50 @@ namespace SmartUni.PublicApi.Features.Dashboard.Queries
                     allocationResponse = new AllocationResponse(
                         allocation.Id,
                         allocation.TutorId,
-                        tutor?.Name ?? "Unknown"
+                        tutor?.Name ?? "Unknown",
+                        Convert.ToBase64String(student.Image ?? [])
                     );
                 }
 
-                var response = new Response(
+                List<NotificationResponse> notifications = [];
+                notifications.AddRange(dbContext.Blog.Where(x => x.CreatedBy == id).Include(b => b.Reactions)
+                    .OrderByDescending(x => x.CreatedOn)
+                    .SelectMany(x => x.Reactions)
+                    .OrderByDescending(x => x.ReactedOn)
+                    .Select(x =>
+                        new NotificationResponse(
+                            x.BlogId,
+                            UserHelper.GetUserNameByUserId(x.ReacterId, dbContext).Result,
+                            Convert.ToBase64String(UserHelper.GetUserAvatarByUserId(x.ReacterId, dbContext).Result ??
+                                                   Array.Empty<byte>()),
+                            x.ReactedOn,
+                            Enums.NotificationType.Reaction)));
+                notifications.AddRange(dbContext.Blog.Where(x => x.CreatedBy == id).Include(b => b.Comments)
+                    .OrderByDescending(x => x.CreatedOn)
+                    .SelectMany(x => x.Comments)
+                    .OrderByDescending(x => x.CommentedOn)
+                    .Select(x => new NotificationResponse(x.BlogId,
+                        UserHelper.GetUserNameByUserId(x.CommenterId, dbContext).Result,
+                        Convert.ToBase64String(UserHelper.GetUserAvatarByUserId(x.CommenterId, dbContext).Result ??
+                                               Array.Empty<byte>()),
+                        x.CommentedOn,
+                        Enums.NotificationType.Comment)));
+
+                Response response = new(
                     student.Id,
                     student.Name,
                     student.Identity.Email!,
                     student.Identity.PhoneNumber!,
                     student.Gender.ToString(),
                     student.Major.ToString(),
-                    student.Image,
-                    allocationResponse
+                    Convert.ToBase64String(student.Image ?? []),
+                    allocationResponse,
+                    notifications
                 );
 
                 logger.LogInformation("Successfully fetched details for student with ID: {Id}", id);
                 return TypedResults.Ok(response);
             }
-
         }
     }
 }

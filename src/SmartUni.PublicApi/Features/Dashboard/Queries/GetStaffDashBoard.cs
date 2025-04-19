@@ -1,6 +1,4 @@
-﻿
-using global::SmartUni.PublicApi.Persistence;
-using Microsoft.AspNetCore.Http.HttpResults;
+﻿using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using SmartUni.PublicApi.Persistence;
 
@@ -14,7 +12,7 @@ namespace SmartUni.PublicApi.Features.Dashboard.Queries
             string Email,
             string PhoneNumber,
             string Gender,
-            byte[] Profile);
+            string Profile);
 
         public class Endpoint : IEndpoint
         {
@@ -38,7 +36,7 @@ namespace SmartUni.PublicApi.Features.Dashboard.Queries
             {
                 logger.LogInformation("Fetching details for staff with ID: {Id}", id);
 
-                var staff = await dbContext.Staff
+                Staff.Staff? staff = await dbContext.Staff
                     .Include(s => s.Identity)
                     .FirstOrDefaultAsync(s => s.Id == id, cancellationToken);
 
@@ -48,13 +46,13 @@ namespace SmartUni.PublicApi.Features.Dashboard.Queries
                     return TypedResults.NotFound();
                 }
 
-                var response = new Response(
+                Response? response = new(
                     staff.Id,
                     staff.Name,
                     staff.Identity.Email!,
                     staff.Identity.PhoneNumber!,
                     staff.Gender.ToString(),
-                    staff.Image
+                    Convert.ToBase64String(staff.Image ?? [])
                 );
 
                 logger.LogInformation("Successfully fetched details for staff with ID: {Id}", id);
@@ -63,5 +61,3 @@ namespace SmartUni.PublicApi.Features.Dashboard.Queries
         }
     }
 }
-
-

@@ -1,10 +1,9 @@
 using SmartUni.PublicApi.Common.Domain;
-using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SmartUni.PublicApi.Features.Blog
 {
-    public class Blog: BaseEntity
+    public class Blog : BaseEntity
     {
         public Guid Id { get; set; }
         public string Title { get; set; }
@@ -23,21 +22,24 @@ namespace SmartUni.PublicApi.Features.Blog
     {
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public Guid Id { get; set; }
+
         public Guid BlogId { get; set; }
         public Blog Blog { get; set; }
         public Guid CommenterId { get; set; }
         public BaseUser Commenter { get; set; }
         public string Comment { get; set; }
-        public DateTime CommentedOn { get; set; }
+        public DateTime CommentedOn { get; set; } = DateTime.UtcNow;
     }
 
     public class BlogReaction
     {
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public Guid Id { get; set; }
+
         public Guid BlogId { get; set; }
         public Blog Blog { get; set; }
         public Guid ReacterId { get; set; }
         public BaseUser Reacter { get; set; }
+        public DateTime ReactedOn { get; set; } = DateTime.UtcNow;
     }
 }
