@@ -351,7 +351,8 @@ namespace SmartUni.PublicApi.Migrations
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
                     blog_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    reacter_id = table.Column<Guid>(type: "uuid", nullable: false)
+                    reacter_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    reacted_on = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {

@@ -459,6 +459,10 @@ namespace SmartUni.PublicApi.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("blog_id");
 
+                    b.Property<DateTime>("ReactedOn")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("reacted_on");
+
                     b.Property<Guid>("ReacterId")
                         .HasColumnType("uuid")
                         .HasColumnName("reacter_id");

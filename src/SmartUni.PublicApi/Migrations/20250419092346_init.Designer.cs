@@ -13,7 +13,7 @@ using SmartUni.PublicApi.Persistence;
 namespace SmartUni.PublicApi.Migrations
 {
     [DbContext(typeof(SmartUniDbContext))]
-    [Migration("20250414210244_init")]
+    [Migration("20250419092346_init")]
     partial class init
     {
         /// <inheritdoc />
@@ -461,6 +461,10 @@ namespace SmartUni.PublicApi.Migrations
                     b.Property<Guid>("BlogId")
                         .HasColumnType("uuid")
                         .HasColumnName("blog_id");
+
+                    b.Property<DateTime>("ReactedOn")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("reacted_on");
 
                     b.Property<Guid>("ReacterId")
                         .HasColumnType("uuid")
