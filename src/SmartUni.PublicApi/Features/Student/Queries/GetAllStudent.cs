@@ -13,8 +13,8 @@ namespace SmartUni.PublicApi.Features.Student.Queries
             string Name,
             string Email,
             string PhoneNumber,
-            string Gender,
-            string Major,
+            Enums.GenderType Gender,
+            Enums.MajorType Major,
             Guid? AllocationID,
             bool IsAllocated,
             string UserCode);
@@ -47,8 +47,8 @@ namespace SmartUni.PublicApi.Features.Student.Queries
         s.Name,
         s.Identity.Email,
         s.Identity.PhoneNumber,
-        Gender = char.ToUpper(s.Gender.ToString()[0]) + s.Gender.ToString().Substring(1).ToLower(),
-        Major = char.ToUpper(s.Major.ToString()[0]) + s.Major.ToString().Substring(1).ToLower(),
+        s.Gender,
+        s.Major,
         s.UserCode,
         IsAllocated = s.Allocation != null && s.Allocation.Id != Guid.Empty
     })
