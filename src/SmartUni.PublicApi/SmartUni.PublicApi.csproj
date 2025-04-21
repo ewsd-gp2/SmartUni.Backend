@@ -15,7 +15,6 @@
         <Content Remove="Features\Message\Commands\**" />
         <EmbeddedResource Remove="Features\Message\Commands\**" />
         <None Remove="Features\Message\Commands\**" />
-        <Compile Remove="Migrations\SmartUniDbContextModelSnapshot.cs" />
     </ItemGroup>
 
     <ItemGroup>
