@@ -11,7 +11,8 @@ namespace SmartUni.PublicApi.Features.Message.Queries
     string LastMessage,
     DateTime Timestamp,
     string SenderId,
-    List<byte[]> ChatProfileImages
+    List<byte[]> ChatProfileImages,
+    List<string> ChatProfileNames
 );
         public sealed class Endpoint : IEndpoint
         {
@@ -59,26 +60,32 @@ namespace SmartUni.PublicApi.Features.Message.Queries
      .ToListAsync(cancellationToken);
 
                     var profileImages = new List<byte[]>();
+                    var profileNames = new List<string>();
 
                     foreach (var otherUserId in otherUserIds)
                     {
-                        byte[]? image = await dbContext.Student
+                        var paticipateInfo = await dbContext.Student
                             .Where(s => s.Id.ToString() == otherUserId)
-                            .Select(s => s.Image)
+                            .Select(s => new { s.Image, s.Name })
                             .FirstOrDefaultAsync(cancellationToken);
 
-                        if (image == null)
+
+                        if (paticipateInfo == null)
                         {
-                            image = await dbContext.Tutor
+                            paticipateInfo = await dbContext.Tutor
                                 .Where(t => t.Id.ToString() == otherUserId)
-                                .Select(t => t.Image)
+                                .Select(t => new { t.Image, t.Name })
                                 .FirstOrDefaultAsync(cancellationToken);
                         }
-
-                        if (image != null)
+                        if (paticipateInfo.Image != null)
                         {
-                            profileImages.Add(image);
+                            profileImages.Add(paticipateInfo.Image);
                         }
+                        if (paticipateInfo.Name != null)
+                        {
+                            profileNames.Add(paticipateInfo.Name);
+                        }
+
                     }
 
                     responseList.Add(new Response(
@@ -86,7 +93,8 @@ namespace SmartUni.PublicApi.Features.Message.Queries
                         message.Content,
                         message.Timestamp,
                         message.SenderId,
-                        profileImages
+                        profileImages,
+                        profileNames
                     ));
                 }
 
