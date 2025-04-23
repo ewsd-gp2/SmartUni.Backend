@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using SmartUni.PublicApi.Common.Domain;
 using SmartUni.PublicApi.Common.Helpers;
+using SmartUni.PublicApi.Features.Blog;
 using SmartUni.PublicApi.Persistence;
 using Convert = System.Convert;
 
@@ -25,7 +26,7 @@ namespace SmartUni.PublicApi.Features.Dashboard.Queries
             string Name,
             string Avatar,
             DateTime CreatedOn,
-            Enums.NotificationType NotificationType);
+            string NotificationType);
 
         private sealed record AllocationResponse(Guid AllocationId, Guid StudentId, string Name, string Avatar);
 
@@ -60,36 +61,44 @@ namespace SmartUni.PublicApi.Features.Dashboard.Queries
                     return TypedResults.NotFound();
                 }
 
-                List<AllocationResponse> allocations = dbContext.Allocation.Where(a => a.TutorId == id)
+                List<AllocationResponse> allocations = dbContext.Allocation.Where(a => a.TutorId == id && !a.IsDeleted)
                     .Include(a => a.Student)
                     .Select(a => new AllocationResponse(
                         a.Id,
                         a.StudentId,
                         a.Student.Name,
-                        Convert.ToBase64String(tutor.Image ?? Array.Empty<byte>()))
+                        Convert.ToBase64String(a.Student.Image ?? Array.Empty<byte>()))
                     ).ToList();
 
                 List<NotificationResponse> notifications = [];
-                notifications.AddRange(dbContext.Blog.Where(x => x.CreatedBy == id).Include(b => b.Reactions)
+                List<Blog.Blog> blogs = await dbContext.Blog.Where(x => x.CreatedBy == tutor.IdentityId)
+                    .Include(b =>
+                        b.Reactions.Where(x => x.ReacterId != tutor.IdentityId).OrderByDescending(x => x.ReactedOn))
+                    .Include(b =>
+                        b.Comments.Where(x => x.CommenterId != tutor.IdentityId).OrderByDescending(x => x.CommentedOn))
                     .OrderByDescending(x => x.CreatedOn)
-                    .SelectMany(x => x.Reactions)
-                    .OrderByDescending(x => x.ReactedOn)
-                    .Select(x => new NotificationResponse(x.BlogId,
-                        UserHelper.GetUserNameByUserId(x.ReacterId, dbContext).Result,
-                        Convert.ToBase64String(UserHelper.GetUserAvatarByUserId(x.ReacterId, dbContext).Result ??
-                                               Array.Empty<byte>()),
-                        x.ReactedOn,
-                        Enums.NotificationType.Reaction)));
-                notifications.AddRange(dbContext.Blog.Where(x => x.CreatedBy == id).Include(b => b.Comments)
-                    .OrderByDescending(x => x.CreatedOn)
-                    .SelectMany(x => x.Comments)
-                    .OrderByDescending(x => x.CommentedOn)
-                    .Select(x => new NotificationResponse(x.BlogId,
-                        UserHelper.GetUserNameByUserId(x.CommenterId, dbContext).Result,
-                        Convert.ToBase64String(UserHelper.GetUserAvatarByUserId(x.CommenterId, dbContext).Result ??
-                                               Array.Empty<byte>()),
-                        x.CommentedOn,
-                        Enums.NotificationType.Comment)));
+                    .ToListAsync(cancellationToken);
+
+                foreach (BlogReaction reaction in blogs.SelectMany(x => x.Reactions))
+                {
+                    string name = await UserHelper.GetUserNameByUserId(reaction.ReacterId, dbContext);
+                    string avatar =
+                        Convert.ToBase64String(await UserHelper.GetUserAvatarByUserId(reaction.ReacterId, dbContext) ??
+                                               []);
+                    notifications.Add(new NotificationResponse(reaction.Id, name, avatar, reaction.ReactedOn,
+                        nameof(Enums.NotificationType.Reaction)));
+                }
+
+                foreach (BlogComment comments in blogs.SelectMany(x => x.Comments))
+                {
+                    string name = await UserHelper.GetUserNameByUserId(comments.CommenterId, dbContext);
+                    string avatar =
+                        Convert.ToBase64String(
+                            await UserHelper.GetUserAvatarByUserId(comments.CommenterId, dbContext) ??
+                            []);
+                    notifications.Add(new NotificationResponse(comments.Id, name, avatar, comments.CommentedOn,
+                        nameof(Enums.NotificationType.Comment)));
+                }
 
                 Response response = new(
                     tutor!.Id,

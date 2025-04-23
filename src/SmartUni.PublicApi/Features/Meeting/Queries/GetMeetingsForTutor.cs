@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
-using SmartUni.PublicApi.Features.Meeting.Commands;
 using SmartUni.PublicApi.Persistence;
 
 namespace SmartUni.PublicApi.Features.Meeting.Queries
@@ -73,26 +72,27 @@ namespace SmartUni.PublicApi.Features.Meeting.Queries
 
                 List<Response> response = [];
                 response.AddRange(
-                    from meeting in meetings let participants = 
-                        meeting.Participants.Select(x => 
+                    from meeting in meetings
+                    let participants =
+                        meeting.Participants.Select(x =>
                             new ParticipantResponse(
-                                x.Id, 
-                                x.StudentId, 
-                                x.Student.Name, 
-                                x.Student.Identity.Email, 
-                                "", 
-                                x.Attendance.ToString(), x.Note)).ToList() 
+                                x.Id,
+                                x.StudentId,
+                                x.Student.Name,
+                                x.Student.Identity.Email,
+                                Convert.ToBase64String(x.Student.Image ?? []),
+                                x.Attendance.ToString(), x.Note)).ToList()
                     select new Response(
-                        meeting.OrganizerId, 
-                        meeting.StartTime, 
-                        meeting.EndTime, 
-                        participants.ToList(), 
-                        meeting.Status.ToString(), 
-                        meeting.Title, 
-                        meeting.IsOnline, 
-                        meeting?.Location, 
-                        meeting?.LinkType.ToString(), 
-                        meeting?.Url, 
+                        meeting.OrganizerId,
+                        meeting.StartTime,
+                        meeting.EndTime,
+                        participants.ToList(),
+                        meeting.Status.ToString(),
+                        meeting.Title,
+                        meeting.IsOnline,
+                        meeting?.Location,
+                        meeting?.LinkType.ToString(),
+                        meeting?.Url,
                         meeting?.Agenda));
 
 
