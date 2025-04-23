@@ -97,7 +97,8 @@ namespace SmartUni.PublicApi.Migrations
                     sender_type = table.Column<int>(type: "integer", nullable: false),
                     chat_room_id = table.Column<string>(type: "text", nullable: false),
                     content = table.Column<string>(type: "text", nullable: false),
-                    timestamp = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                    timestamp = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    reciever_id = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
