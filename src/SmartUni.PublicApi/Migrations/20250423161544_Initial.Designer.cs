@@ -13,7 +13,7 @@ using SmartUni.PublicApi.Persistence;
 namespace SmartUni.PublicApi.Migrations
 {
     [DbContext(typeof(SmartUniDbContext))]
-    [Migration("20250421193007_Initial")]
+    [Migration("20250423161544_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -609,6 +609,11 @@ namespace SmartUni.PublicApi.Migrations
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("content");
+
+                    b.Property<string>("RecieverId")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("reciever_id");
 
                     b.Property<string>("SenderId")
                         .IsRequired()

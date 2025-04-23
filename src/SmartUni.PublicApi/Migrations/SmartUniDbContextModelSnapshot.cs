@@ -607,6 +607,11 @@ namespace SmartUni.PublicApi.Migrations
                         .HasColumnType("text")
                         .HasColumnName("content");
 
+                    b.Property<string>("RecieverId")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("reciever_id");
+
                     b.Property<string>("SenderId")
                         .IsRequired()
                         .HasColumnType("text")
