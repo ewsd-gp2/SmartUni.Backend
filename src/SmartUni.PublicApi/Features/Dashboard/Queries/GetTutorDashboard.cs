@@ -85,7 +85,7 @@ namespace SmartUni.PublicApi.Features.Dashboard.Queries
                     string avatar =
                         Convert.ToBase64String(await UserHelper.GetUserAvatarByUserId(reaction.ReacterId, dbContext) ??
                                                []);
-                    notifications.Add(new NotificationResponse(reaction.Id, name, avatar, reaction.ReactedOn,
+                    notifications.Add(new NotificationResponse(reaction.BlogId, name, avatar, reaction.ReactedOn,
                         nameof(Enums.NotificationType.Reaction)));
                 }
 
@@ -96,7 +96,7 @@ namespace SmartUni.PublicApi.Features.Dashboard.Queries
                         Convert.ToBase64String(
                             await UserHelper.GetUserAvatarByUserId(comments.CommenterId, dbContext) ??
                             []);
-                    notifications.Add(new NotificationResponse(comments.Id, name, avatar, comments.CommentedOn,
+                    notifications.Add(new NotificationResponse(comments.BlogId, name, avatar, comments.CommentedOn,
                         nameof(Enums.NotificationType.Comment)));
                 }
 
