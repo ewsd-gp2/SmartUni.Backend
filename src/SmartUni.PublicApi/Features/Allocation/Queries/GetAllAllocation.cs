@@ -5,7 +5,7 @@ namespace SmartUni.PublicApi.Features.Allocation.Queries
 {
     public class GetAllAllocation
     {
-        private record Response(Guid Id, Guid TutorID, Guid StudentID);
+        private record Response(Guid Id, Guid TutorID, Guid StudentID,string Image);
 
         public sealed class Endpoint : IEndpoint
         {
@@ -24,9 +24,16 @@ namespace SmartUni.PublicApi.Features.Allocation.Queries
             {
                 logger.LogInformation("Submitted to get all allocations");
 
-                IEnumerable<Response> allocation = await dbContext.Allocation.Where(s => !s.IsDeleted)
-                    .Select(t => new Response(t.Id, t.TutorId, t.StudentId))
-                    .ToListAsync(cancellationToken);
+                IEnumerable<Response> allocation = await dbContext.Allocation
+     .Where(s => !s.IsDeleted)
+     .Include(a => a.Student) 
+     .Select(t => new Response(
+         t.Id,
+         t.TutorId,
+         t.StudentId,
+         Convert.ToBase64String(t.Student.Image)
+     ))
+     .ToListAsync(cancellationToken);
 
                 if (!allocation.Any())
                 {
