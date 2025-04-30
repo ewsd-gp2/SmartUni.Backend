@@ -20,7 +20,7 @@ namespace SmartUni.PublicApi.Migrations
                 .Annotation("Npgsql:Enum:major", "computing,information_systems,networking")
                 .Annotation("Npgsql:Enum:meeting_link_type", "google_meet,microsoft_teams,zoom")
                 .Annotation("Npgsql:Enum:meeting_status", "cancelled,completed,new")
-                .Annotation("Npgsql:Enum:role_type", "staff,student,tutor");
+                .Annotation("Npgsql:Enum:role_type", "authorized_staff,staff,student,tutor");
 
             migrationBuilder.CreateTable(
                 name: "asp_net_role",

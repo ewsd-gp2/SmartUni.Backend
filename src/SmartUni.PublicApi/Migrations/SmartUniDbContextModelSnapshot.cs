@@ -27,7 +27,7 @@ namespace SmartUni.PublicApi.Migrations
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "major", new[] { "computing", "information_systems", "networking" });
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "meeting_link_type", new[] { "google_meet", "microsoft_teams", "zoom" });
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "meeting_status", new[] { "cancelled", "completed", "new" });
-            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "role_type", new[] { "staff", "student", "tutor" });
+            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "role_type", new[] { "authorized_staff", "staff", "student", "tutor" });
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<System.Guid>", b =>

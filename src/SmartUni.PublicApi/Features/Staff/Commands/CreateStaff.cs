@@ -19,6 +19,7 @@ namespace SmartUni.PublicApi.Features.Staff.Commands
             [FromForm(Name = "email")] string Email,
             [FromForm(Name = "phoneNumber")] string PhoneNumber,
             [FromForm(Name = "gender")] string Gender,
+            [FromForm(Name = "role")] string Role,
             [FromForm(Name = "password")] string Password,
             [FromForm(Name = "image")] IFormFile Image);
 
@@ -64,7 +65,7 @@ namespace SmartUni.PublicApi.Features.Staff.Commands
                     PhoneNumber = request.PhoneNumber,
                     IsFirstLogin = true,
                     Staff = staff,
-                    Role = Enums.RoleType.Staff
+                    Role = request.Role=="Staff"?Enums.RoleType.Staff:Enums.RoleType.AuthorizedStaff
                 };
                 IdentityResult result = await userManager.CreateAsync(user, request.Password);
                 if (!result.Succeeded)

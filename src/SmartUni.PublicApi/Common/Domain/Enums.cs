@@ -77,7 +77,8 @@ namespace SmartUni.PublicApi.Common.Domain
         {
             Staff,
             Tutor,
-            Student
+            Student,
+            AuthorizedStaff
         }
 
         public enum SenderType
