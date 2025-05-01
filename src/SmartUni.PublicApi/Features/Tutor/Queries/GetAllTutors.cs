@@ -13,6 +13,7 @@ namespace SmartUni.PublicApi.Features.Tutor.Queries
             string PhoneNumber,
             Enums.GenderType Gender,
             Enums.MajorType Major,
+            string Image,
             string UserCode);
 
         public sealed class Endpoint : IEndpoint
@@ -37,7 +38,7 @@ namespace SmartUni.PublicApi.Features.Tutor.Queries
                     .Where(x => !x.IsDeleted)
                     .Select(t => new Response(t.Id, t.Name, t.Identity.Email!, t.Identity.PhoneNumber!,
                         t.Gender,
-                        t.Major, t.UserCode))
+                        t.Major, t.Image == null ? string.Empty : Convert.ToBase64String(t.Image), t.UserCode))
                     .ToListAsync(cancellationToken);
 
                 if (!tutors.Any())
