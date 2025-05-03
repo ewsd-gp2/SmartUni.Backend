@@ -18,6 +18,7 @@ namespace SmartUni.PublicApi.Features.Message.Queries
         public static void MapEndpoint(IEndpointRouteBuilder endpoints)
         {
             endpoints.MapGet("/message/chatlist/{userId}", HandleAsync)
+                 .RequireAuthorization("api")
                 .Produces<Results<Ok<IEnumerable<Response>>, NotFound>>()
                 .WithTags(nameof(Message));
         }

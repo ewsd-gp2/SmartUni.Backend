@@ -29,6 +29,7 @@ namespace SmartUni.PublicApi.Persistence
         public DbSet<Page> Page { get; set; }
 
         public DbSet<Blog> Blog { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(SmartUniDbContext).Assembly);
@@ -47,36 +48,6 @@ namespace SmartUni.PublicApi.Persistence
             modelBuilder.Entity<IdentityRole<Guid>>().ToTable("asp_net_role");
             modelBuilder.Entity<IdentityUserRole<Guid>>().ToTable("asp_net_user_role");
             modelBuilder.Entity<IdentityRoleClaim<Guid>>().ToTable("asp_net_role_claim");
-            PasswordHasher<BaseUser> hasher = new();
-
-            Guid userId = Guid.Parse("8edcd6b3-0489-4766-abed-284e8945f13d");
-            Guid adminId = Guid.Parse("8fb67550-b862-4a0f-94fd-c212f5e35802");
-
-            modelBuilder.Entity<BaseUser>().HasData(new BaseUser
-            {
-                Id = userId,
-                UserName = "super@gmail.com",
-                NormalizedUserName = "super@gmail.com",
-                Email = "super@gmail.com",
-                NormalizedEmail = "SUPER@GMAIL.COM",
-                PhoneNumber = "0948827282",
-                EmailConfirmed = false,
-                PasswordHash =
-                    "AQAAAAIAAYagAAAAEBO76UEQJKnMJnRWMaqsAZS3Qbuua1nQ47HoHOEDwe20rlsfO42Eqt1o58vU539ZhA==",
-                ConcurrencyStamp = "eba2f237-2092-401e-9c31-3371ff170cdf"
-            });
-            ;
-            modelBuilder.Entity<Staff>().HasData(new Staff
-            {
-                Id = adminId,
-                Name = "super staff",
-                Gender = Enums.GenderType.Male,
-                CreatedBy = adminId,
-                CreatedOn = new DateTime(new DateOnly(2025, 3, 16), new TimeOnly(17, 0, 0, 0), DateTimeKind.Utc),
-                IdentityId = userId
-            });
-           
-
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

@@ -15,6 +15,7 @@ namespace SmartUni.PublicApi.Features.Student.Queries
             string Major,
             string UserCode,
             string? Image,
+            string Role,
             bool IsFirstLoggedIn,
             DateTime? LastLoggedInDate,
             int InactiveDays);
@@ -48,6 +49,7 @@ namespace SmartUni.PublicApi.Features.Student.Queries
                 Response response = new Response(studentId, student.Name, student.Identity.Email, student.Identity.PhoneNumber,
                     student.Gender.ToString(), student.Major.ToString(), student.UserCode,
                     student.Image is null ? null : Convert.ToBase64String(student.Image),
+                    student.Identity.Role.ToString(),
                     student.Identity.IsFirstLogin, student.Identity.LastLoginDate ?? null,
                     student.Identity.LastLoginDate.HasValue
                         ? DateTime.UtcNow.Subtract(student.Identity.LastLoginDate.Value).Days
