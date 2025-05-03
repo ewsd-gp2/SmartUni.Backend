@@ -63,6 +63,7 @@ namespace SmartUni.PublicApi.Features.Dashboard.Queries
 
                 List<AllocationResponse> allocations = dbContext.Allocation.Where(a => a.TutorId == id && !a.IsDeleted)
                     .Include(a => a.Student)
+                    .Where(x => !x.Student.IsDeleted)
                     .Select(a => new AllocationResponse(
                         a.Id,
                         a.StudentId,
