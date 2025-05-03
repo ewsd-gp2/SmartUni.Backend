@@ -1,15 +1,12 @@
-
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
 using Serilog;
 using SmartUni.PublicApi.Common.Domain;
 using SmartUni.PublicApi.Extensions;
 using SmartUni.PublicApi.Features.Email;
-using SmartUni.PublicApi.Features.Email.Interface;
 using SmartUni.PublicApi.Features.Message;
 using SmartUni.PublicApi.Features.Message.Hubs;
 using SmartUni.PublicApi.Host;
@@ -42,10 +39,10 @@ builder.Services.AddIdentity<BaseUser, IdentityRole<Guid>>()
     .AddDefaultTokenProviders();
 
 builder.Services.AddAuthentication(authOptions =>
-{
-    authOptions.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-    authOptions.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-})
+    {
+        authOptions.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+        authOptions.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    })
     .AddJwtBearer(options =>
     {
         options.TokenValidationParameters = new TokenValidationParameters
@@ -94,12 +91,32 @@ builder.Services.AddSingleton<sharedDB>();
 WebApplication app = builder.Build();
 
 app.ApplyMigrations();
+using (IServiceScope scope = app.Services.CreateScope())
+{
+    IServiceProvider services = scope.ServiceProvider;
+    try
+    {
+        SmartUniDbContext context = services.GetRequiredService<SmartUniDbContext>();
+        UserManager<BaseUser> userManager = services.GetRequiredService<UserManager<BaseUser>>();
+        RoleManager<IdentityRole<Guid>>
+            roleManager =
+                services.GetRequiredService<RoleManager<IdentityRole<Guid>>>(); // If you are using RoleManager
+
+        await DbInitializer.InitializeAsync(context, userManager, roleManager); // Call your seeding method
+    }
+    catch (Exception ex)
+    {
+        ILogger<Program> logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "An error occurred while seeding the database.");
+    }
+}
+
 app.UseCors();
 app.UseWebSockets();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapHub<ChatHub>("/ChatHub")
-   .RequireCors();
+    .RequireCors();
 
 app.MapOpenApi();
 app.MapScalarApiReference(options =>
