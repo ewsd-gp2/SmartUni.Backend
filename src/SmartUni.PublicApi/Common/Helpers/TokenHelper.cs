@@ -17,6 +17,7 @@ namespace SmartUni.PublicApi.Common.Helpers
                 Enums.RoleType.Tutor => user.Tutor.Id.ToString(),
                 Enums.RoleType.Staff => user.Staff.Id.ToString(),
                 Enums.RoleType.Student => user.Student.Id.ToString(),
+                Enums.RoleType.AuthorizedStaff=>user.Staff.Id.ToString(),
                 _ => string.Empty
             };
 
