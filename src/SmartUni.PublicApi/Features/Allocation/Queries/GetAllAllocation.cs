@@ -31,7 +31,7 @@ namespace SmartUni.PublicApi.Features.Allocation.Queries
          t.Id,
          t.TutorId,
          t.StudentId,
-         Convert.ToBase64String(t.Student.Image)
+         t.Student.Image != null ? Convert.ToBase64String(t.Student.Image) : ""
      ))
      .ToListAsync(cancellationToken);
 
