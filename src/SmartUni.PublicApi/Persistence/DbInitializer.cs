@@ -5,50 +5,43 @@ using SmartUni.PublicApi.Features.Student;
 using SmartUni.PublicApi.Features.Tutor;
 using SmartUni.PublicApi.Persistence;
 
+// Assuming your DbContext is in this namespace
+
 public static class DbInitializer
 {
-    public static async Task InitializeAsync(SmartUniDbContext context,
-        UserManager<BaseUser> userManager,
+    public static async Task InitializeAsync(SmartUniDbContext context, UserManager<BaseUser> userManager,
         RoleManager<IdentityRole<Guid>> roleManager)
     {
-        // Ensure the database is up to date
+        // Ensure the database is created and migrations are applied
+        // Use Migrate() if you are using migrations
+        // await context.Database.MigrateAsync();
+        // Use EnsureCreated() if you are NOT using migrations (less common in production)
         await context.Database.MigrateAsync();
 
-        // Ensure roles exist
-        string[] roles = Enum.GetNames(typeof(Enums.RoleType));
-        foreach (var role in roles)
-        {
-            if (!await roleManager.RoleExistsAsync(role))
-            {
-                await roleManager.CreateAsync(new IdentityRole<Guid>(role));
-            }
-        }
+        Guid ddUserId = Guid.Parse("8edcd6b3-0489-4766-abed-284e8945f13d");
+        Guid ddId = Guid.Parse("8fb67550-b862-4a0f-94fd-c212f5e35802");
+        Guid hadgridUserId = Guid.Parse("8edcd6b3-0489-4766-abed-284e8945f131");
+        Guid hadgridId = Guid.Parse("8fb67550-b862-4a0f-94fd-c212f5e35803");
+        Guid snapeUserId = Guid.Parse("8edcd6b3-0489-4766-abed-284e8945f132");
+        Guid snapeId = Guid.Parse("8fb67550-b862-4a0f-94fd-c212f5e35804");
+        Guid harryUserId = Guid.Parse("8edcd6b3-0489-4766-abed-284e8945f133");
+        Guid harryId = Guid.Parse("8fb67550-b862-4a0f-94fd-c212f5e35805");
+        Guid malfoyUserId = Guid.Parse("8edcd6b3-0489-4766-abed-284e8945f134");
+        Guid malfoyId = Guid.Parse("8fb67550-b862-4a0f-94fd-c212f5e35806");
 
-        // Seed users
         if (!userManager.Users.Any())
         {
-            Guid ddUserId = Guid.Parse("8edcd6b3-0489-4766-abed-284e8945f13d");
-            Guid ddId = Guid.Parse("8fb67550-b862-4a0f-94fd-c212f5e35802");
-            Guid hadgridUserId = Guid.Parse("8edcd6b3-0489-4766-abed-284e8945f131");
-            Guid hadgridId = Guid.Parse("8fb67550-b862-4a0f-94fd-c212f5e35803");
-            Guid snapeUserId = Guid.Parse("8edcd6b3-0489-4766-abed-284e8945f132");
-            Guid snapeId = Guid.Parse("8fb67550-b862-4a0f-94fd-c212f5e35804");
-            Guid harryUserId = Guid.Parse("8edcd6b3-0489-4766-abed-284e8945f133");
-            Guid harryId = Guid.Parse("8fb67550-b862-4a0f-94fd-c212f5e35805");
-            Guid malfoyUserId = Guid.Parse("8edcd6b3-0489-4766-abed-284e8945f134");
-            Guid malfoyId = Guid.Parse("8fb67550-b862-4a0f-94fd-c212f5e35806");
-
             BaseUser[] users =
             [
                 new()
                 {
                     Id = ddUserId,
                     UserName = "dumbledore@gmail.com",
-                    NormalizedUserName = "DUMBLEDORE@GMAIL.COM",
+                    NormalizedUserName = "dumbledore@gmail.com".ToUpper(),
                     Email = "dumbledore@gmail.com",
-                    NormalizedEmail = "DUMBLEDORE@GMAIL.COM",
+                    NormalizedEmail = "DUMBLEDORE@GMAIL.COM".ToUpper(),
                     PhoneNumber = "0948827282",
-                    EmailConfirmed = true,
+                    EmailConfirmed = false,
                     PasswordHash =
                         "AQAAAAIAAYagAAAAEBO76UEQJKnMJnRWMaqsAZS3Qbuua1nQ47HoHOEDwe20rlsfO42Eqt1o58vU539ZhA==",
                     ConcurrencyStamp = Guid.NewGuid().ToString(),
@@ -59,7 +52,8 @@ public static class DbInitializer
                         Name = "Dumble Dore",
                         Gender = Enums.GenderType.Male,
                         CreatedBy = ddUserId,
-                        CreatedOn = new DateTime(2025, 3, 16, 17, 0, 0, DateTimeKind.Utc),
+                        CreatedOn =
+                            new DateTime(new DateOnly(2025, 3, 16), new TimeOnly(17, 0, 0, 0), DateTimeKind.Utc),
                         IdentityId = ddUserId
                     }
                 },
@@ -67,11 +61,11 @@ public static class DbInitializer
                 {
                     Id = hadgridUserId,
                     UserName = "hadgrid@gmail.com",
-                    NormalizedUserName = "HADGRID@GMAIL.COM",
+                    NormalizedUserName = "hadgrid@gmail.com".ToUpper(),
                     Email = "hadgrid@gmail.com",
-                    NormalizedEmail = "HADGRID@GMAIL.COM",
+                    NormalizedEmail = "HADGRID@GMAIL.COM".ToUpper(),
                     PhoneNumber = "0948827283",
-                    EmailConfirmed = true,
+                    EmailConfirmed = false,
                     PasswordHash =
                         "AQAAAAIAAYagAAAAEBO76UEQJKnMJnRWMaqsAZS3Qbuua1nQ47HoHOEDwe20rlsfO42Eqt1o58vU539ZhA==",
                     ConcurrencyStamp = Guid.NewGuid().ToString(),
@@ -82,7 +76,8 @@ public static class DbInitializer
                         Name = "Rubeus Hagrid",
                         Gender = Enums.GenderType.Male,
                         CreatedBy = ddUserId,
-                        CreatedOn = new DateTime(2025, 3, 16, 18, 0, 0, DateTimeKind.Utc),
+                        CreatedOn = new DateTime(new DateOnly(2025, 3, 16), new TimeOnly(18, 0, 0, 0),
+                            DateTimeKind.Utc),
                         IdentityId = hadgridUserId
                     }
                 },
@@ -90,11 +85,11 @@ public static class DbInitializer
                 {
                     Id = snapeUserId,
                     UserName = "snape@gmail.com",
-                    NormalizedUserName = "SNAPE@GMAIL.COM",
+                    NormalizedUserName = "snape@gmail.com".ToUpper(),
                     Email = "snape@gmail.com",
-                    NormalizedEmail = "SNAPE@GMAIL.COM",
+                    NormalizedEmail = "SNAPE@GMAIL.COM".ToUpper(),
                     PhoneNumber = "0948827284",
-                    EmailConfirmed = true,
+                    EmailConfirmed = false,
                     PasswordHash =
                         "AQAAAAIAAYagAAAAEBO76UEQJKnMJnRWMaqsAZS3Qbuua1nQ47HoHOEDwe20rlsfO42Eqt1o58vU539ZhA==",
                     ConcurrencyStamp = Guid.NewGuid().ToString(),
@@ -106,7 +101,8 @@ public static class DbInitializer
                         Gender = Enums.GenderType.Male,
                         Major = Enums.MajorType.Computing,
                         CreatedBy = hadgridUserId,
-                        CreatedOn = new DateTime(2025, 3, 16, 19, 0, 0, DateTimeKind.Utc),
+                        CreatedOn = new DateTime(new DateOnly(2025, 3, 16), new TimeOnly(19, 0, 0, 0),
+                            DateTimeKind.Utc),
                         IdentityId = snapeUserId
                     }
                 },
@@ -114,11 +110,11 @@ public static class DbInitializer
                 {
                     Id = harryUserId,
                     UserName = "harry@gmail.com",
-                    NormalizedUserName = "HARRY@GMAIL.COM",
+                    NormalizedUserName = "harry@gmail.com".ToUpper(),
                     Email = "harry@gmail.com",
-                    NormalizedEmail = "HARRY@GMAIL.COM",
+                    NormalizedEmail = "HARRY@GMAIL.COM".ToUpper(),
                     PhoneNumber = "0948827285",
-                    EmailConfirmed = true,
+                    EmailConfirmed = false,
                     PasswordHash =
                         "AQAAAAIAAYagAAAAEBO76UEQJKnMJnRWMaqsAZS3Qbuua1nQ47HoHOEDwe20rlsfO42Eqt1o58vU539ZhA==",
                     ConcurrencyStamp = Guid.NewGuid().ToString(),
@@ -130,7 +126,8 @@ public static class DbInitializer
                         Gender = Enums.GenderType.Male,
                         Major = Enums.MajorType.Computing,
                         CreatedBy = hadgridUserId,
-                        CreatedOn = new DateTime(2025, 3, 16, 20, 0, 0, DateTimeKind.Utc),
+                        CreatedOn =
+                            new DateTime(new DateOnly(2025, 3, 16), new TimeOnly(20, 0, 0, 0), DateTimeKind.Utc),
                         IdentityId = harryUserId
                     }
                 },
@@ -138,11 +135,11 @@ public static class DbInitializer
                 {
                     Id = malfoyUserId,
                     UserName = "malfoy@gmail.com",
-                    NormalizedUserName = "MALFOY@GMAIL.COM",
+                    NormalizedUserName = "malfoy@gmail.com".ToUpper(),
                     Email = "malfoy@gmail.com",
-                    NormalizedEmail = "MALFOY@GMAIL.COM",
+                    NormalizedEmail = "MALFOY@GMAIL.COM".ToUpper(),
                     PhoneNumber = "0948827286",
-                    EmailConfirmed = true,
+                    EmailConfirmed = false,
                     PasswordHash =
                         "AQAAAAIAAYagAAAAEBO76UEQJKnMJnRWMaqsAZS3Qbuua1nQ47HoHOEDwe20rlsfO42Eqt1o58vU539ZhA==",
                     ConcurrencyStamp = Guid.NewGuid().ToString(),
@@ -154,19 +151,19 @@ public static class DbInitializer
                         Gender = Enums.GenderType.Male,
                         Major = Enums.MajorType.InformationSystems,
                         CreatedBy = hadgridUserId,
-                        CreatedOn = new DateTime(2025, 3, 16, 21, 0, 0, DateTimeKind.Utc),
+                        CreatedOn = new DateTime(new DateOnly(2025, 3, 16), new TimeOnly(21, 0, 0, 0),
+                            DateTimeKind.Utc),
                         IdentityId = malfoyUserId
                     }
                 }
             ];
 
-            foreach (var user in users)
+            foreach (BaseUser user in users)
             {
                 await userManager.CreateAsync(user);
-                await userManager.AddToRoleAsync(user, user.Role.ToString());
+                await context.SaveChangesAsync();
+                // await userManager.AddToRoleAsync(user, user.Role.ToString());
             }
-
-            await context.SaveChangesAsync();
         }
     }
 }
