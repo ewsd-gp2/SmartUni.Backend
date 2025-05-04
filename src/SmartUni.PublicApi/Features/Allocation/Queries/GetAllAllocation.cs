@@ -26,12 +26,12 @@ namespace SmartUni.PublicApi.Features.Allocation.Queries
 
                 IEnumerable<Response> allocation = await dbContext.Allocation
      .Where(s => !s.IsDeleted)
-     .Include(a => a.Student) 
+     .Include(a => a.Student.Identity) 
      .Select(t => new Response(
          t.Id,
          t.TutorId,
          t.StudentId,
-         Convert.ToBase64String(t.Student.Image)
+          t.Student.Image != null ? Convert.ToBase64String(t.Student.Image) : ""
      ))
      .ToListAsync(cancellationToken);
 
