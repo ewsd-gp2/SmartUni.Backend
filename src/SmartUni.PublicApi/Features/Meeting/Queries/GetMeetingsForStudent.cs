@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
-using SmartUni.PublicApi.Features.Meeting.Commands;
 using SmartUni.PublicApi.Persistence;
 
 namespace SmartUni.PublicApi.Features.Meeting.Queries
@@ -62,19 +61,21 @@ namespace SmartUni.PublicApi.Features.Meeting.Queries
                     .Where(x => x.StudentId == studentId)
                     .Include(p => p.Meeting)
                     .ThenInclude(m => m.Organizer)
+                    .Where(x => x.StudentId == studentId && x.Meeting.StartTime <= request.StartTime &&
+                                x.Meeting.EndTime >= request.EndTime)
                     .Select(x => new Response(
-                        x.Id, 
-                        x.MeetingId, 
-                        x.Meeting.OrganizerId, 
+                        x.Id,
+                        x.MeetingId,
+                        x.Meeting.OrganizerId,
                         x.Meeting.Organizer.Name,
-                        x.Meeting.StartTime, 
-                        x.Meeting.EndTime, 
-                        x.Meeting.Status.ToString(), 
+                        x.Meeting.StartTime,
+                        x.Meeting.EndTime,
+                        x.Meeting.Status.ToString(),
                         x.Meeting.Title,
                         x.Meeting.IsOnline,
-                        x.Meeting.Location, 
-                        x.Meeting.LinkType.ToString(), 
-                        x.Meeting.Url, 
+                        x.Meeting.Location,
+                        x.Meeting.LinkType.ToString(),
+                        x.Meeting.Url,
                         x.Meeting.Agenda,
                         x.Attendance.ToString(), x.Note))
                     .ToListAsync(cancellationToken);
